@@ -1,0 +1,199 @@
+{
+  "@@locale": "ar",
+  "appTitle": "ميديسيندر",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "homeTitle": "أدويتي",
+  "@homeTitle": {
+    "description": "Title for the home page"
+  },
+  "addMedication": "إضافة دواء",
+  "@addMedication": {
+    "description": "Button text to add a new medication"
+  },
+  "editMedication": "تعديل الدواء",
+  "@editMedication": {
+    "description": "Title for editing medication"
+  },
+  "medicineName": "اسم الدواء",
+  "@medicineName": {
+    "description": "Label for medicine name field"
+  },
+  "usage": "الاستخدام",
+  "@usage": {
+    "description": "Label for medicine usage field"
+  },
+  "dosage": "الجرعة",
+  "@dosage": {
+    "description": "Label for dosage field"
+  },
+  "days": "كم يوم تحتاج لتناول الدواء؟",
+  "@days": {
+    "description": "Question about medication duration"
+  },
+  "timing": "الوقت:",
+  "@timing": {
+    "description": "Label for timing section"
+  },
+  "specificTimes": "أوقات محددة",
+  "@specificTimes": {
+    "description": "Option for specific timing"
+  },
+  "beforeAfterMeals": "قبل/بعد الوجبات",
+  "@beforeAfterMeals": {
+    "description": "Option for meal-based timing"
+  },
+  "save": "حفظ",
+  "@save": {
+    "description": "Save button text"
+  },
+  "settings": "الإعدادات",
+  "@settings": {
+    "description": "Settings page title"
+  },
+  "setMealTimes": "حدد أوقات وجباتك:",
+  "@setMealTimes": {
+    "description": "Label for meal times section"
+  },
+  "breakfast": "الإفطار",
+  "@breakfast": {
+    "description": "Breakfast meal label"
+  },
+  "lunch": "الغداء",
+  "@lunch": {
+    "description": "Lunch meal label"
+  },
+  "dinner": "العشاء",
+  "@dinner": {
+    "description": "Dinner meal label"
+  },
+  "language": "اللغة:",
+  "@language": {
+    "description": "Language selection label"
+  },
+  "english": "الإنجليزية",
+  "@english": {
+    "description": "English language option"
+  },
+  "arabic": "العربية",
+  "@arabic": {
+    "description": "Arabic language option"
+  },
+  "welcome": "مرحباً!\n\nلبدء الاستخدام، يرجى تحديد أوقات وجباتك. هذا يساعدنا في تذكيرك بتناول الدواء في الوقت المناسب.",
+  "@welcome": {
+    "description": "Welcome message for initial setup"
+  },
+  "noMedications": "لم يتم إضافة أي أدوية بعد.",
+  "@noMedications": {
+    "description": "Message when no medications exist"
+  },
+  "delete": "حذف",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "edit": "تعديل",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "courseFinished": "انتهت فترة الدواء",
+  "@courseFinished": {
+    "description": "Status when medication course is complete"
+  },
+  "daysLeft": "الأيام المتبقية: {days}",
+  "@daysLeft": {
+    "description": "Days remaining in medication course",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "dosesPerDay": "الجرعات في اليوم: {count}",
+  "@dosesPerDay": {
+    "description": "Number of doses per day",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteMedication": "حذف الدواء",
+  "@deleteMedication": {
+    "description": "Title for delete medication dialog"
+  },
+  "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الدواء؟",
+  "@deleteConfirm": {
+    "description": "Confirmation message for deleting medication"
+  },
+  "cancel": "إلغاء",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "type": "النوع:",
+  "@type": {
+    "description": "Label for medication type"
+  },
+  "usageLabel": "الاستخدام:",
+  "@usageLabel": {
+    "description": "Label for medication usage display"
+  },
+  "dosageLabel": "الجرعة:",
+  "@dosageLabel": {
+    "description": "Label for medication dosage display"
+  },
+  "pill": "حبة",
+  "@pill": {
+    "description": "Pill medication type"
+  },
+  "syrup": "شراب",
+  "@syrup": {
+    "description": "Syrup medication type"
+  },
+  "addTime": "إضافة وقت",
+  "@addTime": {
+    "description": "Button to add a dose time"
+  },
+  "beforeBreakfast": "قبل الإفطار",
+  "@beforeBreakfast": {
+    "description": "Before breakfast meal context"
+  },
+  "afterBreakfast": "بعد الإفطار",
+  "@afterBreakfast": {
+    "description": "After breakfast meal context"
+  },
+  "beforeLunch": "قبل الغداء",
+  "@beforeLunch": {
+    "description": "Before lunch meal context"
+  },
+  "afterLunch": "بعد الغداء",
+  "@afterLunch": {
+    "description": "After lunch meal context"
+  },
+  "beforeDinner": "قبل العشاء",
+  "@beforeDinner": {
+    "description": "Before dinner meal context"
+  },
+  "afterDinner": "بعد العشاء",
+  "@afterDinner": {
+    "description": "After dinner meal context"
+  },
+  "medicineType": "نوع الدواء:",
+  "@medicineType": {
+    "description": "Label for medicine type section"
+  },
+  "mealTimesSaved": "تم حفظ أوقات الوجبات!",
+  "@mealTimesSaved": {
+    "description": "Success message when meal times are saved"
+  },
+  "before": "قبل",
+  "@before": {
+    "description": "Before preposition"
+  },
+  "after": "بعد",
+  "@after": {
+    "description": "After preposition"
+  }
+} 

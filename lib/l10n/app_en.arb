@@ -1,0 +1,199 @@
+{
+  "@@locale": "en",
+  "appTitle": "Medicinder",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "homeTitle": "My Medications",
+  "@homeTitle": {
+    "description": "Title for the home page"
+  },
+  "addMedication": "Add Medication",
+  "@addMedication": {
+    "description": "Button text to add a new medication"
+  },
+  "editMedication": "Edit Medication",
+  "@editMedication": {
+    "description": "Title for editing medication"
+  },
+  "medicineName": "Medicine Name",
+  "@medicineName": {
+    "description": "Label for medicine name field"
+  },
+  "usage": "What it's used for",
+  "@usage": {
+    "description": "Label for medicine usage field"
+  },
+  "dosage": "Dosage",
+  "@dosage": {
+    "description": "Label for dosage field"
+  },
+  "days": "For how many days?",
+  "@days": {
+    "description": "Question about medication duration"
+  },
+  "timing": "Timing:",
+  "@timing": {
+    "description": "Label for timing section"
+  },
+  "specificTimes": "Specific Times",
+  "@specificTimes": {
+    "description": "Option for specific timing"
+  },
+  "beforeAfterMeals": "Before/After Meals",
+  "@beforeAfterMeals": {
+    "description": "Option for meal-based timing"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings page title"
+  },
+  "setMealTimes": "Set your meal times:",
+  "@setMealTimes": {
+    "description": "Label for meal times section"
+  },
+  "breakfast": "Breakfast",
+  "@breakfast": {
+    "description": "Breakfast meal label"
+  },
+  "lunch": "Lunch",
+  "@lunch": {
+    "description": "Lunch meal label"
+  },
+  "dinner": "Dinner",
+  "@dinner": {
+    "description": "Dinner meal label"
+  },
+  "language": "Language:",
+  "@language": {
+    "description": "Language selection label"
+  },
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  "arabic": "Arabic",
+  "@arabic": {
+    "description": "Arabic language option"
+  },
+  "welcome": "Welcome!\n\nTo get started, please set your meal times. This helps us remind you to take your medication at the right moments.",
+  "@welcome": {
+    "description": "Welcome message for initial setup"
+  },
+  "noMedications": "No medications added yet.",
+  "@noMedications": {
+    "description": "Message when no medications exist"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "courseFinished": "Course finished",
+  "@courseFinished": {
+    "description": "Status when medication course is complete"
+  },
+  "daysLeft": "Days left: {days}",
+  "@daysLeft": {
+    "description": "Days remaining in medication course",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "dosesPerDay": "Doses per day: {count}",
+  "@dosesPerDay": {
+    "description": "Number of doses per day",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteMedication": "Delete Medication",
+  "@deleteMedication": {
+    "description": "Title for delete medication dialog"
+  },
+  "deleteConfirm": "Are you sure you want to delete this medication?",
+  "@deleteConfirm": {
+    "description": "Confirmation message for deleting medication"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "type": "Type:",
+  "@type": {
+    "description": "Label for medication type"
+  },
+  "usageLabel": "Usage:",
+  "@usageLabel": {
+    "description": "Label for medication usage display"
+  },
+  "dosageLabel": "Dosage:",
+  "@dosageLabel": {
+    "description": "Label for medication dosage display"
+  },
+  "pill": "Pill",
+  "@pill": {
+    "description": "Pill medication type"
+  },
+  "syrup": "Syrup",
+  "@syrup": {
+    "description": "Syrup medication type"
+  },
+  "addTime": "Add Time",
+  "@addTime": {
+    "description": "Button to add a dose time"
+  },
+  "beforeBreakfast": "Before Breakfast",
+  "@beforeBreakfast": {
+    "description": "Before breakfast meal context"
+  },
+  "afterBreakfast": "After Breakfast",
+  "@afterBreakfast": {
+    "description": "After breakfast meal context"
+  },
+  "beforeLunch": "Before Lunch",
+  "@beforeLunch": {
+    "description": "Before lunch meal context"
+  },
+  "afterLunch": "After Lunch",
+  "@afterLunch": {
+    "description": "After lunch meal context"
+  },
+  "beforeDinner": "Before Dinner",
+  "@beforeDinner": {
+    "description": "Before dinner meal context"
+  },
+  "afterDinner": "After Dinner",
+  "@afterDinner": {
+    "description": "After dinner meal context"
+  },
+  "medicineType": "Medicine Type:",
+  "@medicineType": {
+    "description": "Label for medicine type section"
+  },
+  "mealTimesSaved": "Meal times saved!",
+  "@mealTimesSaved": {
+    "description": "Success message when meal times are saved"
+  },
+  "before": "Before",
+  "@before": {
+    "description": "Before preposition"
+  },
+  "after": "After",
+  "@after": {
+    "description": "After preposition"
+  }
+} 
