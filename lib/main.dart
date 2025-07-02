@@ -168,6 +168,7 @@ class _MainAppState extends State<MainApp> {
               home: const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               ),
+              debugShowCheckedModeBanner: false,
             );
           }
           if (snapshot.data == false) {
@@ -186,6 +187,7 @@ class _MainAppState extends State<MainApp> {
                 isInitialSetup: true,
                 onLocaleChanged: setLocale,
               ),
+              debugShowCheckedModeBanner: false,
             );
           }
           return MaterialApp(
@@ -202,6 +204,7 @@ class _MainAppState extends State<MainApp> {
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)!.appTitle,
             navigatorKey: navigatorKey,
+            debugShowCheckedModeBanner: false,
           );
         },
       ),

@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// Label for medication usage display
   ///
   /// In en, this message translates to:
-  /// **'Usage:'**
+  /// **'To treat:'**
   String get usageLabel;
 
   /// Label for medication dosage display
@@ -377,8 +377,14 @@ abstract class AppLocalizations {
   /// Status message when daily doses are completed but course continues
   ///
   /// In en, this message translates to:
-  /// **'Daily doses completed - Course continues'**
+  /// **'Today\'s doses completed. Course continues.'**
   String get dailyDosesCompleted;
+
+  /// Message shown when today's doses are complete but the course is not yet finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Course continues.'**
+  String get courseContinues;
 }
 
 class _AppLocalizationsDelegate

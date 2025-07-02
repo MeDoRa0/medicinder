@@ -68,10 +68,12 @@ class Medication {
   }
 
   /// Returns true if the full treatment course is completed
-  /// (both daily doses are taken AND treatment period has ended)
+  /// (all doses are taken AND course end date has passed)
   bool get isFullyComplete {
     final endDate = startDate.add(Duration(days: totalDays));
-    return isDailyComplete && DateTime.now().isAfter(endDate);
+    return doses.isNotEmpty &&
+        doses.every((dose) => dose.taken) &&
+        DateTime.now().isAfter(endDate);
   }
 
   /// Returns true if the medication can be deleted

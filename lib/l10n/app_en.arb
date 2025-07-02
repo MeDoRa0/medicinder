@@ -136,7 +136,7 @@
   "@type": {
     "description": "Label for medication type"
   },
-  "usageLabel": "Usage:",
+  "usageLabel": "To treat:",
   "@usageLabel": {
     "description": "Label for medication usage display"
   },
@@ -196,8 +196,12 @@
   "@after": {
     "description": "After preposition"
   },
-  "dailyDosesCompleted": "Daily doses completed - Course continues",
+  "dailyDosesCompleted": "Today's doses completed. Course continues.",
   "@dailyDosesCompleted": {
     "description": "Status message when daily doses are completed but course continues"
+  },
+  "courseContinues": "Course continues.",
+  "@courseContinues": {
+    "description": "Message shown when today's doses are complete but the course is not yet finished."
   }
 } 

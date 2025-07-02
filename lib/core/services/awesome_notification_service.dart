@@ -48,18 +48,20 @@ class AwesomeNotificationService {
           if (doseIndex != null) 'doseIndex': doseIndex.toString(),
           'medicationName': medicationName,
         },
+        locked: true,
+        fullScreenIntent: true,
       ),
       actionButtons: [
         NotificationActionButton(
           key: 'done',
           label: 'Done',
-          autoDismissible: true,
+          autoDismissible: false,
           actionType: ActionType.Default,
         ),
         NotificationActionButton(
           key: 'remind_later',
           label: 'Remind Me Later',
-          autoDismissible: true,
+          autoDismissible: false,
           actionType: ActionType.Default,
         ),
       ],

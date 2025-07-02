@@ -136,7 +136,7 @@
   "@type": {
     "description": "Label for medication type"
   },
-  "usageLabel": "الاستخدام:",
+  "usageLabel": "لعلاج:",
   "@usageLabel": {
     "description": "Label for medication usage display"
   },
@@ -196,7 +196,7 @@
   "@after": {
     "description": "After preposition"
   },
-  "dailyDosesCompleted": "تم إكمال الجرعات اليومية - يستمر العلاج",
+  "dailyDosesCompleted": "تم تناول جرعات اليوم. العلاج مستمر.",
   "@dailyDosesCompleted": {
     "description": "Status message when daily doses are completed but course continues"
   }

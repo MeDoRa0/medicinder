@@ -56,19 +56,7 @@ class MedicationCard extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          medication.name,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        Text(
-                          '${AppLocalizations.of(context)!.type} ${_getTypeLabel(medication.type, context)}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                      children: [],
                     ),
                   ),
                   if (isDailyComplete)
@@ -76,41 +64,116 @@ class MedicationCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                '${AppLocalizations.of(context)!.usageLabel} ${medication.usage}',
-              ),
-              Text(
-                '${AppLocalizations.of(context)!.dosageLabel} ${medication.dosage}',
-              ),
-              Text(
-                AppLocalizations.of(
-                  context,
-                )!.daysLeft(daysLeft > 0 ? daysLeft : 0),
-              ),
-              if (isFullyComplete)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    AppLocalizations.of(context)!.courseFinished,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
+              // Header row: name, type, days left
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          medication.name,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.medication,
+                              size: 18,
+                              color: Colors.teal,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _getTypeLabel(medication.type, context),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              if (isDailyComplete && !isFullyComplete)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    AppLocalizations.of(context)!.dailyDosesCompleted,
-                    style: TextStyle(
-                      color: Colors.green[700],
-                      fontWeight: FontWeight.bold,
-                    ),
+                  // Days left on the right
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.blueGrey,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            daysLeft > 0
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.daysLeft(daysLeft)
+                                : AppLocalizations.of(context)!.courseFinished,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: daysLeft > 0
+                                  ? Colors.blueGrey
+                                  : Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
+                ],
+              ),
               const SizedBox(height: 8),
-              Text(AppLocalizations.of(context)!.dosesPerDay(totalCount)),
+              Row(
+                children: [
+                  Icon(Icons.info_outline, size: 18, color: Colors.orange),
+                  const SizedBox(width: 6),
+                  Text(
+                    AppLocalizations.of(context)!.usageLabel + ' ',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  Expanded(
+                    child: Text(
+                      medication.usage,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.local_hospital, size: 18, color: Colors.purple),
+                  const SizedBox(width: 6),
+                  Text(
+                    AppLocalizations.of(context)!.dosageLabel + ' ',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  Expanded(
+                    child: Text(
+                      medication.dosage,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Improved Doses Per Day UI (without icons)
+              Row(
+                children: [
+                  Icon(Icons.schedule, size: 18, color: Colors.indigo),
+                  const SizedBox(width: 6),
+                  Text(
+                    AppLocalizations.of(context)!.dosesPerDay(totalCount),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -145,6 +208,17 @@ class MedicationCard extends StatelessWidget {
                   );
                 }),
               ),
+              if (isDailyComplete && !isFullyComplete)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    AppLocalizations.of(context)!.dailyDosesCompleted,
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Row(

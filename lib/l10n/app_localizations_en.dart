@@ -108,7 +108,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get type => 'Type:';
 
   @override
-  String get usageLabel => 'Usage:';
+  String get usageLabel => 'To treat:';
 
   @override
   String get dosageLabel => 'Dosage:';
@@ -153,5 +153,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get after => 'After';
 
   @override
-  String get dailyDosesCompleted => 'Daily doses completed - Course continues';
+  String get dailyDosesCompleted =>
+      'Today\'s doses completed. Course continues.';
+
+  @override
+  String get courseContinues => 'Course continues.';
 }
