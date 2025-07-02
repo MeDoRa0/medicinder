@@ -6,15 +6,72 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'l10n/app_localizations.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+
+import 'core/services/awesome_notification_service.dart';
 
 import 'presentation/pages/home_page.dart';
 import 'presentation/cubit/medication_cubit.dart';
 import 'presentation/pages/settings_page.dart';
 
+// Add a global navigatorKey for context access
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
+  print('Starting Medicinder app...');
   WidgetsFlutterBinding.ensureInitialized();
+
+  print('Initializing timezone...');
   tz.initializeTimeZones();
+
+  print('Initializing dependencies...');
   await initDependencies();
+
+  print('Initializing awesome notifications...');
+  await AwesomeNotificationService.initialize();
+
+  // Set up notification action listener
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: (ReceivedAction action) async {
+      final payload = action.payload ?? {};
+      final medicationId = payload['medicationId'];
+      final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
+      final medicationName = payload['medicationName'];
+      if (action.buttonKeyPressed == 'done') {
+        // Open the app and mark dose as taken
+        // Use a global navigator key or service locator to access cubit
+        // Here, we use the service locator to get the cubit and mark as taken
+        if (medicationId != null && doseIndex != null) {
+          // Wait for the app to be ready, then mark as taken
+          Future.delayed(const Duration(milliseconds: 500), () {
+            final context = navigatorKey.currentContext;
+            if (context != null) {
+              context.read<MedicationCubit>().markDoseTaken(
+                medicationId,
+                doseIndex,
+                true,
+              );
+            }
+          });
+        }
+      } else if (action.buttonKeyPressed == 'remind_later') {
+        // Reschedule notification for 15 minutes later
+        if (medicationId != null &&
+            doseIndex != null &&
+            medicationName != null) {
+          await AwesomeNotificationService.scheduleMedicationReminder(
+            id: medicationId.hashCode + doseIndex,
+            medicationName: medicationName,
+            scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
+            medicationId: medicationId,
+            doseIndex: doseIndex,
+          );
+        }
+      }
+    },
+  );
+
+  print('Starting app...');
   runApp(const MainApp());
 }
 
@@ -144,6 +201,7 @@ class _MainAppState extends State<MainApp> {
             home: HomePage(onLocaleChanged: setLocale),
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)!.appTitle,
+            navigatorKey: navigatorKey,
           );
         },
       ),

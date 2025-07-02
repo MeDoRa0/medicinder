@@ -195,5 +195,9 @@
   "after": "بعد",
   "@after": {
     "description": "After preposition"
+  },
+  "dailyDosesCompleted": "تم إكمال الجرعات اليومية - يستمر العلاج",
+  "@dailyDosesCompleted": {
+    "description": "Status message when daily doses are completed but course continues"
   }
 } 

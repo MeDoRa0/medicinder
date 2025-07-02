@@ -10,6 +10,9 @@ import '../../domain/usecases/update_dose_status.dart';
 import '../../domain/usecases/delete_medication.dart';
 import '../../presentation/cubit/medication_cubit.dart';
 
+import '../services/notification_handler.dart';
+
+
 final sl = GetIt.instance;
 
 Future<void> initDependencies() async {
@@ -54,6 +57,11 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetMedications(sl()));
   sl.registerLazySingleton(() => UpdateDoseStatus(sl()));
   sl.registerLazySingleton(() => DeleteMedication(sl()));
+
+  // Services
+  // sl.registerLazySingleton<NotificationService>(() => NotificationService());
+  sl.registerLazySingleton<NotificationHandler>(() => NotificationHandler());
+
 
   // Cubit
   sl.registerFactory(

@@ -86,7 +86,10 @@ class _SettingsPageState extends State<SettingsPage> {
     if (widget.isInitialSetup ||
         (ModalRoute.of(context)?.settings.arguments == 'initialSetup')) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(
+          builder: (_) =>
+              HomePage(onLocaleChanged: widget.onLocaleChanged ?? (locale) {}),
+        ),
         (route) => false,
       );
     }
@@ -162,14 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              Text(
-                AppLocalizations.of(context)!.setMealTimes,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+
               const SizedBox(height: 24),
               MealTimeSelector(
                 breakfastTime: _breakfastTime,
@@ -180,6 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 onLunchTimeChanged: (t) => setState(() => _lunchTime = t),
                 onDinnerTimeChanged: (t) => setState(() => _dinnerTime = t),
               ),
+
               const Spacer(),
               SizedBox(
                 width: double.infinity,

@@ -150,4 +150,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get after => 'بعد';
+
+  @override
+  String get dailyDosesCompleted => 'تم إكمال الجرعات اليومية - يستمر العلاج';
 }

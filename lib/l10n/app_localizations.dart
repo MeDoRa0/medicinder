@@ -373,6 +373,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'After'**
   String get after;
+
+  /// Status message when daily doses are completed but course continues
+  ///
+  /// In en, this message translates to:
+  /// **'Daily doses completed - Course continues'**
+  String get dailyDosesCompleted;
 }
 
 class _AppLocalizationsDelegate

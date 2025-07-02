@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/di/injector.dart';
+
 import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
 import '../widgets/medication_card.dart';
-import '../../l10n/app_localizations.dart';
-
 import 'add_medication_page.dart';
 import 'settings_page.dart';
+import '../../l10n/app_localizations.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
-  final void Function(Locale)? onLocaleChanged;
-  const HomePage({super.key, this.onLocaleChanged});
+  final Function(Locale) onLocaleChanged;
+
+  const HomePage({super.key, required this.onLocaleChanged});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  Timer? _medicationCheckTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _startPeriodicMedicationCheck();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _medicationCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -41,6 +48,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void _cleanupCompletedMedications() {
     final cubit = context.read<MedicationCubit>();
     cubit.cleanupCompletedMedications();
+  }
+
+  void _startPeriodicMedicationCheck() {
+    // Check for due medications every 2 minutes when app is open
+    _medicationCheckTimer = Timer.periodic(const Duration(minutes: 2), (timer) {
+      _checkForDueMedications();
+    });
+  }
+
+  Future<void> _checkForDueMedications() async {
+    try {
+      print('🔍 HomePage: Checking for due medications...');
+    } catch (e) {
+      print('❌ HomePage: Error checking due medications: $e');
+      // Don't crash the app, just log the error
+    }
   }
 
   @override
@@ -75,14 +98,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               );
             }
             final now = DateTime.now();
-            final activeMeds = state.medications
-                .where((m) => m.isActive)
-                .toList();
 
-            // Completed medications are automatically cleaned up in the cubit
+            // Show all medications since users can delete any medication at any time
+            final allMeds = state.medications.toList();
 
             // Sort: incomplete for today at top, complete for today at bottom
-            activeMeds.sort((a, b) {
+            allMeds.sort((a, b) {
               final aTodayDone = a.doses
                   .where(
                     (d) =>
@@ -107,9 +128,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             });
 
             return ListView.builder(
-              itemCount: activeMeds.length,
+              itemCount: allMeds.length,
               itemBuilder: (context, index) {
-                final med = activeMeds[index];
+                final med = allMeds[index];
                 final isTodayComplete = med.doses
                     .where(
                       (d) =>

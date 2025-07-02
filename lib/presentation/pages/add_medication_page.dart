@@ -56,26 +56,37 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
 
   Future<void> _loadMealTimes() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Load meal times with debugging
+    final breakfastTime =
+        _getTimeOfDayFromPrefs(prefs, 'breakfastTime') ??
+        const TimeOfDay(hour: 8, minute: 0);
+    final lunchTime =
+        _getTimeOfDayFromPrefs(prefs, 'lunchTime') ??
+        const TimeOfDay(hour: 13, minute: 0);
+    final dinnerTime =
+        _getTimeOfDayFromPrefs(prefs, 'dinnerTime') ??
+        const TimeOfDay(hour: 19, minute: 0);
+
+    print('AddMedicationPage: Loading meal times from SharedPreferences');
+    print(
+      'AddMedicationPage: Breakfast time: ${breakfastTime.hour}:${breakfastTime.minute}',
+    );
+    print(
+      'AddMedicationPage: Lunch time: ${lunchTime.hour}:${lunchTime.minute}',
+    );
+    print(
+      'AddMedicationPage: Dinner time: ${dinnerTime.hour}:${dinnerTime.minute}',
+    );
+
     setState(() {
       _mealTimes = {
-        MealContext.beforeBreakfast:
-            _getTimeOfDayFromPrefs(prefs, 'breakfastTime') ??
-            const TimeOfDay(hour: 8, minute: 0),
-        MealContext.afterBreakfast:
-            _getTimeOfDayFromPrefs(prefs, 'breakfastTime') ??
-            const TimeOfDay(hour: 8, minute: 0),
-        MealContext.beforeLunch:
-            _getTimeOfDayFromPrefs(prefs, 'lunchTime') ??
-            const TimeOfDay(hour: 13, minute: 0),
-        MealContext.afterLunch:
-            _getTimeOfDayFromPrefs(prefs, 'lunchTime') ??
-            const TimeOfDay(hour: 13, minute: 0),
-        MealContext.beforeDinner:
-            _getTimeOfDayFromPrefs(prefs, 'dinnerTime') ??
-            const TimeOfDay(hour: 19, minute: 0),
-        MealContext.afterDinner:
-            _getTimeOfDayFromPrefs(prefs, 'dinnerTime') ??
-            const TimeOfDay(hour: 19, minute: 0),
+        MealContext.beforeBreakfast: breakfastTime,
+        MealContext.afterBreakfast: breakfastTime,
+        MealContext.beforeLunch: lunchTime,
+        MealContext.afterLunch: lunchTime,
+        MealContext.beforeDinner: dinnerTime,
+        MealContext.afterDinner: dinnerTime,
       };
     });
   }
@@ -131,7 +142,8 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
       }).toList();
     } else {
       doses = _mealContexts.map((c) {
-        final offset = _mealOffsets[c] ?? 0;
+        final offset =
+            _mealOffsets[c] ?? 15; // Default to 15 minutes if not set
         final mealTime = _mealTimes[c] ?? const TimeOfDay(hour: 8, minute: 0);
         final now = DateTime.now();
         final baseTime = DateTime(
@@ -141,15 +153,37 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
           mealTime.hour,
           mealTime.minute,
         );
+
+        print('AddMedicationPage: Calculating dose time for ${c.name}');
+        print(
+          'AddMedicationPage: Meal time: ${mealTime.hour}:${mealTime.minute}',
+        );
+        print('AddMedicationPage: Offset: $offset minutes');
+
         DateTime doseTime;
         if (c.name.startsWith('before')) {
           doseTime = baseTime.subtract(Duration(minutes: offset));
+          print('AddMedicationPage: Before meal - subtracting $offset minutes');
         } else {
           doseTime = baseTime.add(Duration(minutes: offset));
+          print('AddMedicationPage: After meal - adding $offset minutes');
         }
+
+        print(
+          'AddMedicationPage: Final dose time: ${doseTime.hour}:${doseTime.minute}',
+        );
+
         return MedicationDose(time: doseTime, context: c, taken: false);
       }).toList();
     }
+
+    final startDate = widget.medication?.startDate ?? DateTime.now();
+    print('AddMedicationPage: Creating medication with start date: $startDate');
+    print('AddMedicationPage: Current time: ${DateTime.now()}');
+    print(
+      'AddMedicationPage: Medication duration: ${int.tryParse(_daysController.text) ?? 7} days',
+    );
+
     final medication = Medication(
       id: widget.medication?.id ?? uuid.v4(),
       name: _nameController.text.trim(),
@@ -159,7 +193,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
       timingType: _timingType,
       doses: doses,
       totalDays: int.tryParse(_daysController.text) ?? 7,
-      startDate: widget.medication?.startDate ?? DateTime.now(),
+      startDate: startDate,
     );
     Navigator.pop(context, medication);
   }

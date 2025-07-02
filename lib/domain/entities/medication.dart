@@ -54,16 +54,30 @@ class Medication {
     required this.startDate,
   });
 
+  /// Returns true if the medication should be visible and manageable
+  /// (not yet fully completed or treatment period not ended)
   bool get isActive {
-    // Check if all doses have been taken
-    final allDosesTaken = doses.isNotEmpty && doses.every((dose) => dose.taken);
-    if (allDosesTaken) {
-      return false; // Medication is complete when all doses are taken
-    }
-
     // Check if the medication period has ended
     final endDate = startDate.add(Duration(days: totalDays));
     return DateTime.now().isBefore(endDate);
+  }
+
+  /// Returns true if all daily doses have been taken
+  bool get isDailyComplete {
+    return doses.isNotEmpty && doses.every((dose) => dose.taken);
+  }
+
+  /// Returns true if the full treatment course is completed
+  /// (both daily doses are taken AND treatment period has ended)
+  bool get isFullyComplete {
+    final endDate = startDate.add(Duration(days: totalDays));
+    return isDailyComplete && DateTime.now().isAfter(endDate);
+  }
+
+  /// Returns true if the medication can be deleted
+  /// (users can delete any medication at any time)
+  bool get canBeDeleted {
+    return true; // Users can delete any medication at any time
   }
 
   @override

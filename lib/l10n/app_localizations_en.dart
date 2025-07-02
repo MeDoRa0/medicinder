@@ -151,4 +151,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get after => 'After';
+
+  @override
+  String get dailyDosesCompleted => 'Daily doses completed - Course continues';
 }

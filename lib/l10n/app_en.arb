@@ -195,5 +195,9 @@
   "after": "After",
   "@after": {
     "description": "After preposition"
+  },
+  "dailyDosesCompleted": "Daily doses completed - Course continues",
+  "@dailyDosesCompleted": {
+    "description": "Status message when daily doses are completed but course continues"
   }
 } 

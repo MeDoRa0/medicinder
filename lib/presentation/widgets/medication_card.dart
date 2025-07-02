@@ -24,14 +24,26 @@ class MedicationCard extends StatelessWidget {
     final daysLeft =
         medication.totalDays - now.difference(medication.startDate).inDays;
     final isActive = medication.isActive;
+    final isDailyComplete = medication.isDailyComplete;
+    final isFullyComplete = medication.isFullyComplete;
+    final canBeDeleted = medication.canBeDeleted;
     final takenCount = medication.doses.where((d) => d.taken).length;
     final totalCount = medication.doses.length;
-    final isComplete = takenCount == totalCount && totalCount > 0;
+
+    // Determine card color based on completion status
+    Color cardColor;
+    if (isFullyComplete) {
+      cardColor = Colors.grey[200]!; // Fully completed - grey
+    } else if (isDailyComplete) {
+      cardColor = const Color(0xFFE8F5E8); // Daily complete - light green
+    } else {
+      cardColor = const Color(0xFFE6F7F1); // Active - light blue-green
+    }
 
     return Opacity(
-      opacity: isActive ? 1.0 : 0.5,
+      opacity: isActive ? 1.0 : 0.7,
       child: Card(
-        color: isActive ? const Color(0xFFE6F7F1) : Colors.grey[200],
+        color: cardColor,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -59,7 +71,7 @@ class MedicationCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (isComplete)
+                  if (isDailyComplete)
                     const Icon(Icons.check_circle, color: Colors.green),
                 ],
               ),
@@ -75,13 +87,24 @@ class MedicationCard extends StatelessWidget {
                   context,
                 )!.daysLeft(daysLeft > 0 ? daysLeft : 0),
               ),
-              if (!isActive)
+              if (isFullyComplete)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     AppLocalizations.of(context)!.courseFinished,
                     style: TextStyle(
                       color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              if (isDailyComplete && !isFullyComplete)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    AppLocalizations.of(context)!.dailyDosesCompleted,
+                    style: TextStyle(
+                      color: Colors.green[700],
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -95,7 +118,7 @@ class MedicationCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: totalCount == 0 ? 0 : takenCount / totalCount,
                       backgroundColor: Colors.grey[300],
-                      color: isComplete ? Colors.green : Colors.blue,
+                      color: isDailyComplete ? Colors.green : Colors.blue,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -135,9 +158,15 @@ class MedicationCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.grey),
                       tooltip: AppLocalizations.of(context)!.delete,
-                      onPressed: onDelete == null
-                          ? null
-                          : () async {
+                      onPressed: onDelete != null
+                          ? () async {
+                              print(
+                                'MedicationCard: Delete button pressed for medication: ${medication.name}',
+                              );
+                              print(
+                                'MedicationCard: onDelete callback exists: ${onDelete != null}',
+                              );
+
                               final confirmed = await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
@@ -169,9 +198,17 @@ class MedicationCard extends StatelessWidget {
                                 ),
                               );
                               if (confirmed == true) {
+                                print(
+                                  'MedicationCard: User confirmed deletion, calling onDelete callback',
+                                );
                                 onDelete!();
+                              } else {
+                                print(
+                                  'MedicationCard: User cancelled deletion',
+                                );
                               }
-                            },
+                            }
+                          : null,
                     ),
                   ],
                 ),
