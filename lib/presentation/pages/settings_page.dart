@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/meal_time_selector.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/services/awesome_notification_service.dart';
 import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -177,7 +178,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 onDinnerTimeChanged: (t) => setState(() => _dinnerTime = t),
               ),
 
-              const Spacer(),
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

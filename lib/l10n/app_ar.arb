@@ -20,7 +20,7 @@
   "@medicineName": {
     "description": "Label for medicine name field"
   },
-  "usage": "الاستخدام",
+  "usage": "لعلاج",
   "@usage": {
     "description": "Label for medicine usage field"
   },

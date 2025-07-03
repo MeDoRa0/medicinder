@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 enum MedicationTimingType { specificTime, contextBased }
 
 enum MedicationType { pill, syrup }
@@ -57,9 +59,7 @@ class Medication {
   /// Returns true if the medication should be visible and manageable
   /// (not yet fully completed or treatment period not ended)
   bool get isActive {
-    // Check if the medication period has ended
-    final endDate = startDate.add(Duration(days: totalDays));
-    return DateTime.now().isBefore(endDate);
+    return actualDaysLeft > 0 || !isDailyComplete;
   }
 
   /// Returns true if all daily doses have been taken
@@ -70,16 +70,40 @@ class Medication {
   /// Returns true if the full treatment course is completed
   /// (all doses are taken AND course end date has passed)
   bool get isFullyComplete {
-    final endDate = startDate.add(Duration(days: totalDays));
-    return doses.isNotEmpty &&
-        doses.every((dose) => dose.taken) &&
-        DateTime.now().isAfter(endDate);
+    return actualDaysLeft <= 0 &&
+        doses.isNotEmpty &&
+        doses.every((dose) => dose.taken);
   }
 
   /// Returns true if the medication can be deleted
   /// (users can delete any medication at any time)
   bool get canBeDeleted {
     return true; // Users can delete any medication at any time
+  }
+
+  /// Calculates the actual days left based on dose completion
+  /// This considers both elapsed time and completed doses
+  int get actualDaysLeft {
+    final now = DateTime.now();
+    final endDate = startDate.add(Duration(days: totalDays));
+
+    // If the course period has ended, return 0
+    if (now.isAfter(endDate)) {
+      return 0;
+    }
+
+    // Calculate days elapsed since start
+    final daysElapsed = now.difference(startDate).inDays;
+
+    // If all doses are taken, consider this day as completed
+    if (isDailyComplete) {
+      // If all doses are taken, we've completed today's treatment
+      // So the actual days left should be totalDays - (daysElapsed + 1)
+      return totalDays - (daysElapsed + 1);
+    }
+
+    // If not all doses are taken, use the standard calculation
+    return totalDays - daysElapsed;
   }
 
   @override

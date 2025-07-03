@@ -24,7 +24,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get medicineName => 'اسم الدواء';
 
   @override
-  String get usage => 'الاستخدام';
+  String get usage => 'لعلاج';
 
   @override
   String get dosage => 'الجرعة';

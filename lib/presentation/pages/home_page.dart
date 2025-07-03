@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/di/injector.dart';
+import 'dart:developer';
 
 import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
@@ -59,9 +60,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> _checkForDueMedications() async {
     try {
-      print('🔍 HomePage: Checking for due medications...');
+      log('🔍 HomePage: Checking for due medications...');
     } catch (e) {
-      print('❌ HomePage: Error checking due medications: $e');
+      log('❌ HomePage: Error checking due medications: $e');
       // Don't crash the app, just log the error
     }
   }

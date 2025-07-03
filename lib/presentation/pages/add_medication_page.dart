@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/medication.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
+import 'dart:developer';
 
 class AddMedicationPage extends StatefulWidget {
   final Medication? medication;

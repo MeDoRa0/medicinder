@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/medication.dart';
 import '../../l10n/app_localizations.dart';
+import 'dart:developer';
 
 class MedicationCard extends StatelessWidget {
   final Medication medication;
@@ -21,8 +22,7 @@ class MedicationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final daysLeft =
-        medication.totalDays - now.difference(medication.startDate).inDays;
+    final daysLeft = medication.actualDaysLeft;
     final isActive = medication.isActive;
     final isDailyComplete = medication.isDailyComplete;
     final isFullyComplete = medication.isFullyComplete;
@@ -234,10 +234,10 @@ class MedicationCard extends StatelessWidget {
                       tooltip: AppLocalizations.of(context)!.delete,
                       onPressed: onDelete != null
                           ? () async {
-                              print(
+                              log(
                                 'MedicationCard: Delete button pressed for medication: ${medication.name}',
                               );
-                              print(
+                              log(
                                 'MedicationCard: onDelete callback exists: ${onDelete != null}',
                               );
 
@@ -272,14 +272,12 @@ class MedicationCard extends StatelessWidget {
                                 ),
                               );
                               if (confirmed == true) {
-                                print(
+                                log(
                                   'MedicationCard: User confirmed deletion, calling onDelete callback',
                                 );
                                 onDelete!();
                               } else {
-                                print(
-                                  'MedicationCard: User cancelled deletion',
-                                );
+                                log('MedicationCard: User cancelled deletion');
                               }
                             }
                           : null,

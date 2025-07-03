@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'l10n/app_localizations.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'dart:developer';
 
 import 'core/services/awesome_notification_service.dart';
 
@@ -18,17 +19,21 @@ import 'presentation/pages/settings_page.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  print('Starting Medicinder app...');
+  log('Starting Medicinder app...');
   WidgetsFlutterBinding.ensureInitialized();
 
-  print('Initializing timezone...');
+  log('Initializing timezone...');
   tz.initializeTimeZones();
 
-  print('Initializing dependencies...');
+  log('Initializing dependencies...');
   await initDependencies();
 
-  print('Initializing awesome notifications...');
+  log('Initializing awesome notifications...');
   await AwesomeNotificationService.initialize();
+
+  // Request notification permissions
+  log('Requesting notification permissions...');
+  await AwesomeNotificationService.requestPermissionIfNeeded();
 
   // Set up notification action listener
   AwesomeNotifications().setListeners(
@@ -71,7 +76,7 @@ void main() async {
     },
   );
 
-  print('Starting app...');
+  log('Starting app...');
   runApp(const MainApp());
 }
 

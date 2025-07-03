@@ -1,7 +1,7 @@
-
 import '../../domain/usecases/update_dose_status.dart';
 import '../../core/di/injector.dart';
 import 'awesome_notification_service.dart';
+import 'dart:developer';
 
 class NotificationHandler {
   static final NotificationHandler _instance = NotificationHandler._internal();
@@ -34,11 +34,11 @@ class NotificationHandler {
       await AwesomeNotificationService.cancelMedicationReminder(
         medicationId.hashCode + doseIndex,
       );
-      print(
+      log(
         'Dose marked as taken for medication: $medicationId, dose: $doseIndex',
       );
     } catch (e) {
-      print('Error marking dose as taken: $e');
+      log('Error marking dose as taken: $e');
     }
   }
 
@@ -55,11 +55,11 @@ class NotificationHandler {
         medicationName: medicationName,
         scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
       );
-      print(
+      log(
         'Reminder rescheduled for medication: $medicationId, dose: $doseIndex',
       );
     } catch (e) {
-      print('Error rescheduling reminder: $e');
+      log('Error rescheduling reminder: $e');
     }
   }
 }
