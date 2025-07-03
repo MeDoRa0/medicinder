@@ -54,3 +54,4 @@ flutter:
   assets:
     - lib/l10n/
     - assets/icon/
+    - assets/screenshots/
