@@ -39,44 +39,37 @@ A comprehensive Flutter-based medication management app designed to help users t
 ## Screenshots
 
 ### 📱 Main Interface
-
-#### English Version
-![Home Screen - English](assets/screenshots/home-eng.png)
-*Main medication list with dose tracking*
-
-#### Arabic Version
-![Home Screen - Arabic](assets/screenshots/home-ar.png)
-*Main medication list with dose tracking (RTL layout)*
+<p align="center">
+  <img src="assets/screenshots/home-eng.png" alt="Home Screen - English" width="200"/>
+  <img src="assets/screenshots/home-ar.png" alt="Home Screen - Arabic" width="200"/>
+</p>
+<p align="center"><b>Left:</b> English | <b>Right:</b> Arabic (RTL)</p>
 
 ### 💊 Add Medication
-
-#### English Version
-![Add Medication - English](assets/screenshots/add-medication-eng.png)
-*Easy medication addition with flexible timing options*
-
-#### Arabic Version
-![Add Medication - Arabic](assets/screenshots/add-medication-ar.png)
-*Easy medication addition with flexible timing options (RTL layout)*
+<p align="center">
+  <img src="assets/screenshots/add-medication-eng.png" alt="Add Medication - English" width="200"/>
+  <img src="assets/screenshots/add-medication-ar.png" alt="Add Medication - Arabic" width="200"/>
+</p>
+<p align="center"><b>Left:</b> English | <b>Right:</b> Arabic (RTL)</p>
 
 ### ⚙️ Settings & Localization
-
-#### English Version
-![Settings - English](assets/screenshots/settings-eng.png)
-*Bilingual support and meal time configuration*
-
-#### Arabic Version
-![Settings - Arabic](assets/screenshots/settings-ar.png)
-*Bilingual support and meal time configuration (RTL layout)*
+<p align="center">
+  <img src="assets/screenshots/settings-eng.png" alt="Settings - English" width="200"/>
+  <img src="assets/screenshots/settings-ar.png" alt="Settings - Arabic" width="200"/>
+</p>
+<p align="center"><b>Left:</b> English | <b>Right:</b> Arabic (RTL)</p>
 
 ### 🔔 Notification System
-![Notification](assets/screenshots/notification.png)
-*Smart notification system with action buttons for dose tracking*
+<p align="center">
+  <img src="assets/screenshots/notification.png" alt="Notification" width="200"/>
+</p>
+<p align="center">Smart notification system with action buttons for dose tracking</p>
 
 ### 📝 Additional Screenshots
-
-#### Alternative Add Medication View
-![Add Medication Alternative](assets/screenshots/add_medication-eng2.png)
-*Alternative view of medication addition form*
+<p align="center">
+  <img src="assets/screenshots/add_medication-eng2.png" alt="Add Medication Alternative" width="200"/>
+</p>
+<p align="center">Alternative view of medication addition form</p>
 
 > **Note**: The app supports both English and Arabic languages with full RTL (Right-to-Left) layout support for Arabic users.
 
