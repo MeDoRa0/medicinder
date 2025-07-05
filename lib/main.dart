@@ -18,6 +18,40 @@ import 'presentation/pages/settings_page.dart';
 // Add a global navigatorKey for context access
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+Future<void> onActionReceivedMethod(ReceivedAction action) async {
+  final payload = action.payload ?? {};
+  final medicationId = payload['medicationId'];
+  final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
+  final medicationName = payload['medicationName'];
+  if (action.buttonKeyPressed == 'done') {
+    if (medicationId == null || doseIndex == null) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        context.read<MedicationCubit>().markDoseTaken(
+          medicationId,
+          doseIndex,
+          true,
+        );
+      }
+    });
+  } else if (action.buttonKeyPressed == 'remind_later') {
+    if (medicationId != null && doseIndex != null && medicationName != null) {
+      // Cancel any existing notification for this dose before rescheduling
+      await AwesomeNotificationService.cancelMedicationReminder(
+        medicationId.hashCode + doseIndex,
+      );
+      await AwesomeNotificationService.scheduleMedicationReminder(
+        id: medicationId.hashCode + doseIndex,
+        medicationName: medicationName,
+        scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
+        medicationId: medicationId,
+        doseIndex: doseIndex,
+      );
+    }
+  }
+}
+
 void main() async {
   log('Starting Medicinder app...');
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,43 +71,7 @@ void main() async {
 
   // Set up notification action listener
   AwesomeNotifications().setListeners(
-    onActionReceivedMethod: (ReceivedAction action) async {
-      final payload = action.payload ?? {};
-      final medicationId = payload['medicationId'];
-      final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
-      final medicationName = payload['medicationName'];
-      if (action.buttonKeyPressed == 'done') {
-        // Open the app and mark dose as taken
-        // Use a global navigator key or service locator to access cubit
-        // Here, we use the service locator to get the cubit and mark as taken
-        if (medicationId != null && doseIndex != null) {
-          // Wait for the app to be ready, then mark as taken
-          Future.delayed(const Duration(milliseconds: 500), () {
-            final context = navigatorKey.currentContext;
-            if (context != null) {
-              context.read<MedicationCubit>().markDoseTaken(
-                medicationId,
-                doseIndex,
-                true,
-              );
-            }
-          });
-        }
-      } else if (action.buttonKeyPressed == 'remind_later') {
-        // Reschedule notification for 15 minutes later
-        if (medicationId != null &&
-            doseIndex != null &&
-            medicationName != null) {
-          await AwesomeNotificationService.scheduleMedicationReminder(
-            id: medicationId.hashCode + doseIndex,
-            medicationName: medicationName,
-            scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
-            medicationId: medicationId,
-            doseIndex: doseIndex,
-          );
-        }
-      }
-    },
+    onActionReceivedMethod: onActionReceivedMethod,
   );
 
   log('Starting app...');

@@ -40,10 +40,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // App came back to foreground, refresh medications and clean up completed ones
-      _cleanupCompletedMedications();
-      context.read<MedicationCubit>().loadMedications();
+      // App came back to foreground, check for daily reset first, then refresh medications
+      _handleAppResume();
     }
+  }
+
+  void _handleAppResume() async {
+    final cubit = context.read<MedicationCubit>();
+    // Check for daily reset when app is reopened
+    await cubit.checkDailyResetOnAppOpen();
+    // Then refresh medications and clean up completed ones
+    _cleanupCompletedMedications();
+    await cubit.loadMedications();
   }
 
   void _cleanupCompletedMedications() {

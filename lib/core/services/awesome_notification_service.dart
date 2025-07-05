@@ -22,6 +22,11 @@ class AwesomeNotificationService {
         ],
         debug: true,
       );
+
+      // Check notification permissions
+      bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+      log('AwesomeNotificationService: Notifications allowed: $isAllowed');
+
       log('AwesomeNotificationService: Initialized successfully');
     } catch (e) {
       log('AwesomeNotificationService: Error during initialization: $e');
@@ -58,8 +63,15 @@ class AwesomeNotificationService {
       'AwesomeNotificationService: Scheduling notification for $medicationName at $scheduledTime',
     );
     log('AwesomeNotificationService: Notification ID: $id');
+    log('AwesomeNotificationService: Current time: ${DateTime.now()}');
+    log(
+      'AwesomeNotificationService: Time until notification: ${scheduledTime.difference(DateTime.now()).inMinutes} minutes',
+    );
 
     try {
+      // Cancel any existing notification with the same id to prevent duplicates
+      await AwesomeNotifications().cancel(id);
+
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
@@ -91,10 +103,22 @@ class AwesomeNotificationService {
         ],
         schedule: NotificationCalendar.fromDate(
           date: scheduledTime,
-          preciseAlarm: true,
+          preciseAlarm: true, // Use precise alarm for better timing
         ),
       );
       log('AwesomeNotificationService: Notification scheduled successfully');
+
+      // List all scheduled notifications for debugging
+      List<NotificationModel> scheduledNotifications =
+          await AwesomeNotifications().listScheduledNotifications();
+      log(
+        'AwesomeNotificationService: Total scheduled notifications: ${scheduledNotifications.length}',
+      );
+      for (var notification in scheduledNotifications) {
+        log(
+          'AwesomeNotificationService: Scheduled notification - ID: ${notification.content?.id}, Title: ${notification.content?.title}, Schedule: ${notification.schedule}',
+        );
+      }
     } catch (e) {
       log('AwesomeNotificationService: Error scheduling notification: $e');
       rethrow;

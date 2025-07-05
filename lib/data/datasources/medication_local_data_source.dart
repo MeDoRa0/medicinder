@@ -43,27 +43,50 @@ class MedicationLocalDataSource {
     if (model != null) {
       final medication = model.toEntity();
       if (doseIndex < medication.doses.length) {
-        final updatedDoses = List<MedicationDose>.from(medication.doses);
-        updatedDoses[doseIndex] = MedicationDose(
-          time: updatedDoses[doseIndex].time,
-          context: updatedDoses[doseIndex].context,
-          taken: taken,
-        );
+        Medication updatedMedication;
 
-        final updatedMedication = Medication(
-          id: medication.id,
-          name: medication.name,
-          usage: medication.usage,
-          dosage: medication.dosage,
-          type: medication.type,
-          timingType: medication.timingType,
-          doses: updatedDoses,
-          totalDays: medication.totalDays,
-          startDate: medication.startDate,
-        );
+        if (taken) {
+          // Mark dose as taken for today
+          updatedMedication = medication.markDoseTaken(doseIndex);
+        } else {
+          // Mark dose as not taken
+          final updatedDoses = List<MedicationDose>.from(medication.doses);
+          updatedDoses[doseIndex] = MedicationDose(
+            time: updatedDoses[doseIndex].time,
+            context: updatedDoses[doseIndex].context,
+            taken: false,
+            takenDate: null,
+          );
+
+          updatedMedication = Medication(
+            id: medication.id,
+            name: medication.name,
+            usage: medication.usage,
+            dosage: medication.dosage,
+            type: medication.type,
+            timingType: medication.timingType,
+            doses: updatedDoses,
+            totalDays: medication.totalDays,
+            startDate: medication.startDate,
+          );
+        }
 
         await updateMedication(updatedMedication);
       }
+    }
+  }
+
+  /// Reset daily doses for all medications (call this daily)
+  Future<void> resetDailyDoses() async {
+    try {
+      final models = _box.values.toList();
+      for (final model in models) {
+        final medication = model.toEntity();
+        final resetMedication = medication.resetDailyDoses();
+        await updateMedication(resetMedication);
+      }
+    } catch (e) {
+      log('Error resetting daily doses: $e');
     }
   }
 }

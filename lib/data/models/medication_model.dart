@@ -14,19 +14,29 @@ class MedicationDoseModel extends HiveObject {
   @HiveField(2)
   bool taken;
 
-  MedicationDoseModel({this.time, this.contextIndex, this.taken = false});
+  @HiveField(3)
+  DateTime? takenDate; // Date when the dose was taken
+
+  MedicationDoseModel({
+    this.time,
+    this.contextIndex,
+    this.taken = false,
+    this.takenDate,
+  });
 
   factory MedicationDoseModel.fromEntity(MedicationDose dose) =>
       MedicationDoseModel(
         time: dose.time,
         contextIndex: dose.context?.index,
         taken: dose.taken,
+        takenDate: dose.takenDate,
       );
 
   MedicationDose toEntity() => MedicationDose(
     time: time,
     context: contextIndex != null ? MealContext.values[contextIndex!] : null,
     taken: taken,
+    takenDate: takenDate,
   );
 }
 
@@ -59,6 +69,9 @@ class MedicationModel extends HiveObject {
   @HiveField(8)
   DateTime startDate;
 
+  @HiveField(9)
+  bool repeatForever;
+
   MedicationModel({
     required this.id,
     required this.name,
@@ -69,6 +82,7 @@ class MedicationModel extends HiveObject {
     required this.doses,
     required this.totalDays,
     required this.startDate,
+    this.repeatForever = false,
   });
 
   factory MedicationModel.fromEntity(Medication med) => MedicationModel(
@@ -81,6 +95,7 @@ class MedicationModel extends HiveObject {
     doses: med.doses.map(MedicationDoseModel.fromEntity).toList(),
     totalDays: med.totalDays,
     startDate: med.startDate,
+    repeatForever: med.repeatForever,
   );
 
   Medication toEntity() => Medication(
@@ -93,5 +108,6 @@ class MedicationModel extends HiveObject {
     doses: doses.map((d) => d.toEntity()).toList(),
     totalDays: totalDays,
     startDate: startDate,
+    repeatForever: repeatForever,
   );
 }

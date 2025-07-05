@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/medication.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
-import 'dart:developer';
+import 'package:flutter/services.dart';
 
 class AddMedicationPage extends StatefulWidget {
   final Medication? medication;
@@ -25,6 +25,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
   final List<MealContext> _mealContexts = [];
   final Map<MealContext, int> _mealOffsets = {}; // in minutes
   final List<int> _offsetOptions = [15, 30, 60];
+  bool _repeatForever = false;
 
   @override
   void initState() {
@@ -38,16 +39,37 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
       _daysController.text = med.totalDays.toString();
       _medicationType = med.type;
       _timingType = med.timingType;
+      _repeatForever = med.totalDays >= 10000;
       if (_timingType == MedicationTimingType.specificTime) {
         _doseTimes.clear();
-        _doseTimes.addAll(
-          med.doses.map(
-            (d) => TimeOfDay(hour: d.time!.hour, minute: d.time!.minute),
-          ),
+        // Get unique scheduled times instead of all doses
+        final uniqueTimes = <String, TimeOfDay>{};
+        for (final dose in med.doses) {
+          if (dose.time != null) {
+            final timeKey = '${dose.time!.hour}:${dose.time!.minute}';
+            if (!uniqueTimes.containsKey(timeKey)) {
+              uniqueTimes[timeKey] = TimeOfDay(
+                hour: dose.time!.hour,
+                minute: dose.time!.minute,
+              );
+            }
+          }
+        }
+        _doseTimes.addAll(uniqueTimes.values.toList());
+        // Sort by time
+        _doseTimes.sort(
+          (a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute),
         );
       } else {
         _mealContexts.clear();
-        _mealContexts.addAll(med.doses.map((d) => d.context!).toList());
+        // Get unique meal contexts instead of all doses
+        final uniqueContexts = <MealContext>{};
+        for (final dose in med.doses) {
+          if (dose.context != null) {
+            uniqueContexts.add(dose.context!);
+          }
+        }
+        _mealContexts.addAll(uniqueContexts.toList());
         // Optionally, set _mealOffsets if you want to prefill offsets
       }
     }
@@ -68,17 +90,6 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
     final dinnerTime =
         _getTimeOfDayFromPrefs(prefs, 'dinnerTime') ??
         const TimeOfDay(hour: 19, minute: 0);
-
-    print('AddMedicationPage: Loading meal times from SharedPreferences');
-    print(
-      'AddMedicationPage: Breakfast time: ${breakfastTime.hour}:${breakfastTime.minute}',
-    );
-    print(
-      'AddMedicationPage: Lunch time: ${lunchTime.hour}:${lunchTime.minute}',
-    );
-    print(
-      'AddMedicationPage: Dinner time: ${dinnerTime.hour}:${dinnerTime.minute}',
-    );
 
     setState(() {
       _mealTimes = {
@@ -134,56 +145,54 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
   void _save() {
     if (!_formKey.currentState!.validate()) return;
     final uuid = const Uuid();
+    final startDate = widget.medication?.startDate ?? DateTime.now();
+    final totalDays = _repeatForever
+        ? 30
+        : int.tryParse(_daysController.text) ?? 7;
+
     List<MedicationDose> doses = [];
     if (_timingType == MedicationTimingType.specificTime) {
-      doses = _doseTimes.map((t) {
-        final now = DateTime.now();
-        final time = DateTime(now.year, now.month, now.day, t.hour, t.minute);
-        return MedicationDose(time: time, taken: false);
-      }).toList();
-    } else {
-      doses = _mealContexts.map((c) {
-        final offset =
-            _mealOffsets[c] ?? 15; // Default to 15 minutes if not set
-        final mealTime = _mealTimes[c] ?? const TimeOfDay(hour: 8, minute: 0);
-        final now = DateTime.now();
-        final baseTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          mealTime.hour,
-          mealTime.minute,
-        );
-
-        print('AddMedicationPage: Calculating dose time for ${c.name}');
-        print(
-          'AddMedicationPage: Meal time: ${mealTime.hour}:${mealTime.minute}',
-        );
-        print('AddMedicationPage: Offset: $offset minutes');
-
-        DateTime doseTime;
-        if (c.name.startsWith('before')) {
-          doseTime = baseTime.subtract(Duration(minutes: offset));
-          print('AddMedicationPage: Before meal - subtracting $offset minutes');
-        } else {
-          doseTime = baseTime.add(Duration(minutes: offset));
-          print('AddMedicationPage: After meal - adding $offset minutes');
+      // Create doses for each day of the treatment period
+      for (int day = 0; day < totalDays; day++) {
+        final currentDate = startDate.add(Duration(days: day));
+        for (final time in _doseTimes) {
+          final doseTime = DateTime(
+            currentDate.year,
+            currentDate.month,
+            currentDate.day,
+            time.hour,
+            time.minute,
+          );
+          doses.add(MedicationDose(time: doseTime, taken: false));
         }
+      }
+    } else {
+      // Create doses for each day of the treatment period
+      for (int day = 0; day < totalDays; day++) {
+        final currentDate = startDate.add(Duration(days: day));
+        for (final c in _mealContexts) {
+          final offset =
+              _mealOffsets[c] ?? 15; // Default to 15 minutes if not set
+          final mealTime = _mealTimes[c] ?? const TimeOfDay(hour: 8, minute: 0);
+          final baseTime = DateTime(
+            currentDate.year,
+            currentDate.month,
+            currentDate.day,
+            mealTime.hour,
+            mealTime.minute,
+          );
 
-        print(
-          'AddMedicationPage: Final dose time: ${doseTime.hour}:${doseTime.minute}',
-        );
+          DateTime doseTime;
+          if (c.name.startsWith('before')) {
+            doseTime = baseTime.subtract(Duration(minutes: offset));
+          } else {
+            doseTime = baseTime.add(Duration(minutes: offset));
+          }
 
-        return MedicationDose(time: doseTime, context: c, taken: false);
-      }).toList();
+          doses.add(MedicationDose(time: doseTime, context: c, taken: false));
+        }
+      }
     }
-
-    final startDate = widget.medication?.startDate ?? DateTime.now();
-    print('AddMedicationPage: Creating medication with start date: $startDate');
-    print('AddMedicationPage: Current time: ${DateTime.now()}');
-    print(
-      'AddMedicationPage: Medication duration: ${int.tryParse(_daysController.text) ?? 7} days',
-    );
 
     final medication = Medication(
       id: widget.medication?.id ?? uuid.v4(),
@@ -193,8 +202,11 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
       type: _medicationType,
       timingType: _timingType,
       doses: doses,
-      totalDays: int.tryParse(_daysController.text) ?? 7,
+      totalDays: _repeatForever
+          ? 10000
+          : (int.tryParse(_daysController.text) ?? 7),
       startDate: startDate,
+      repeatForever: _repeatForever,
     );
     Navigator.pop(context, medication);
   }
@@ -261,9 +273,29 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
                       ? 'pill'
                       : 'ml',
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                ],
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _repeatForever,
+                    onChanged: (val) {
+                      setState(() {
+                        _repeatForever = val ?? false;
+                        if (_repeatForever) {
+                          _daysController.text = '10000';
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Text('Repeat Forever'),
+                ],
+              ),
               TextFormField(
                 controller: _daysController,
                 decoration: InputDecoration(
@@ -271,12 +303,17 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
                   hintText: 'e.g., 7',
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                ],
                 validator: (v) {
+                  if (_repeatForever) return null;
                   if (v == null || v.isEmpty) return 'Required';
                   final n = int.tryParse(v);
                   if (n == null || n < 1) return 'Enter a valid number of days';
                   return null;
                 },
+                enabled: !_repeatForever,
               ),
               const SizedBox(height: 20),
               Text(

@@ -6,8 +6,11 @@ import '../../domain/usecases/add_medication.dart';
 import '../../domain/usecases/get_medications.dart';
 import '../../domain/usecases/update_dose_status.dart';
 import '../../domain/usecases/delete_medication.dart';
+import '../../domain/usecases/reset_daily_doses.dart';
 import '../../core/services/awesome_notification_service.dart';
 import 'dart:developer';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'medication_state.dart';
 
@@ -16,16 +19,19 @@ class MedicationCubit extends Cubit<MedicationState> {
   final GetMedications _getMedications;
   final UpdateDoseStatus _updateDoseStatus;
   final DeleteMedication _deleteMedication;
+  final ResetDailyDoses _resetDailyDoses;
 
   MedicationCubit({
     required AddMedication addMedication,
     required GetMedications getMedications,
     required UpdateDoseStatus updateDoseStatus,
     required DeleteMedication deleteMedication,
+    required ResetDailyDoses resetDailyDoses,
   }) : _addMedication = addMedication,
        _getMedications = getMedications,
        _updateDoseStatus = updateDoseStatus,
        _deleteMedication = deleteMedication,
+       _resetDailyDoses = resetDailyDoses,
        super(MedicationInitial()) {}
 
   Future<void> loadMedications() async {
@@ -37,12 +43,49 @@ class MedicationCubit extends Cubit<MedicationState> {
       // No automatic cleanup since users can manually delete any medication
       emit(MedicationLoaded(medications));
 
-      // Reschedule notifications for all active medications
-      log('MedicationCubit: Rescheduling notifications for active medications');
-      // await _notificationService.rescheduleAllActiveMedications(medications);
+      // Don't reschedule notifications here - only schedule when adding new medications
+      // or when marking doses as taken to prevent duplicate scheduling
+      log('MedicationCubit: Medications loaded successfully');
     } catch (e) {
       log('MedicationCubit: Error loading medications: $e');
       emit(MedicationError(e.toString()));
+    }
+  }
+
+  /// Check if it's a new day and reset doses if needed
+  /// This should only be called when the app is reopened, not during active use
+  Future<void> checkDailyResetOnAppOpen() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastResetDate = prefs.getString('last_dose_reset_date');
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      if (lastResetDate != null) {
+        final lastReset = DateTime.parse(lastResetDate);
+        final lastResetDay = DateTime(
+          lastReset.year,
+          lastReset.month,
+          lastReset.day,
+        );
+
+        // If it's a new day, reset doses
+        if (!lastResetDay.isAtSameMomentAs(today)) {
+          log(
+            'MedicationCubit: New day detected on app open, resetting daily doses',
+          );
+          await _resetDailyDoses();
+          await prefs.setString(
+            'last_dose_reset_date',
+            today.toIso8601String(),
+          );
+        }
+      } else {
+        // First time running, set today as reset date
+        await prefs.setString('last_dose_reset_date', today.toIso8601String());
+      }
+    } catch (e) {
+      log('MedicationCubit: Error checking daily reset: $e');
     }
   }
 
@@ -56,25 +99,19 @@ class MedicationCubit extends Cubit<MedicationState> {
       await _addMedication(medication);
       log('MedicationCubit: Medication added successfully');
 
-      // Schedule notifications for the new medication
-      log('MedicationCubit: Scheduling notifications for ${medication.name}');
+      // Schedule notification only for the next upcoming dose
+      final now = DateTime.now();
       for (int i = 0; i < medication.doses.length; i++) {
         final dose = medication.doses[i];
-        if (dose.time != null) {
-          final scheduledTime = DateTime(
-            medication.startDate.year,
-            medication.startDate.month,
-            medication.startDate.day,
-            dose.time!.hour,
-            dose.time!.minute,
-          );
+        if (dose.time != null && dose.time!.isAfter(now) && !dose.taken) {
           await AwesomeNotificationService.scheduleMedicationReminder(
             id: medication.id.hashCode + i,
             medicationName: medication.name,
-            scheduledTime: scheduledTime,
+            scheduledTime: dose.time!,
             medicationId: medication.id,
             doseIndex: i,
           );
+          break; // Only schedule the first upcoming dose
         }
       }
       log('MedicationCubit: Notifications scheduled successfully');
@@ -103,17 +140,40 @@ class MedicationCubit extends Cubit<MedicationState> {
         await AwesomeNotificationService.cancelMedicationReminder(
           medicationId.hashCode + doseIndex,
         );
+
+        // Schedule notification for the next upcoming dose
+        final medications = await _getMedications();
+        final med = medications.where((m) => m.id == medicationId).isNotEmpty
+            ? medications.firstWhere((m) => m.id == medicationId)
+            : null;
+        if (med != null) {
+          final now = DateTime.now();
+          for (int i = 0; i < med.doses.length; i++) {
+            final dose = med.doses[i];
+            if (dose.time != null && dose.time!.isAfter(now) && !dose.taken) {
+              await AwesomeNotificationService.scheduleMedicationReminder(
+                id: med.id.hashCode + i,
+                medicationName: med.name,
+                scheduledTime: dose.time!,
+                medicationId: med.id,
+                doseIndex: i,
+              );
+              break;
+            }
+          }
+        }
       }
 
       // Check if the medication is now fully complete
-      final medications = await _getMedications();
-      final med = medications.where((m) => m.id == medicationId).isNotEmpty
-          ? medications.firstWhere((m) => m.id == medicationId)
-          : null;
-      if (med != null && med.isFullyComplete) {
-        log('MedicationCubit: Medication is fully complete, deleting...');
-        await _deleteMedication(medicationId);
-      }
+      // (Do not delete immediately; let daily cleanup handle it)
+      // final medications = await _getMedications();
+      // final med = medications.where((m) => m.id == medicationId).isNotEmpty
+      //     ? medications.firstWhere((m) => m.id == medicationId)
+      //     : null;
+      // if (med != null && med.isFullyComplete) {
+      //   log('MedicationCubit: Medication is fully complete, deleting...');
+      //   await _deleteMedication(medicationId);
+      // }
 
       await loadMedications();
     } catch (e) {
@@ -142,14 +202,26 @@ class MedicationCubit extends Cubit<MedicationState> {
         'MedicationCubit: Medication isFullyComplete: ${medicationToDelete.isFullyComplete}',
       );
 
-      // Cancel all notifications for this medication before deleting
+      // Efficiently cancel only scheduled notifications for this medication
       log(
         'MedicationCubit: Cancelling notifications for medication: $medicationId',
       );
-      for (int i = 0; i < medicationToDelete.doses.length; i++) {
-        await AwesomeNotificationService.cancelMedicationReminder(
-          medicationId.hashCode + i,
+      try {
+        List<NotificationModel> scheduledNotifications =
+            await AwesomeNotifications().listScheduledNotifications();
+        int cancelledCount = 0;
+        for (var notification in scheduledNotifications) {
+          if (notification.content?.payload?['medicationId'] == medicationId) {
+            await AwesomeNotifications().cancel(notification.content!.id!);
+            cancelledCount++;
+          }
+        }
+        log(
+          'MedicationCubit: Cancelled $cancelledCount notifications for medication $medicationId',
         );
+      } catch (e) {
+        log('MedicationCubit: Error cancelling notifications: $e');
+        // Continue with deletion even if notification cancellation fails
       }
 
       // Delete the medication

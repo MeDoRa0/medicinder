@@ -22,7 +22,9 @@ class MedicationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final daysLeft = medication.actualDaysLeft;
+    final daysLeft = medication.repeatForever
+        ? 'Forever'
+        : medication.actualDaysLeft.toString();
     final isActive = medication.isActive;
     final isDailyComplete = medication.isDailyComplete;
     final isFullyComplete = medication.isFullyComplete;
@@ -52,21 +54,6 @@ class MedicationCard extends StatelessWidget {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [],
-                    ),
-                  ),
-                  if (isDailyComplete)
-                    const Icon(Icons.check_circle, color: Colors.green),
-                ],
-              ),
-              const SizedBox(height: 4),
-              // Header row: name, type, days left
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
@@ -108,16 +95,22 @@ class MedicationCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            daysLeft > 0
-                                ? AppLocalizations.of(
-                                    context,
-                                  )!.daysLeft(daysLeft)
-                                : AppLocalizations.of(context)!.courseFinished,
+                            daysLeft != 'Forever'
+                                ? (int.tryParse(daysLeft) ?? 0) > 0
+                                      ? AppLocalizations.of(
+                                          context,
+                                        )!.daysLeft(int.tryParse(daysLeft) ?? 0)
+                                      : AppLocalizations.of(
+                                          context,
+                                        )!.courseFinished
+                                : 'Forever',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: daysLeft > 0
-                                  ? Colors.blueGrey
-                                  : Colors.red,
+                              color: daysLeft != 'Forever'
+                                  ? ((int.tryParse(daysLeft) ?? 0) > 0
+                                        ? Colors.blueGrey
+                                        : Colors.red)
+                                  : Colors.teal,
                             ),
                           ),
                         ],
@@ -169,7 +162,9 @@ class MedicationCard extends StatelessWidget {
                   Icon(Icons.schedule, size: 18, color: Colors.indigo),
                   const SizedBox(width: 6),
                   Text(
-                    AppLocalizations.of(context)!.dosesPerDay(totalCount),
+                    AppLocalizations.of(
+                      context,
+                    )!.dosesPerDay(_getUniqueScheduledTimes().length),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -179,34 +174,43 @@ class MedicationCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: LinearProgressIndicator(
-                      value: totalCount == 0 ? 0 : takenCount / totalCount,
+                      value: _getTodayDosesProgress(),
                       backgroundColor: Colors.grey[300],
                       color: isDailyComplete ? Colors.green : Colors.blue,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('$takenCount/$totalCount'),
+                  Text(
+                    '${_getTodayTakenCount()}/${_getUniqueScheduledTimes().length}',
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
-                children: List.generate(medication.doses.length, (i) {
-                  final dose = medication.doses[i];
+                children: _getUniqueScheduledTimes().asMap().entries.map((
+                  entry,
+                ) {
+                  final index = entry.key;
+                  final dose = entry.value;
+                  final isTimeTaken = _isTimeTaken(dose.time!);
+
                   return FilterChip(
                     label: Text(_doseLabel(dose, context)),
                     labelStyle: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
-                    selected: dose.taken,
-                    onSelected: dose.taken ? (_) {} : (_) => onDoseTaken(i),
-
+                    selected: isTimeTaken,
+                    onSelected: (_) {
+                      // Find and mark all doses for this time as taken
+                      _markAllDosesForTimeTaken(dose.time!);
+                    },
                     selectedColor: Colors.green,
                     checkmarkColor: Colors.white,
                     backgroundColor: const Color(0xFF71C0B2),
                   );
-                }),
+                }).toList(),
               ),
               if (isDailyComplete && !isFullyComplete)
                 Padding(
@@ -217,6 +221,25 @@ class MedicationCard extends StatelessWidget {
                       color: Colors.green[700],
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                ),
+              // Show 'Course Completed' indicator if the medication is fully complete
+              if (isFullyComplete)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.verified, color: Colors.green, size: 28),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Course Completed',
+                        style: TextStyle(
+                          color: Colors.green[800],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               Align(
@@ -344,5 +367,91 @@ class MedicationCard extends StatelessWidget {
       }
     }
     return 'Dose';
+  }
+
+  List<MedicationDose> _getUniqueScheduledTimes() {
+    final uniqueTimes = <String, MedicationDose>{};
+
+    for (final dose in medication.doses) {
+      if (dose.time != null) {
+        // Create a key based on hour:minute to identify unique times
+        final timeKey = '${dose.time!.hour}:${dose.time!.minute}';
+
+        if (!uniqueTimes.containsKey(timeKey)) {
+          // Create a display dose with today's date but the original time
+          final now = DateTime.now();
+          final displayTime = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            dose.time!.hour,
+            dose.time!.minute,
+          );
+
+          uniqueTimes[timeKey] = MedicationDose(
+            time: displayTime,
+            context: dose.context,
+            taken: false,
+          );
+        }
+      }
+    }
+
+    // Sort by time and return the values
+    final sortedTimes = uniqueTimes.values.toList();
+    sortedTimes.sort((a, b) => a.time!.compareTo(b.time!));
+    return sortedTimes;
+  }
+
+  bool _isTimeTaken(DateTime time) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final matchingDoses = medication.doses.where((dose) {
+      if (dose.time == null) return false;
+      final doseTime = dose.time!;
+      return doseTime.hour == time.hour && doseTime.minute == time.minute;
+    }).toList();
+    // Return true if any matching dose was taken today
+    return matchingDoses.any(
+      (dose) =>
+          dose.taken &&
+          dose.takenDate != null &&
+          DateTime(
+            dose.takenDate!.year,
+            dose.takenDate!.month,
+            dose.takenDate!.day,
+          ).isAtSameMomentAs(today),
+    );
+  }
+
+  void _markAllDosesForTimeTaken(DateTime time) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    for (int i = 0; i < medication.doses.length; i++) {
+      final dose = medication.doses[i];
+      if (dose.time != null &&
+          dose.time!.hour == time.hour &&
+          dose.time!.minute == time.minute &&
+          dose.time!.year == today.year &&
+          dose.time!.month == today.month &&
+          dose.time!.day == today.day) {
+        // Mark only today's dose as taken
+        onDoseTaken(i);
+        break; // Only one dose per day per time
+      }
+    }
+  }
+
+  double _getTodayDosesProgress() {
+    final todayTakenCount = _getTodayTakenCount();
+    final totalTodayDoses = _getUniqueScheduledTimes().length;
+    return totalTodayDoses == 0 ? 0 : todayTakenCount / totalTodayDoses;
+  }
+
+  int _getTodayTakenCount() {
+    // Count the number of unique scheduled times where _isTimeTaken(time) is true
+    return _getUniqueScheduledTimes()
+        .where((dose) => _isTimeTaken(dose.time!))
+        .length;
   }
 }

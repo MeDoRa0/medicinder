@@ -20,19 +20,22 @@ class MedicationDoseModelAdapter extends TypeAdapter<MedicationDoseModel> {
       time: fields[0] as DateTime?,
       contextIndex: fields[1] as int?,
       taken: fields[2] as bool,
+      takenDate: fields[3] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MedicationDoseModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.time)
       ..writeByte(1)
       ..write(obj.contextIndex)
       ..writeByte(2)
-      ..write(obj.taken);
+      ..write(obj.taken)
+      ..writeByte(3)
+      ..write(obj.takenDate);
   }
 
   @override
@@ -66,13 +69,14 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
       doses: (fields[6] as List).cast<MedicationDoseModel>(),
       totalDays: fields[7] as int,
       startDate: fields[8] as DateTime,
+      repeatForever: fields[9] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, MedicationModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -90,7 +94,9 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
       ..writeByte(7)
       ..write(obj.totalDays)
       ..writeByte(8)
-      ..write(obj.startDate);
+      ..write(obj.startDate)
+      ..writeByte(9)
+      ..write(obj.repeatForever);
   }
 
   @override
