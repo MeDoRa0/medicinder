@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:medicinder/data/datasources/medication_local_data_source.dart';
-import 'package:medicinder/data/models/medication_model.dart';
 import 'package:medicinder/data/repositories/medication_repository_impl.dart';
 import 'package:medicinder/domain/entities/medication.dart';
 import 'package:medicinder/core/error/failures.dart';

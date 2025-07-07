@@ -92,7 +92,7 @@ class NotificationOptimizer {
       for (int i = 0; i < medication.doses.length; i++) {
         final dose = medication.doses[i];
         if (dose.time != null && dose.time!.isAfter(now) && !dose.taken) {
-          if (nextDoseTime == null || dose.time!.isBefore(nextDoseTime!)) {
+          if (nextDoseTime == null || dose.time!.isBefore(nextDoseTime)) {
             nextDoseTime = dose.time;
             nextDoseIndex = i;
           }
@@ -105,11 +105,11 @@ class NotificationOptimizer {
       // Schedule only the next dose
       if (nextDoseIndex != null && nextDoseTime != null) {
         await _scheduleSingleNotification(
-          id: medication.id.hashCode + nextDoseIndex!,
+          id: medication.id.hashCode + nextDoseIndex,
           medicationName: medication.name,
-          scheduledTime: nextDoseTime!,
+          scheduledTime: nextDoseTime,
           medicationId: medication.id,
-          doseIndex: nextDoseIndex!,
+          doseIndex: nextDoseIndex,
         );
 
         log(

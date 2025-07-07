@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../core/di/injector.dart';
 import 'dart:developer';
 
 import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
-import '../widgets/medication_card.dart';
 import 'add_medication_page.dart';
 import 'settings_page.dart';
 import '../../l10n/app_localizations.dart';
 import 'dart:async';
+import '../widgets/medication_list.dart';
+import '../widgets/medication_fab.dart';
 
 class HomePage extends StatefulWidget {
   final Function(Locale) onLocaleChanged;
@@ -107,104 +107,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               );
             }
             final now = DateTime.now();
-
-            // Show all medications since users can delete any medication at any time
-            final allMeds = state.medications.toList();
-
-            // Sort: incomplete for today at top, complete for today at bottom
-            allMeds.sort((a, b) {
-              final aTodayDone = a.doses
-                  .where(
-                    (d) =>
-                        d.time != null &&
-                        d.time!.year == now.year &&
-                        d.time!.month == now.month &&
-                        d.time!.day == now.day,
-                  )
-                  .every((d) => d.taken);
-              final bTodayDone = b.doses
-                  .where(
-                    (d) =>
-                        d.time != null &&
-                        d.time!.year == now.year &&
-                        d.time!.month == now.month &&
-                        d.time!.day == now.day,
-                  )
-                  .every((d) => d.taken);
-              if (aTodayDone == bTodayDone) return 0;
-              if (aTodayDone) return 1;
-              return -1;
-            });
-
-            return ListView.builder(
-              itemCount: allMeds.length,
-              itemBuilder: (context, index) {
-                final med = allMeds[index];
-                final isTodayComplete = med.doses
-                    .where(
-                      (d) =>
-                          d.time != null &&
-                          d.time!.year == now.year &&
-                          d.time!.month == now.month &&
-                          d.time!.day == now.day,
-                    )
-                    .every((d) => d.taken);
-                return MedicationCard(
-                  medication: med,
-                  highlight: isTodayComplete,
-                  onDoseTaken: (doseIndex) {
-                    context.read<MedicationCubit>().markDoseTaken(
-                      med.id,
-                      doseIndex,
-                      true,
-                    );
-                  },
-                  onDelete: () {
-                    context.read<MedicationCubit>().deleteMedication(med.id);
-                  },
-                  onEdit: () async {
-                    final updatedMedication = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => AddMedicationPage(medication: med),
-                      ),
-                    );
-                    if (updatedMedication != null && context.mounted) {
-                      context.read<MedicationCubit>().addNewMedication(
-                        updatedMedication,
-                      );
-                    }
-                  },
-                );
-              },
-            );
+            return MedicationList(medications: state.medications, now: now);
           } else if (state is MedicationError) {
             return Center(child: Text('Error: ${state.message}'));
           }
           return const SizedBox.shrink();
         },
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const SizedBox(height: 12),
-          FloatingActionButton(
-            heroTag: 'add_medication',
-            onPressed: () async {
-              final medication = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddMedicationPage()),
-              );
-              if (medication != null && context.mounted) {
-                // Add the medication using the cubit
-                context.read<MedicationCubit>().addNewMedication(medication);
-              }
-            },
-            tooltip: AppLocalizations.of(context)!.addMedication,
-            child: const Icon(Icons.add),
-          ),
-        ],
+      floatingActionButton: MedicationFAB(
+        onAddMedication: () async {
+          final medication = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddMedicationPage()),
+          );
+          if (medication != null && context.mounted) {
+            context.read<MedicationCubit>().addNewMedication(medication);
+          }
+        },
       ),
     );
   }

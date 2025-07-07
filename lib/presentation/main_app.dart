@@ -1,86 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'core/di/injector.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
-import 'l10n/app_localizations.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'dart:developer';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import '../l10n/app_localizations.dart';
+import '../core/di/injector.dart';
+import 'cubit/medication_cubit.dart';
+import 'pages/home_page.dart';
+import 'pages/settings_page.dart';
+import '../main.dart';
 
-import 'core/services/awesome_notification_service.dart';
-
-import 'presentation/pages/home_page.dart';
-import 'presentation/cubit/medication_cubit.dart';
-import 'presentation/pages/settings_page.dart';
-
-/// Global navigator key for accessing context outside the widget tree.
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-Future<void> onActionReceivedMethod(ReceivedAction action) async {
-  final payload = action.payload ?? {};
-  final medicationId = payload['medicationId'];
-  final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
-  final medicationName = payload['medicationName'];
-  if (action.buttonKeyPressed == 'done') {
-    if (medicationId == null || doseIndex == null) return;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      final context = navigatorKey.currentContext;
-      if (context != null) {
-        context.read<MedicationCubit>().markDoseTaken(
-          medicationId,
-          doseIndex,
-          true,
-        );
-      }
-    });
-  } else if (action.buttonKeyPressed == 'remind_later') {
-    if (medicationId != null && doseIndex != null && medicationName != null) {
-      // Cancel any existing notification for this dose before rescheduling
-      await AwesomeNotificationService.cancelMedicationReminder(
-        medicationId.hashCode + doseIndex,
-      );
-      await AwesomeNotificationService.scheduleMedicationReminder(
-        id: medicationId.hashCode + doseIndex,
-        medicationName: medicationName,
-        scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
-        medicationId: medicationId,
-        doseIndex: doseIndex,
-      );
-    }
-  }
-}
-
-/// The app's entry point. Initializes dependencies and runs the app.
-void main() async {
-  log('Starting Medicinder app...');
-  WidgetsFlutterBinding.ensureInitialized();
-
-  log('Initializing timezone...');
-  tz.initializeTimeZones();
-
-  log('Initializing dependencies...');
-  await initDependencies();
-
-  log('Initializing awesome notifications...');
-  await AwesomeNotificationService.initialize();
-
-  // Defer non-critical initialization until after first frame
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    log('Requesting notification permissions...');
-    await AwesomeNotificationService.requestPermissionIfNeeded();
-
-    // Set up notification action listener
-    AwesomeNotifications().setListeners(
-      onActionReceivedMethod: onActionReceivedMethod,
-    );
-  });
-
-  log('Starting app...');
-  runApp(const MainApp());
-}
-
+/// The root widget for the Medicinder app.
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
@@ -152,7 +82,7 @@ class _MainAppState extends State<MainApp> {
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: customColor.withValues(alpha: 0.1),
+              fillColor: customColor.withOpacity(0.1),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,

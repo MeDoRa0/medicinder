@@ -13,33 +13,31 @@ abstract class Failure extends Equatable {
 
 /// Failure types for different error scenarios
 class ServerFailure extends Failure {
-  const ServerFailure(String message, [String? code]) : super(message, code);
+  const ServerFailure(super.message, [super.code]);
 }
 
 class CacheFailure extends Failure {
-  const CacheFailure(String message, [String? code]) : super(message, code);
+  const CacheFailure(super.message, [super.code]);
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure(String message, [String? code]) : super(message, code);
+  const NetworkFailure(super.message, [super.code]);
 }
 
 class ValidationFailure extends Failure {
-  const ValidationFailure(String message, [String? code])
-    : super(message, code);
+  const ValidationFailure(super.message, [super.code]);
 }
 
 class PermissionFailure extends Failure {
-  const PermissionFailure(String message, [String? code])
-    : super(message, code);
+  const PermissionFailure(super.message, [super.code]);
 }
 
 class NotFoundFailure extends Failure {
-  const NotFoundFailure(String message, [String? code]) : super(message, code);
+  const NotFoundFailure(super.message, [super.code]);
 }
 
 class UnknownFailure extends Failure {
-  const UnknownFailure(String message, [String? code]) : super(message, code);
+  const UnknownFailure(super.message, [super.code]);
 }
 
 /// Medication-specific failures

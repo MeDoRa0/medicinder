@@ -32,7 +32,7 @@ class MedicationCubit extends Cubit<MedicationState> {
        _updateDoseStatus = updateDoseStatus,
        _deleteMedication = deleteMedication,
        _resetDailyDoses = resetDailyDoses,
-       super(MedicationInitial()) {}
+       super(MedicationInitial());
 
   Future<void> loadMedications() async {
     emit(MedicationLoading());

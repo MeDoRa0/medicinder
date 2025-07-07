@@ -3,11 +3,21 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/medication.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
+import '../widgets/medication_name_field.dart';
+import '../widgets/medication_usage_field.dart';
+import '../widgets/medication_type_selector.dart';
+import '../widgets/medication_dosage_field.dart';
+import '../widgets/repeat_forever_checkbox.dart';
+import '../widgets/medication_days_field.dart';
+import '../widgets/save_button.dart';
+import '../widgets/medication_timing_selector.dart';
+import '../widgets/meal_label.dart';
 
+/// Page for adding or editing a medication.
 class AddMedicationPage extends StatefulWidget {
-  final Medication? medication;
+  /// The medication to edit, or null to add a new one.
   const AddMedicationPage({super.key, this.medication});
+  final Medication? medication;
 
   @override
   State<AddMedicationPage> createState() => _AddMedicationPageState();
@@ -77,6 +87,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
 
   Map<MealContext, TimeOfDay> _mealTimes = {};
 
+  /// Loads meal times from shared preferences.
   Future<void> _loadMealTimes() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -103,6 +114,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
     });
   }
 
+  /// Gets a TimeOfDay from shared preferences.
   TimeOfDay? _getTimeOfDayFromPrefs(SharedPreferences prefs, String key) {
     final timeString = prefs.getString(key);
     if (timeString == null) return null;
@@ -114,6 +126,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
     return TimeOfDay(hour: hour, minute: minute);
   }
 
+  /// Adds a new dose time to the list.
   void _addDoseTime() async {
     final picked = await showTimePicker(
       context: context,
@@ -126,6 +139,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
     }
   }
 
+  /// Toggles a meal context selection.
   void _toggleMealContext(MealContext contextType) {
     setState(() {
       if (_mealContexts.contains(contextType)) {
@@ -136,12 +150,14 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
     });
   }
 
+  /// Returns a hint for the dosage field based on medication type.
   String _getDosageHint() {
     return _medicationType == MedicationType.pill
         ? 'e.g., 1 pill, 2 pills'
         : 'e.g., 5ml, 10ml';
   }
 
+  /// Saves the medication form.
   void _save() {
     if (!_formKey.currentState!.validate()) return;
     final uuid = const Uuid();
@@ -227,206 +243,61 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.medicineName,
-                ),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-              ),
+              MedicationNameField(controller: _nameController),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _usageController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.usage,
-                ),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-              ),
+              MedicationUsageField(controller: _usageController),
               const SizedBox(height: 20),
-              Text(
-                AppLocalizations.of(context)!.medicineType,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Row(
-                children: [
-                  Radio<MedicationType>(
-                    value: MedicationType.pill,
-                    groupValue: _medicationType,
-                    onChanged: (val) => setState(() => _medicationType = val!),
-                  ),
-                  Text(AppLocalizations.of(context)!.pill),
-                  Radio<MedicationType>(
-                    value: MedicationType.syrup,
-                    groupValue: _medicationType,
-                    onChanged: (val) => setState(() => _medicationType = val!),
-                  ),
-                  Text(AppLocalizations.of(context)!.syrup),
-                ],
+              MedicationTypeSelector(
+                medicationType: _medicationType,
+                onChanged: (val) => setState(() => _medicationType = val),
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              MedicationDosageField(
                 controller: _dosageController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.dosage,
-                  hintText: _getDosageHint(),
-                  suffixText: _medicationType == MedicationType.pill
-                      ? 'pill'
-                      : 'ml',
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                ],
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                medicationType: _medicationType,
+                getDosageHint: _getDosageHint,
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _repeatForever,
-                    onChanged: (val) {
-                      setState(() {
-                        _repeatForever = val ?? false;
-                        if (_repeatForever) {
-                          _daysController.text = '10000';
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Text('Repeat Forever'),
-                ],
-              ),
-              TextFormField(
-                controller: _daysController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.days,
-                  hintText: 'e.g., 7',
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                ],
-                validator: (v) {
-                  if (_repeatForever) return null;
-                  if (v == null || v.isEmpty) return 'Required';
-                  final n = int.tryParse(v);
-                  if (n == null || n < 1) return 'Enter a valid number of days';
-                  return null;
+              RepeatForeverCheckbox(
+                value: _repeatForever,
+                onChanged: (val) {
+                  setState(() {
+                    _repeatForever = val;
+                    if (_repeatForever) {
+                      _daysController.text = '10000';
+                    }
+                  });
                 },
+              ),
+              MedicationDaysField(
+                controller: _daysController,
                 enabled: !_repeatForever,
+                repeatForever: _repeatForever,
               ),
               const SizedBox(height: 20),
-              Text(
-                AppLocalizations.of(context)!.timing,
-                style: Theme.of(context).textTheme.titleMedium,
+              MedicationTimingSelector(
+                timingType: _timingType,
+                onChanged: (val) => setState(() => _timingType = val),
+                doseTimes: _doseTimes,
+                addDoseTime: _addDoseTime,
+                mealContexts: _mealContexts,
+                toggleMealContext: _toggleMealContext,
+                mealOffsets: _mealOffsets,
+                offsetOptions: _offsetOptions,
+                setMealOffset: (c, val) {
+                  setState(() {
+                    _mealOffsets[c] = val;
+                  });
+                },
+                mealLabel: mealLabel,
               ),
-              Row(
-                children: [
-                  Radio<MedicationTimingType>(
-                    value: MedicationTimingType.specificTime,
-                    groupValue: _timingType,
-                    onChanged: (val) => setState(() => _timingType = val!),
-                  ),
-                  Text(AppLocalizations.of(context)!.specificTimes),
-                  Radio<MedicationTimingType>(
-                    value: MedicationTimingType.contextBased,
-                    groupValue: _timingType,
-                    onChanged: (val) => setState(() => _timingType = val!),
-                  ),
-                  Text(AppLocalizations.of(context)!.beforeAfterMeals),
-                ],
-              ),
-              if (_timingType == MedicationTimingType.specificTime) ...[
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: _doseTimes
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => Chip(
-                          label: Text('${entry.value.format(context)}'),
-                          onDeleted: () =>
-                              setState(() => _doseTimes.removeAt(entry.key)),
-                        ),
-                      )
-                      .toList(),
-                ),
-                TextButton.icon(
-                  onPressed: _addDoseTime,
-                  icon: const Icon(Icons.add),
-                  label: Text(AppLocalizations.of(context)!.addTime),
-                ),
-              ] else ...[
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: MealContext.values.map((c) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FilterChip(
-                          label: Text(_mealLabel(c, context)),
-                          selected: _mealContexts.contains(c),
-                          onSelected: (_) => _toggleMealContext(c),
-                        ),
-                        if (_mealContexts.contains(c))
-                          DropdownButton<int>(
-                            value: _mealOffsets[c] ?? 15,
-                            items: _offsetOptions.map((min) {
-                              return DropdownMenuItem<int>(
-                                value: min,
-                                child: Text(
-                                  '${min ~/ 60 > 0 ? '${min ~/ 60} hour${min == 60 ? '' : 's'}' : '$min minutes'}',
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() {
-                                  _mealOffsets[c] = val;
-                                });
-                              }
-                            },
-                          ),
-                        if (_mealContexts.contains(c))
-                          Text(
-                            c.name.startsWith('before')
-                                ? AppLocalizations.of(context)!.before
-                                : AppLocalizations.of(context)!.after,
-                          ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ],
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _save,
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
+              SaveButton(onPressed: _save),
             ],
           ),
         ),
       ),
     );
-  }
-
-  String _mealLabel(MealContext c, BuildContext context) {
-    switch (c) {
-      case MealContext.beforeBreakfast:
-        return AppLocalizations.of(context)!.beforeBreakfast;
-      case MealContext.afterBreakfast:
-        return AppLocalizations.of(context)!.afterBreakfast;
-      case MealContext.beforeLunch:
-        return AppLocalizations.of(context)!.beforeLunch;
-      case MealContext.afterLunch:
-        return AppLocalizations.of(context)!.afterLunch;
-      case MealContext.beforeDinner:
-        return AppLocalizations.of(context)!.beforeDinner;
-      case MealContext.afterDinner:
-        return AppLocalizations.of(context)!.afterDinner;
-    }
   }
 
   @override

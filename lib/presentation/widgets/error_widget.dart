@@ -30,9 +30,9 @@ class AppErrorWidget extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -63,7 +63,7 @@ class AppErrorWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               suggestedAction,
-              style: TextStyle(color: color.withOpacity(0.8), fontSize: 14),
+              style: TextStyle(color: color.withValues(alpha: 0.8), fontSize: 14),
             ),
           ],
           if (isRecoverable && onRetry != null) ...[
@@ -117,7 +117,7 @@ class FullScreenErrorWidget extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 80, color: color.withOpacity(0.7)),
+                Icon(icon, size: 80, color: color.withValues(alpha: 0.7)),
                 const SizedBox(height: 24),
                 Text(
                   message,
@@ -134,7 +134,7 @@ class FullScreenErrorWidget extends StatelessWidget {
                     suggestedAction,
                     style: TextStyle(
                       fontSize: 16,
-                      color: color.withOpacity(0.8),
+                      color: color.withValues(alpha:  0.8),
                     ),
                     textAlign: TextAlign.center,
                   ),

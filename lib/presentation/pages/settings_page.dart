@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/meal_time_selector.dart';
+import '../widgets/language_selector.dart';
+import '../widgets/settings_save_button.dart';
 import '../../l10n/app_localizations.dart';
-import '../../core/services/awesome_notification_service.dart';
 import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -81,6 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
         '${_dinnerTime!.hour}:${_dinnerTime!.minute}',
       );
     }
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.mealTimesSaved)),
     );
@@ -114,8 +116,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final isInitial =
         widget.isInitialSetup ||
         (ModalRoute.of(context)?.settings.arguments == 'initialSetup');
-    return WillPopScope(
-      onWillPop: () async => !isInitial,
+    return PopScope(
+      canPop: !isInitial,
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.settings),
@@ -143,30 +145,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.language,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  DropdownButton<String>(
-                    value: _selectedLanguageCode,
-                    items: [
-                      DropdownMenuItem(
-                        value: 'en',
-                        child: Text(AppLocalizations.of(context)!.english),
-                      ),
-                      DropdownMenuItem(
-                        value: 'ar',
-                        child: Text(AppLocalizations.of(context)!.arabic),
-                      ),
-                    ],
-                    onChanged: _changeLanguage,
-                  ),
-                ],
+              LanguageSelector(
+                selectedLanguageCode: _selectedLanguageCode,
+                onChanged: _changeLanguage,
               ),
-
               const SizedBox(height: 24),
               MealTimeSelector(
                 breakfastTime: _breakfastTime,
@@ -177,14 +159,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 onLunchTimeChanged: (t) => setState(() => _lunchTime = t),
                 onDinnerTimeChanged: (t) => setState(() => _dinnerTime = t),
               ),
-
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveMealTimes,
-                  child: Text(AppLocalizations.of(context)!.save),
-                ),
+              SettingsSaveButton(
+                onPressed: _saveMealTimes,
+                text: AppLocalizations.of(context)!.save,
               ),
             ],
           ),
