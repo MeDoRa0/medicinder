@@ -22,11 +22,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Timer? _medicationCheckTimer;
+  DateTime? _lastCleanupDate;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _lastCleanupDate = DateTime.now();
     _startPeriodicMedicationCheck();
   }
 
@@ -60,9 +62,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _startPeriodicMedicationCheck() {
-    // Check for due medications every 2 minutes when app is open
-    _medicationCheckTimer = Timer.periodic(const Duration(minutes: 2), (timer) {
+    // Check for due medications and daily cleanup every 1 hour when app is open
+    _medicationCheckTimer = Timer.periodic(const Duration(hours: 1), (timer) {
       _checkForDueMedications();
+      _checkForNewDayAndCleanup();
     });
   }
 
@@ -72,6 +75,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     } catch (e) {
       log('❌ HomePage: Error checking due medications: $e');
       // Don't crash the app, just log the error
+    }
+  }
+
+  void _checkForNewDayAndCleanup() async {
+    final now = DateTime.now();
+    if (_lastCleanupDate == null ||
+        now.year != _lastCleanupDate!.year ||
+        now.month != _lastCleanupDate!.month ||
+        now.day != _lastCleanupDate!.day) {
+      // New day detected
+      final cubit = context.read<MedicationCubit>();
+      await cubit.checkDailyResetOnAppOpen();
+      _cleanupCompletedMedications();
+      await cubit.loadMedications();
+      _lastCleanupDate = now;
     }
   }
 

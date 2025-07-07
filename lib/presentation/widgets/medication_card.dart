@@ -79,6 +79,20 @@ class MedicationCard extends StatelessWidget {
                 isTimeTaken: _isTimeTaken,
                 doseLabel: doseLabel,
                 context: context,
+                onDoseToggle: (dose, selected) {
+                  if (selected) {
+                    // Find the first matching dose index for this time
+                    final idx = medication.doses.indexWhere(
+                      (d) =>
+                          d.time != null &&
+                          d.time!.hour == dose.time!.hour &&
+                          d.time!.minute == dose.time!.minute,
+                    );
+                    if (idx != -1) {
+                      onDoseTaken(idx);
+                    }
+                  }
+                },
               ),
               if (isDailyComplete && !isFullyComplete)
                 Padding(
@@ -176,7 +190,6 @@ class MedicationCard extends StatelessWidget {
           ).isAtSameMomentAs(today),
     );
   }
-
 
   double _getTodayDosesProgress() {
     final todayTakenCount = _getTodayTakenCount();
