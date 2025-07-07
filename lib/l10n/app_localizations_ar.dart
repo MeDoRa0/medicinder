@@ -156,4 +156,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courseContinues => 'Course continues.';
+
+  @override
+  String get medicationNotFound => 'Medication not found';
+
+  @override
+  String get invalidData => 'Invalid medication data';
+
+  @override
+  String get invalidDoseIndex => 'Invalid dose selection';
+
+  @override
+  String get notificationPermissionDenied => 'Notification permission denied';
+
+  @override
+  String get notificationSchedulingFailed => 'Failed to schedule notification';
+
+  @override
+  String get dataMigrationFailed => 'Data migration failed';
+
+  @override
+  String get storageError => 'Storage error occurred';
+
+  @override
+  String get networkError => 'Network connection failed';
+
+  @override
+  String get validationError => 'Invalid data provided';
+
+  @override
+  String get permissionDenied => 'Permission denied';
+
+  @override
+  String get resourceNotFound => 'Resource not found';
+
+  @override
+  String get unknownError => 'An unexpected error occurred';
+
+  @override
+  String get retryNetwork => 'Check your connection and try again';
+
+  @override
+  String get retryStorage => 'Try again or restart the app';
+
+  @override
+  String get retryNotification => 'Try again or check notification settings';
+
+  @override
+  String get checkInput => 'Please check your input and try again';
+
+  @override
+  String get tryAgain => 'Please try again';
 }

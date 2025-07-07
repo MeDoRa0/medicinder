@@ -6,7 +6,10 @@ class AddMedication {
 
   AddMedication(this.repository);
 
-  Future<void> call(Medication medication) async {
+  Future<void> call(Medication? medication) async {
+    if (medication == null) {
+      throw ArgumentError('Medication cannot be null');
+    }
     await repository.addMedication(medication);
   }
 }

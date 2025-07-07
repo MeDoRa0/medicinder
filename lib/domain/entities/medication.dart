@@ -1,3 +1,5 @@
+import '../../data/models/medication_model.dart';
+
 enum MedicationTimingType { specificTime, contextBased }
 
 enum MedicationType { pill, syrup }
@@ -288,4 +290,9 @@ class Medication {
       type.hashCode ^
       timingType.hashCode ^
       doses.hashCode;
+
+  /// Convert to MedicationModel for data layer
+  MedicationModel toModel() {
+    return MedicationModel.fromEntity(this);
+  }
 }

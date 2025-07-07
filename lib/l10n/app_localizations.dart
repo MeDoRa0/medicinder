@@ -385,6 +385,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Course continues.'**
   String get courseContinues;
+
+  /// Error message when medication is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Medication not found'**
+  String get medicationNotFound;
+
+  /// Error message for invalid medication data
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid medication data'**
+  String get invalidData;
+
+  /// Error message for invalid dose index
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid dose selection'**
+  String get invalidDoseIndex;
+
+  /// Error message when notification permission is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission denied'**
+  String get notificationPermissionDenied;
+
+  /// Error message when notification scheduling fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to schedule notification'**
+  String get notificationSchedulingFailed;
+
+  /// Error message when data migration fails
+  ///
+  /// In en, this message translates to:
+  /// **'Data migration failed'**
+  String get dataMigrationFailed;
+
+  /// Error message for storage errors
+  ///
+  /// In en, this message translates to:
+  /// **'Storage error occurred'**
+  String get storageError;
+
+  /// Error message for network errors
+  ///
+  /// In en, this message translates to:
+  /// **'Network connection failed'**
+  String get networkError;
+
+  /// Error message for validation errors
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid data provided'**
+  String get validationError;
+
+  /// Error message when permission is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Permission denied'**
+  String get permissionDenied;
+
+  /// Error message when resource is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Resource not found'**
+  String get resourceNotFound;
+
+  /// Error message for unknown errors
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred'**
+  String get unknownError;
+
+  /// Suggested action for network errors
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again'**
+  String get retryNetwork;
+
+  /// Suggested action for storage errors
+  ///
+  /// In en, this message translates to:
+  /// **'Try again or restart the app'**
+  String get retryStorage;
+
+  /// Suggested action for notification errors
+  ///
+  /// In en, this message translates to:
+  /// **'Try again or check notification settings'**
+  String get retryNotification;
+
+  /// Suggested action for validation errors
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your input and try again'**
+  String get checkInput;
+
+  /// Generic retry message
+  ///
+  /// In en, this message translates to:
+  /// **'Please try again'**
+  String get tryAgain;
 }
 
 class _AppLocalizationsDelegate

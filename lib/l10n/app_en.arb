@@ -203,5 +203,73 @@
   "courseContinues": "Course continues.",
   "@courseContinues": {
     "description": "Message shown when today's doses are complete but the course is not yet finished."
+  },
+  "medicationNotFound": "Medication not found",
+  "@medicationNotFound": {
+    "description": "Error message when medication is not found"
+  },
+  "invalidData": "Invalid medication data",
+  "@invalidData": {
+    "description": "Error message for invalid medication data"
+  },
+  "invalidDoseIndex": "Invalid dose selection",
+  "@invalidDoseIndex": {
+    "description": "Error message for invalid dose index"
+  },
+  "notificationPermissionDenied": "Notification permission denied",
+  "@notificationPermissionDenied": {
+    "description": "Error message when notification permission is denied"
+  },
+  "notificationSchedulingFailed": "Failed to schedule notification",
+  "@notificationSchedulingFailed": {
+    "description": "Error message when notification scheduling fails"
+  },
+  "dataMigrationFailed": "Data migration failed",
+  "@dataMigrationFailed": {
+    "description": "Error message when data migration fails"
+  },
+  "storageError": "Storage error occurred",
+  "@storageError": {
+    "description": "Error message for storage errors"
+  },
+  "networkError": "Network connection failed",
+  "@networkError": {
+    "description": "Error message for network errors"
+  },
+  "validationError": "Invalid data provided",
+  "@validationError": {
+    "description": "Error message for validation errors"
+  },
+  "permissionDenied": "Permission denied",
+  "@permissionDenied": {
+    "description": "Error message when permission is denied"
+  },
+  "resourceNotFound": "Resource not found",
+  "@resourceNotFound": {
+    "description": "Error message when resource is not found"
+  },
+  "unknownError": "An unexpected error occurred",
+  "@unknownError": {
+    "description": "Error message for unknown errors"
+  },
+  "retryNetwork": "Check your connection and try again",
+  "@retryNetwork": {
+    "description": "Suggested action for network errors"
+  },
+  "retryStorage": "Try again or restart the app",
+  "@retryStorage": {
+    "description": "Suggested action for storage errors"
+  },
+  "retryNotification": "Try again or check notification settings",
+  "@retryNotification": {
+    "description": "Suggested action for notification errors"
+  },
+  "checkInput": "Please check your input and try again",
+  "@checkInput": {
+    "description": "Suggested action for validation errors"
+  },
+  "tryAgain": "Please try again",
+  "@tryAgain": {
+    "description": "Generic retry message"
   }
 } 

@@ -1,6 +1,7 @@
 import '../../domain/entities/medication.dart';
 import '../../domain/repositories/medication_repository.dart';
 import '../datasources/medication_local_data_source.dart';
+import '../../core/error/failures.dart';
 
 class MedicationRepositoryImpl implements MedicationRepository {
   final MedicationLocalDataSource localDataSource;
@@ -9,22 +10,38 @@ class MedicationRepositoryImpl implements MedicationRepository {
 
   @override
   Future<List<Medication>> getMedications() async {
-    return await localDataSource.getAllMedications();
+    try {
+      return await localDataSource.getAllMedications();
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
   }
 
   @override
   Future<void> addMedication(Medication medication) async {
-    await localDataSource.addMedication(medication);
+    try {
+      await localDataSource.addMedication(medication);
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
   }
 
   @override
   Future<void> updateMedication(Medication medication) async {
-    await localDataSource.updateMedication(medication);
+    try {
+      await localDataSource.updateMedication(medication);
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
   }
 
   @override
   Future<void> deleteMedication(String id) async {
-    await localDataSource.deleteMedication(id);
+    try {
+      await localDataSource.deleteMedication(id);
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
   }
 
   @override
@@ -33,11 +50,19 @@ class MedicationRepositoryImpl implements MedicationRepository {
     int doseIndex,
     bool taken,
   ) async {
-    await localDataSource.updateDoseStatus(medicationId, doseIndex, taken);
+    try {
+      await localDataSource.updateDoseStatus(medicationId, doseIndex, taken);
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
   }
 
   @override
   Future<void> resetDailyDoses() async {
-    await localDataSource.resetDailyDoses();
+    try {
+      await localDataSource.resetDailyDoses();
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
   }
 }

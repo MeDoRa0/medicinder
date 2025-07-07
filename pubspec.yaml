@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   awesome_notifications: ^0.10.1
+  equatable: ^2.0.5
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
@@ -29,6 +30,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   hive_generator: ^2.0.1
+  mockito: ^5.4.4
+  bloc_test: ^10.0.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
