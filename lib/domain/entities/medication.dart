@@ -139,63 +139,6 @@ class Medication {
     return totalDays - daysElapsed;
   }
 
-  /// Get today's doses (doses that should be taken today)
-  List<MedicationDose> _getTodayDoses() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    // First, try to find doses for today
-    final todayDoses = doses.where((dose) {
-      if (dose.time != null) {
-        final doseDate = DateTime(
-          dose.time!.year,
-          dose.time!.month,
-          dose.time!.day,
-        );
-        return doseDate.isAtSameMomentAs(today);
-      }
-      return false;
-    }).toList();
-
-    // If there are doses for today, return them
-    if (todayDoses.isNotEmpty) {
-      return todayDoses;
-    }
-
-    // If no doses for today, return the scheduled dose times for display
-    // We'll use the first day's doses to show the schedule
-    final scheduledDoses = <MedicationDose>[];
-    final seenTimes = <String>{};
-
-    for (final dose in doses) {
-      if (dose.time != null) {
-        // Create a key for the time (hour:minute)
-        final timeKey = '${dose.time!.hour}:${dose.time!.minute}';
-        if (!seenTimes.contains(timeKey)) {
-          seenTimes.add(timeKey);
-          // Create a dose with today's date but the original time for display
-          final displayTime = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            dose.time!.hour,
-            dose.time!.minute,
-          );
-          scheduledDoses.add(
-            MedicationDose(
-              time: displayTime,
-              context: dose.context,
-              taken: false,
-            ),
-          );
-        }
-      }
-    }
-
-    // Sort by time
-    scheduledDoses.sort((a, b) => a.time!.compareTo(b.time!));
-    return scheduledDoses;
-  }
 
   /// Check if a dose was taken today
   bool isDoseTakenToday(int doseIndex) {

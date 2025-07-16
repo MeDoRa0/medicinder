@@ -4,19 +4,7 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    
-    <!-- Simple pill/medication icon -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2z"/>
-    
-    <!-- Pill shape -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M8,8h8c0.55,0 1,0.45 1,1v6c0,0.55 -0.45,1 -1,1H8c-0.55,0 -1,-0.45 -1,-1V9C7,8.45 7.45,8 8,8z"/>
-    
-    <!-- Center line -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M11,10h2v4h-2z"/>
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM13,17h-2v-6h2v6zM13,9h-2L11,7h2v2z"/>
 </vector> 

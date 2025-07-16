@@ -7,7 +7,8 @@ class MedicationDosageField extends StatelessWidget {
   final TextEditingController controller;
   final MedicationType medicationType;
   final String Function() getDosageHint;
-  const MedicationDosageField({super.key, 
+  const MedicationDosageField({
+    super.key,
     required this.controller,
     required this.medicationType,
     required this.getDosageHint,
@@ -21,6 +22,7 @@ class MedicationDosageField extends StatelessWidget {
         hintText: getDosageHint(),
         suffixText: medicationType == MedicationType.pill ? 'pill' : 'ml',
       ),
+      keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       validator: (v) => v == null || v.isEmpty ? 'Required' : null,
     );

@@ -9,7 +9,7 @@ class AwesomeNotificationService {
     log('AwesomeNotificationService: Initializing notifications...');
     try {
       await AwesomeNotifications().initialize(
-        'resource://drawable/notif_icon', // Use your custom notification icon
+        'resource://drawable/notification_icon', // Use our custom notification icon
         [
           NotificationChannel(
             channelKey: channelKey,
@@ -51,6 +51,31 @@ class AwesomeNotificationService {
     }
   }
 
+  static Future<void> showPermissionDeniedDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notification Permission Denied'),
+        content: const Text(
+          'To receive medication reminders, please enable notifications in your device settings.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await AwesomeNotifications().showNotificationConfigPage();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
   static Future<void> scheduleMedicationReminder({
     required int id,
     required String medicationName,
@@ -79,6 +104,7 @@ class AwesomeNotificationService {
           title: 'Medication Reminder',
           body: body ?? 'Time to take $medicationName',
           notificationLayout: NotificationLayout.Default,
+
           payload: {
             if (medicationId != null) 'medicationId': medicationId,
             if (doseIndex != null) 'doseIndex': doseIndex.toString(),

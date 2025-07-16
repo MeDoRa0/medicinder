@@ -124,6 +124,32 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
     _loadLocale();
+
+    // Handle notification action if app was launched by it
+    AwesomeNotifications()
+        .getInitialNotificationAction(removeFromActionEvents: true)
+        .then((receivedAction) {
+          if (receivedAction != null) {
+            final payload = receivedAction.payload ?? {};
+            final medicationId = payload['medicationId'];
+            final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
+            if (receivedAction.buttonKeyPressed == 'done' &&
+                medicationId != null &&
+                doseIndex != null) {
+              // Wait for the cubit to be available
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final context = navigatorKey.currentContext;
+                if (context != null) {
+                  context.read<MedicationCubit>().markDoseTaken(
+                    medicationId,
+                    doseIndex,
+                    true,
+                  );
+                }
+              });
+            }
+          }
+        });
   }
 
   @override

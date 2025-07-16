@@ -56,9 +56,11 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            // Optionally enable minify for smaller APKs:
-            // isMinifyEnabled = true
-            // proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

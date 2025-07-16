@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:developer';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import '../../core/services/awesome_notification_service.dart';
 
 import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
@@ -114,23 +116,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
         ],
       ),
-      body: BlocBuilder<MedicationCubit, MedicationState>(
-        builder: (context, state) {
-          if (state is MedicationLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is MedicationLoaded) {
-            if (state.medications.isEmpty) {
-              return Center(
-                child: Text(AppLocalizations.of(context)!.noMedications),
-              );
-            }
-            final now = DateTime.now();
-            return MedicationList(medications: state.medications, now: now);
-          } else if (state is MedicationError) {
-            return Center(child: Text('Error: ${state.message}'));
-          }
-          return const SizedBox.shrink();
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: BlocBuilder<MedicationCubit, MedicationState>(
+              builder: (context, state) {
+                if (state is MedicationLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is MedicationLoaded) {
+                  if (state.medications.isEmpty) {
+                    return Center(
+                      child: Text(AppLocalizations.of(context)!.noMedications),
+                    );
+                  }
+                  final now = DateTime.now();
+                  return MedicationList(
+                    medications: state.medications,
+                    now: now,
+                  );
+                } else if (state is MedicationError) {
+                  return Center(child: Text('Error: ${state.message}'));
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: MedicationFAB(
         onAddMedication: () async {

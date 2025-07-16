@@ -52,9 +52,11 @@ class MedicationCardInfoRows extends StatelessWidget {
             const Icon(Icons.schedule, size: 18, color: Colors.indigo),
             const SizedBox(width: 6),
             Text(
-              AppLocalizations.of(
-                context,
-              )!.dosesPerDay(medication.doses.length),
+              AppLocalizations.of(context)!.dosesPerDay(
+                medication.totalDays > 0
+                    ? (medication.doses.length ~/ medication.totalDays)
+                    : 0,
+              ),
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ],
