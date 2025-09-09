@@ -14,9 +14,17 @@ workflows:
           flutter clean
           flutter pub get
           flutter precache --ios
+
+      - name: Pre-build iOS pods
+        script: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
       - name: Build iOS Debug
         script: |
           flutter build ios --debug --no-codesign
+          
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/archive/*.xcarchive
