@@ -14,10 +14,18 @@ workflows:
           flutter pub get
           flutter precache --ios
 
+      - name: Generate missing iOS files (if any)
+        script: |
+          flutter create .
+
       - name: Pre-build iOS pods
         script: |
-          cd ios
-          pod install --repo-update
+          cd ios || exit
+          if [ -f "Podfile" ]; then
+            pod install --repo-update
+          else
+            echo "No Podfile found, skipping pod install"
+          fi
           cd ..
 
       - name: Build iOS Debug
