@@ -29,8 +29,7 @@ workflows:
           cd ..
 
       - name: Build iOS Debug
-        script: |
-          flutter build ios --debug --no-codesign
+       
           
     artifacts:
       - build/ios/ipa/*.ipa
