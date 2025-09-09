@@ -6,8 +6,7 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      variables:
-        SWIFT_OBJC_BRIDGING_HEADER: ""   # خلي Bridging Header فاضي
+       
     scripts:
       - name: Clean and get dependencies
         script: |
