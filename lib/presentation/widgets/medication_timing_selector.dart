@@ -7,17 +7,20 @@ class MedicationTimingSelector extends StatelessWidget {
   final ValueChanged<MedicationTimingType> onChanged;
   final List<TimeOfDay> doseTimes;
   final VoidCallback addDoseTime;
+  final void Function(int) removeDoseTime;
   final List<MealContext> mealContexts;
   final ValueChanged<MealContext> toggleMealContext;
   final Map<MealContext, int> mealOffsets;
   final List<int> offsetOptions;
   final void Function(MealContext, int) setMealOffset;
   final String Function(MealContext, BuildContext) mealLabel;
-  const MedicationTimingSelector({super.key, 
+  const MedicationTimingSelector({
+    super.key,
     required this.timingType,
     required this.onChanged,
     required this.doseTimes,
     required this.addDoseTime,
+    required this.removeDoseTime,
     required this.mealContexts,
     required this.toggleMealContext,
     required this.mealOffsets,
@@ -60,7 +63,7 @@ class MedicationTimingSelector extends StatelessWidget {
                 .map(
                   (entry) => Chip(
                     label: Text(entry.value.format(context)),
-                    onDeleted: () => addDoseTime(),
+                    onDeleted: () => removeDoseTime(entry.key),
                   ),
                 )
                 .toList(),
@@ -90,7 +93,9 @@ class MedicationTimingSelector extends StatelessWidget {
                         return DropdownMenuItem<int>(
                           value: min,
                           child: Text(
-                            min ~/ 60 > 0 ? '${min ~/ 60} hour${min == 60 ? '' : 's'}' : '$min minutes',
+                            min ~/ 60 > 0
+                                ? '${min ~/ 60} hour${min == 60 ? '' : 's'}'
+                                : '$min minutes',
                           ),
                         );
                       }).toList(),

@@ -8,11 +8,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MedicationList extends StatelessWidget {
   final List<Medication> medications;
   final DateTime now;
-  const MedicationList({super.key, required this.medications, required this.now});
+  const MedicationList({
+    super.key,
+    required this.medications,
+    required this.now,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final allMeds = medications.toList();
+    final allMeds = medications.where((m) => m.isActive).toList();
     allMeds.sort((a, b) {
       final aTodayDone = a.doses
           .where(

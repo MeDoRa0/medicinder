@@ -280,6 +280,11 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
                 onChanged: (val) => setState(() => _timingType = val),
                 doseTimes: _doseTimes,
                 addDoseTime: _addDoseTime,
+                removeDoseTime: (index) {
+                  setState(() {
+                    _doseTimes.removeAt(index);
+                  });
+                },
                 mealContexts: _mealContexts,
                 toggleMealContext: _toggleMealContext,
                 mealOffsets: _mealOffsets,
