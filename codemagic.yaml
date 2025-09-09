@@ -28,7 +28,7 @@ workflows:
           fi
           cd ..
 
-      - name: Build iOS Debug
+    
        
           
     artifacts:
