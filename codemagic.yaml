@@ -15,7 +15,10 @@ workflows:
       - name: Generate files
         script: |
           flutter pub run build_runner build --delete-conflicting-outputs || true
-          flutter packages pub run build_runner build || true
+      - name: Generate iOS plugin registrant
+        script: |
+          flutter packages get
+          flutter build ios-framework --no-codesign
       - name: iOS pod install
         script: |
           cd ios
