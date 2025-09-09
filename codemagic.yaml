@@ -12,6 +12,10 @@ workflows:
           flutter clean
           flutter pub get
           flutter precache --ios
+      - name: Generate files
+        script: |
+          flutter pub run build_runner build --delete-conflicting-outputs || true
+          flutter packages pub run build_runner build || true
       - name: iOS pod install
         script: |
           cd ios
@@ -19,7 +23,7 @@ workflows:
           cd ..
       - name: Build iOS
         script: |
-          flutter build ios --release --no-codesign
+          flutter build ios --debug --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/archive/*.xcarchive
