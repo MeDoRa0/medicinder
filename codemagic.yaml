@@ -14,22 +14,25 @@ workflows:
           flutter pub get
           flutter precache --ios
 
+      - name: Generate missing iOS files (if any)
+        script: |
+          flutter create .
+
       - name: Pre-build iOS pods
         script: |
-          cd ios
-          pod install --repo-update || true   # نتخطى الأخطاء لو pods مش متاحة
+          cd ios || exit
+          if [ -f "Podfile" ]; then
+            pod install --repo-update
+          else
+            echo "No Podfile found, skipping pod install"
+          fi
           cd ..
 
-      - name: Build iOS Debug Archive
-        script: |
-          flutter build ios --debug --no-codesign --simulator
-          # لو عايز تحافظ على نسخة archive
-          mkdir -p build/ios/archive
-          cp -R build/ios/Debug-iphonesimulator/Runner.app build/ios/archive/
-
-    artifacts:
-      - build/ios/archive/**  # هياخد أي ملف أو مجلد جوه archive
+     
           
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/archive/*.xcarchive
     publishing:
       email:
         recipients:
