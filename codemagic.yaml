@@ -6,7 +6,6 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-       
     scripts:
       - name: Clean and get dependencies
         script: |
@@ -21,19 +20,17 @@ workflows:
       - name: Pre-build iOS pods
         script: |
           cd ios || exit
-          if [ -f "Podfile" ]; then
-            pod install --repo-update
-          else
-            echo "No Podfile found, skipping pod install"
-          fi
+          pod install --repo-update
           cd ..
 
       - name: Build iOS Debug for Simulator
         script: |
           flutter build ios --debug --simulator --no-codesign
-          
+
     artifacts:
-      - build/ios/Debug-iphonesimulator/Runner.app
+      - build/ios/ipa/*.ipa
+      - build/ios/archive/*.xcarchive
+
     publishing:
       email:
         recipients:
