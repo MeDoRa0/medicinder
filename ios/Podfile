@@ -1,13 +1,5 @@
 platform :ios, '13.0'
 
-use_frameworks! :linkage => :static
-
 target 'Runner' do
-  # Flutter integration
-  flutter_application_path = '../'
-  eval(File.read(File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')), binding)
-
-  # Optional: أي Pods إضافية لو في حاجة خارجية
-  # pod 'Firebase/Core', '~> 10.0' # مثال لو حبيت تضيف Firebase
 end
 
