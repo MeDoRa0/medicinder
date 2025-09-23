@@ -9,6 +9,18 @@ workflows:
       vars:
         FLUTTER_ROOT: $HOME/programs/flutter
     scripts:
+      - name: Diagnostics (Flutter/CocoaPods)
+        script: |
+          echo "FLUTTER_ROOT=$FLUTTER_ROOT"
+          which flutter || true
+          flutter --version
+          ruby --version
+          pod --version
+          ls -la ios/Flutter || true
+          if [ -f ios/Flutter/Generated.xcconfig ]; then
+            echo "Generated.xcconfig FLUTTER_ROOT:"
+            sed -n 's/^FLUTTER_ROOT=.*/&/p' ios/Flutter/Generated.xcconfig || true
+          fi
       - name: Clean and get dependencies
         script: |
           flutter clean
@@ -29,9 +41,16 @@ workflows:
         script: |
           flutter build ios --debug --simulator --no-codesign
 
+      - name: Package Simulator .app
+        script: |
+          if [ -d build/ios/iphonesimulator/Runner.app ]; then
+            cd build/ios/iphonesimulator
+            zip -r Runner.app.zip Runner.app
+            cd -
+          fi
+
     artifacts:
-      - build/ios/ipa/*.ipa
-      - build/ios/archive/*.xcarchive
+      - build/ios/iphonesimulator/Runner.app.zip
 
     publishing:
       email:
@@ -53,6 +72,18 @@ workflows:
     # 2) Enable Automatic code signing for this workflow and select the bundle id
     # Alternatively, configure manual signing by uploading .p12 and .mobileprovision files as variables
     scripts:
+      - name: Diagnostics (Flutter/CocoaPods)
+        script: |
+          echo "FLUTTER_ROOT=$FLUTTER_ROOT"
+          which flutter || true
+          flutter --version
+          ruby --version
+          pod --version
+          ls -la ios/Flutter || true
+          if [ -f ios/Flutter/Generated.xcconfig ]; then
+            echo "Generated.xcconfig FLUTTER_ROOT:"
+            sed -n 's/^FLUTTER_ROOT=.*/&/p' ios/Flutter/Generated.xcconfig || true
+          fi
       - name: Clean and get dependencies
         script: |
           flutter clean
