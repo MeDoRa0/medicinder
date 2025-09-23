@@ -6,6 +6,8 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      vars:
+        FLUTTER_ROOT: $HOME/programs/flutter
     scripts:
       - name: Clean and get dependencies
         script: |
@@ -45,6 +47,7 @@ workflows:
       cocoapods: default
       vars:
         BUNDLE_ID: com.example.medicinder # Update to your real bundle id
+        FLUTTER_ROOT: $HOME/programs/flutter
     # To enable automatic code signing:
     # 1) In Codemagic UI, add your App Store Connect API key (Key ID, Issuer ID, Private Key)
     # 2) Enable Automatic code signing for this workflow and select the bundle id
