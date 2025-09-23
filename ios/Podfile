@@ -1,5 +1,9 @@
 platform :ios, '13.0'
 
+# Make CocoaPods behavior more stable in CI
+ENV['COCOAPODS_NO_STATS'] = 'true'
+install! 'cocoapods', :generate_multiple_pod_projects => true, :incremental_installation => true
+
 # Locate Flutter SDK and load CocoaPods helper (robust to CI layouts)
 def load_flutter_podhelper
   # 1) Prefer FLUTTER_ROOT if provided
@@ -40,7 +44,6 @@ flutter_ios_podfile_setup
 target 'Runner' do
   # Use static frameworks to avoid dynamic linking issues in CI (Codemagic)
   use_frameworks! :linkage => :static
-  use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
@@ -49,9 +52,13 @@ post_install do |installer|
   flutter_additional_ios_build_settings(installer)
 
   # Enforce minimum iOS deployment target for all pods
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+  begin
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      end
     end
+  rescue => e
+    puts "[Podfile post_install] Warning: failed to adjust deployment targets: #{e}"
   end
 end
