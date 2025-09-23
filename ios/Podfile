@@ -49,13 +49,20 @@ target 'Runner' do
 end
 
 post_install do |installer|
-  flutter_additional_ios_build_settings(installer)
+  # Work around CocoaPods 1.16.x incompatibility with Flutter's podhelper (platform_name)
+  begin
+    flutter_additional_ios_build_settings(installer)
+  rescue => e
+    puts "[Podfile post_install] Skipping flutter_additional_ios_build_settings due to: #{e}"
+  end
 
   # Enforce minimum iOS deployment target for all pods
   begin
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+        # Avoid simulator arm64 issues on CI runners
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
       end
     end
   rescue => e
