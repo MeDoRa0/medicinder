@@ -123,8 +123,7 @@ lib/
 - **Flutter**: Cross-platform UI framework
 - **Cubit (flutter_bloc)**: State management
 - **Hive**: Local data persistence
-- **Awesome Notifications**: Advanced notification system
-- **WorkManager**: Background task processing
+- **Awesome Notifications**: Local notification scheduling and actions
 - **GetIt**: Dependency injection
 - **Clean Architecture**: Scalable code structure
 
@@ -134,7 +133,6 @@ lib/
 - `flutter_bloc: ^9.1.1` - State management
 - `hive: ^2.2.3` - Local database
 - `awesome_notifications: ^0.10.1` - Advanced notifications
-- `workmanager: ^0.6.0` - Background processing
 - `get_it: ^8.0.3` - Dependency injection
 - `timezone: ^0.10.1` - Timezone handling
 - `uuid: ^4.5.1` - Unique ID generation
@@ -150,7 +148,6 @@ lib/
 The app uses Awesome Notifications for a robust notification experience:
 - **Persistent notifications** that don't auto-dismiss
 - **Action buttons** for quick dose tracking
-- **Background processing** with WorkManager
 - **Automatic scheduling** based on medication timing
 - **Smart rescheduling** for missed doses
 
