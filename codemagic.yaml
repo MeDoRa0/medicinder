@@ -33,9 +33,7 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Build iOS for simulator
-        script: |
-          flutter build ios --simulator --no-codesign
+      
             
 
     artifacts:
