@@ -1,24 +1,44 @@
 workflows:
-  ios-test:
-    name: iOS Test
-    instance_type: mac_mini_m1
-    environment:
-      flutter: stable
-      xcode: latest
-      cocoapods: default
-    scripts:
-      - name: Get Flutter packages
-        script: flutter packages pub get
-      - name: Run tests
-        script: flutter test
-      - name: Build iOS app for simulator
-        script: |
-          set -e
-          flutter build ios --simulator --no-codesign
-    artifacts:
-      - build/ios/iphonesimulator/*.app
-    testing:
-      ios_simulator:
-        xcode_simulator:
-          device: "iPhone 14"
-          os: "latest"
+simulator-workflow:
+name: Build for iOs Simulator
+
+environment:
+xcode: latest
+flutter: stable
+
+groups :
+- secret_env
+
+scripts:
+- name: Create .env file from Codemagic variables
+script: |
+echo "API_KEY=$API_KEY" >> .env
+echo "BASE_URL=$BASE_URL" >> .env
+mv .env ./
+echo ".env created
+
+- name: Install Flutter dependencies
+script: flutter pub get
+
+- name: Install Pods
+script: |
+cd ios
+pod install
+cd ..
+
+- name: Build Flutter for iOs simulator
+script: |
+flutter build ios -- simulator -- debug
+
+- name: Build iOs Simulator App
+script: |
+xcodebuild \
+-workspace ios/Runner.xcworkspace \
+-scheme Runner \
+-sdk iphonesimulator \
+-configuration Debug \
+-destination 'generic/platform=ios Simulator' \
+build
+
+artifacts:
+- build/ios/iphonesimulator/ ** / *. app
