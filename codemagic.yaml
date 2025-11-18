@@ -35,9 +35,8 @@ workflows:
 
       - name: Build iOS for simulator
         script: |
-          flutter build ios --simulator --no-codesign \
-            --build-name=$APP_VERSION \
-            --build-number=$BUILD_NUMBER
+          flutter build ios --simulator --no-codesign
+            
 
     artifacts:
       - build/ios/iphonesimulator/**/*.app
