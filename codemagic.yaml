@@ -5,9 +5,8 @@ workflows:
     environment:
       xcode: latest
       flutter: stable
-
-    groups:
-      - secret_env
+      groups:
+        - secret_env
 
     scripts:
       - name: Create .env file from Codemagic variables
