@@ -1,44 +1,44 @@
 workflows:
-simulator-workflow:
-name: Build for iOs Simulator
+  simulator-workflow:
+    name: Build for iOS Simulator
 
-environment:
-xcode: latest
-flutter: stable
+    environment:
+      xcode: latest
+      flutter: stable
 
-groups :
-- secret_env
+    groups:
+      - secret_env
 
-scripts:
-- name: Create .env file from Codemagic variables
-script: |
-echo "API_KEY=$API_KEY" >> .env
-echo "BASE_URL=$BASE_URL" >> .env
-mv .env ./
-echo ".env created
+    scripts:
+      - name: Create .env file from Codemagic variables
+        script: |
+          echo "API_KEY=$API_KEY" >> .env
+          echo "BASE_URL=$BASE_URL" >> .env
+          mv .env ./
+          echo ".env created ✔"
 
-- name: Install Flutter dependencies
-script: flutter pub get
+      - name: Install Flutter dependencies
+        script: flutter pub get
 
-- name: Install Pods
-script: |
-cd ios
-pod install
-cd ..
+      - name: Install Pods
+        script: |
+          cd ios
+          pod install
+          cd ..
 
-- name: Build Flutter for iOs simulator
-script: |
-flutter build ios -- simulator -- debug
+      - name: Build Flutter for iOS simulator
+        script: |
+          flutter build ios --simulator --debug
 
-- name: Build iOs Simulator App
-script: |
-xcodebuild \
--workspace ios/Runner.xcworkspace \
--scheme Runner \
--sdk iphonesimulator \
--configuration Debug \
--destination 'generic/platform=ios Simulator' \
-build
+      - name: Build iOS Simulator App
+        script: |
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            build
 
-artifacts:
-- build/ios/iphonesimulator/ ** / *. app
+    artifacts:
+      - build/ios/iphonesimulator/**/*.app
