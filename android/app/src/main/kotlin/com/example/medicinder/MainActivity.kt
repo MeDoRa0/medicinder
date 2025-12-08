@@ -1,4 +1,4 @@
-package com.example.medicinder
+package com.medora.medicinder
 
 import io.flutter.embedding.android.FlutterActivity
 
