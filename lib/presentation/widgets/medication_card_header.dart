@@ -5,11 +5,14 @@ import '../../l10n/app_localizations.dart';
 /// Header section for MedicationCard showing name, type, and days left.
 class MedicationCardHeader extends StatelessWidget {
   final Medication medication;
-  final String daysLeft;
+  /// When true, show "Forever"; otherwise use [daysLeft] (null or 0 = course finished).
+  final bool isForever;
+  final int? daysLeft;
   final String typeLabel;
   const MedicationCardHeader({
     required this.medication,
-    required this.daysLeft,
+    required this.isForever,
+    this.daysLeft,
     required this.typeLabel,
     super.key,
   });
@@ -51,22 +54,27 @@ class MedicationCardHeader extends StatelessWidget {
                   color: Colors.blueGrey,
                 ),
                 const SizedBox(width: 4),
-                Text(
-                  daysLeft != 'Forever'
-                      ? (int.tryParse(daysLeft) ?? 0) > 0
-                            ? AppLocalizations.of(
-                                context,
-                              )!.daysLeft(int.tryParse(daysLeft) ?? 0)
-                            : AppLocalizations.of(context)!.courseFinished
-                      : 'Forever',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: daysLeft != 'Forever'
-                        ? ((int.tryParse(daysLeft) ?? 0) > 0
-                              ? Colors.blueGrey
-                              : Colors.red)
-                        : Colors.teal,
-                  ),
+                Builder(
+                  builder: (context) {
+                    final l10n = AppLocalizations.of(context)!;
+                    final days = daysLeft ?? 0;
+                    final hasDaysLeft = days > 0;
+                    return Text(
+                      isForever
+                          ? l10n.forever
+                          : (hasDaysLeft
+                              ? l10n.daysLeft(days)
+                              : l10n.courseFinished),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isForever
+                            ? Colors.teal
+                            : (hasDaysLeft
+                                ? Colors.blueGrey
+                                : Colors.red),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

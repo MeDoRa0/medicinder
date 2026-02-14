@@ -16,12 +16,14 @@ enum MealContext {
 class MedicationDose {
   final DateTime? time; // For specific time
   final MealContext? context; // For context-based
+  final int? offsetMinutes; // Minutes before/after meal (only when context != null)
   final bool taken;
   final DateTime? takenDate; // Date when the dose was taken
 
   const MedicationDose({
     this.time,
     this.context,
+    this.offsetMinutes,
     this.taken = false,
     this.takenDate,
   });
@@ -33,12 +35,17 @@ class MedicationDose {
           runtimeType == other.runtimeType &&
           time == other.time &&
           context == other.context &&
+          offsetMinutes == other.offsetMinutes &&
           taken == other.taken &&
           takenDate == other.takenDate;
 
   @override
   int get hashCode =>
-      time.hashCode ^ context.hashCode ^ taken.hashCode ^ takenDate.hashCode;
+      time.hashCode ^
+      context.hashCode ^
+      offsetMinutes.hashCode ^
+      taken.hashCode ^
+      takenDate.hashCode;
 }
 
 class Medication {
@@ -165,6 +172,7 @@ class Medication {
           (dose) => MedicationDose(
             time: dose.time,
             context: dose.context,
+            offsetMinutes: dose.offsetMinutes,
             taken: false,
             takenDate: null,
           ),
@@ -193,6 +201,7 @@ class Medication {
     updatedDoses[doseIndex] = MedicationDose(
       time: doses[doseIndex].time,
       context: doses[doseIndex].context,
+      offsetMinutes: doses[doseIndex].offsetMinutes,
       taken: true,
       takenDate: DateTime.now(),
     );

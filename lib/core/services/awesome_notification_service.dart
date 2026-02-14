@@ -1,6 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
+import '../../l10n/app_localizations.dart';
 
 class AwesomeNotificationService {
   static const String channelKey = 'medication_channel';
@@ -52,24 +53,23 @@ class AwesomeNotificationService {
   }
 
   static Future<void> showPermissionDeniedDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Notification Permission Denied'),
-        content: const Text(
-          'To receive medication reminders, please enable notifications in your device settings.',
-        ),
+        title: Text(l10n.notificationPermissionDeniedTitle),
+        content: Text(l10n.enableNotificationsMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
               await AwesomeNotifications().showNotificationConfigPage();
             },
-            child: const Text('Open Settings'),
+            child: Text(l10n.openSettings),
           ),
         ],
       ),
@@ -83,6 +83,9 @@ class AwesomeNotificationService {
     String? body,
     String? medicationId,
     int? doseIndex,
+    String? title,
+    String? doneLabel,
+    String? remindLaterLabel,
   }) async {
     log(
       'AwesomeNotificationService: Scheduling notification for $medicationName at $scheduledTime',
@@ -97,11 +100,13 @@ class AwesomeNotificationService {
       // Cancel any existing notification with the same id to prevent duplicates
       await AwesomeNotifications().cancel(id);
 
+      // Schedule notification using AwesomeNotifications
+      // Using allowWhileIdle: true ensures notifications work even when device is idle
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
           channelKey: channelKey,
-          title: 'Medication Reminder',
+          title: title ?? 'Medication Reminder',
           body: body ?? 'Time to take $medicationName',
           notificationLayout: NotificationLayout.Default,
 
@@ -116,20 +121,23 @@ class AwesomeNotificationService {
         actionButtons: [
           NotificationActionButton(
             key: 'done',
-            label: 'Done',
+            label: doneLabel ?? 'Done',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
           NotificationActionButton(
             key: 'remind_later',
-            label: 'Remind Me Later',
+            label: remindLaterLabel ?? 'Remind Me Later',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
         ],
         schedule: NotificationCalendar.fromDate(
           date: scheduledTime,
-          preciseAlarm: true, // Use precise alarm for better timing
+          preciseAlarm:
+              false, // Set to false to comply with Google Play Store policy
+          allowWhileIdle:
+              true, // Still allow notifications while device is idle
         ),
       );
       log('AwesomeNotificationService: Notification scheduled successfully');

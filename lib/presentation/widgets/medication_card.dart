@@ -37,9 +37,8 @@ class MedicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final daysLeft = medication.repeatForever
-        ? 'Forever'
-        : medication.actualDaysLeft.toString();
+    final isForever = medication.repeatForever;
+    final daysLeft = isForever ? null : medication.actualDaysLeft;
     final isActive = medication.isActive;
     final isDailyComplete = medication.isDailyComplete;
     final isFullyComplete = medication.isFullyComplete;
@@ -60,6 +59,7 @@ class MedicationCard extends StatelessWidget {
             children: [
               MedicationCardHeader(
                 medication: medication,
+                isForever: isForever,
                 daysLeft: daysLeft,
                 typeLabel: getTypeLabel(medication.type, context),
               ),
@@ -114,7 +114,7 @@ class MedicationCard extends StatelessWidget {
                       Icon(Icons.verified, color: Colors.green, size: 28),
                       const SizedBox(width: 10),
                       Text(
-                        'Course Completed',
+                        AppLocalizations.of(context)!.courseCompleted,
                         style: TextStyle(
                           color: Colors.green[800],
                           fontWeight: FontWeight.bold,

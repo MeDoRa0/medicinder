@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/error/failures.dart';
 import '../../core/error/error_handler.dart';
+import '../../l10n/app_localizations.dart';
 
 class AppErrorWidget extends StatelessWidget {
   final Failure failure;
@@ -71,7 +72,7 @@ class AppErrorWidget extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: color,
                 foregroundColor: Colors.white,
@@ -144,7 +145,7 @@ class FullScreenErrorWidget extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: onRetry,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Try Again'),
+                    label: Text(AppLocalizations.of(context)!.tryAgain),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: color,
                       foregroundColor: Colors.white,
@@ -163,7 +164,7 @@ class FullScreenErrorWidget extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onBack,
                     icon: const Icon(Icons.arrow_back),
-                    label: const Text('Go Back'),
+                    label: Text(AppLocalizations.of(context)!.goBack),
                     style: TextButton.styleFrom(foregroundColor: color),
                   ),
                 ],
@@ -183,6 +184,7 @@ class ErrorSnackBar extends SnackBar {
     required Failure failure,
     VoidCallback? onRetry,
     VoidCallback? onDismiss,
+    String? retryLabel,
   }) : super(
          content: Row(
            children: [
@@ -201,9 +203,9 @@ class ErrorSnackBar extends SnackBar {
              if (onRetry != null)
                TextButton(
                  onPressed: onRetry,
-                 child: const Text(
-                   'Retry',
-                   style: TextStyle(color: Colors.white),
+                 child: Text(
+                   retryLabel ?? 'Retry',
+                   style: const TextStyle(color: Colors.white),
                  ),
                ),
              if (onDismiss != null)

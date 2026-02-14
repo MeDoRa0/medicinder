@@ -1,6 +1,8 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:medicinder/domain/entities/medication.dart';
 import 'dart:developer';
+import '../../l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 
 /// Optimized notification service that reduces redundant operations
 class NotificationOptimizer {
@@ -82,7 +84,10 @@ class NotificationOptimizer {
   }
 
   /// Schedule only the next upcoming dose notification
-  Future<void> scheduleNextDoseNotification(Medication medication) async {
+  Future<void> scheduleNextDoseNotification(
+    Medication medication, {
+    BuildContext? context,
+  }) async {
     try {
       final now = DateTime.now();
       int? nextDoseIndex;
@@ -110,6 +115,7 @@ class NotificationOptimizer {
           scheduledTime: nextDoseTime,
           medicationId: medication.id,
           doseIndex: nextDoseIndex,
+          context: context,
         );
 
         log(
@@ -128,17 +134,31 @@ class NotificationOptimizer {
     required DateTime scheduledTime,
     required String medicationId,
     required int doseIndex,
+    BuildContext? context,
   }) async {
     try {
       // Cancel any existing notification with the same ID
       await AwesomeNotifications().cancel(id);
 
+      String? title;
+      String? body;
+      String? doneLabel;
+      String? remindLaterLabel;
+
+      final l10n = context != null ? AppLocalizations.of(context) : null;
+      if (l10n != null) {
+        title = l10n.medicationReminder;
+        body = l10n.timeToTakeMedication(medicationName);
+        doneLabel = l10n.done;
+        remindLaterLabel = l10n.remindMeLater;
+      }
+
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
           channelKey: 'medication_channel',
-          title: 'Medication Reminder',
-          body: 'Time to take $medicationName',
+          title: title ?? 'Medication Reminder',
+          body: body ?? 'Time to take $medicationName',
           notificationLayout: NotificationLayout.Default,
           payload: {
             'medicationId': medicationId,
@@ -151,20 +171,23 @@ class NotificationOptimizer {
         actionButtons: [
           NotificationActionButton(
             key: 'done',
-            label: 'Done',
+            label: doneLabel ?? 'Done',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
           NotificationActionButton(
             key: 'remind_later',
-            label: 'Remind Me Later',
+            label: remindLaterLabel ?? 'Remind Me Later',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
         ],
         schedule: NotificationCalendar.fromDate(
           date: scheduledTime,
-          preciseAlarm: true,
+          preciseAlarm:
+              false, // Set to false to comply with Google Play Store policy
+          allowWhileIdle:
+              true, // Still allow notifications while device is idle
         ),
       );
 
@@ -173,8 +196,8 @@ class NotificationOptimizer {
         content: NotificationContent(
           id: id,
           channelKey: 'medication_channel',
-          title: 'Medication Reminder',
-          body: 'Time to take $medicationName',
+          title: title ?? 'Medication Reminder',
+          body: body ?? 'Time to take $medicationName',
           payload: {
             'medicationId': medicationId,
             'doseIndex': doseIndex.toString(),
@@ -191,14 +214,17 @@ class NotificationOptimizer {
   }
 
   /// Batch schedule notifications for multiple medications
-  Future<void> batchScheduleNotifications(List<Medication> medications) async {
+  Future<void> batchScheduleNotifications(
+    List<Medication> medications, {
+    BuildContext? context,
+  }) async {
     try {
       log(
         'NotificationOptimizer: Starting batch scheduling for ${medications.length} medications',
       );
 
       for (final medication in medications) {
-        await scheduleNextDoseNotification(medication);
+        await scheduleNextDoseNotification(medication, context: context);
       }
 
       log('NotificationOptimizer: Batch scheduling completed');

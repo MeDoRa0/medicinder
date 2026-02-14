@@ -111,6 +111,28 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
         MealContext.beforeDinner: dinnerTime,
         MealContext.afterDinner: dinnerTime,
       };
+      // When editing a meal-based medication, infer offsets from first dose per context
+      final med = widget.medication;
+      if (med != null &&
+          med.timingType == MedicationTimingType.contextBased &&
+          _mealContexts.isNotEmpty) {
+        for (final c in _mealContexts) {
+          for (final dose in med.doses) {
+            if (dose.context == c && dose.time != null) {
+              final mealTime =
+                  _mealTimes[c] ?? const TimeOfDay(hour: 8, minute: 0);
+              final mealMins = mealTime.hour * 60 + mealTime.minute;
+              final doseMins =
+                  dose.time!.hour * 60 + dose.time!.minute;
+              final offset = c.name.startsWith('before')
+                  ? mealMins - doseMins
+                  : doseMins - mealMins;
+              _mealOffsets[c] = offset > 0 ? offset : 15;
+              break;
+            }
+          }
+        }
+      }
     });
   }
 
@@ -152,9 +174,10 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
 
   /// Returns a hint for the dosage field based on medication type.
   String _getDosageHint() {
+    final l10n = AppLocalizations.of(context)!;
     return _medicationType == MedicationType.pill
-        ? 'e.g., 1 pill, 2 pills'
-        : 'e.g., 5ml, 10ml';
+        ? l10n.dosageHintPill
+        : l10n.dosageHintSyrup;
   }
 
   /// Saves the medication form.
@@ -205,7 +228,12 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
             doseTime = baseTime.add(Duration(minutes: offset));
           }
 
-          doses.add(MedicationDose(time: doseTime, context: c, taken: false));
+          doses.add(MedicationDose(
+            time: doseTime,
+            context: c,
+            offsetMinutes: _mealOffsets[c] ?? 15,
+            taken: false,
+          ));
         }
       }
     }

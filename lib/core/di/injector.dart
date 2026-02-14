@@ -6,6 +6,7 @@ import '../../data/repositories/medication_repository_impl.dart';
 import '../../domain/repositories/medication_repository.dart';
 import '../../domain/usecases/add_medication.dart';
 import '../../domain/usecases/get_medications.dart';
+import '../../domain/usecases/update_medication.dart';
 import '../../domain/usecases/update_dose_status.dart';
 import '../../domain/usecases/delete_medication.dart';
 import '../../domain/usecases/reset_daily_doses.dart';
@@ -54,6 +55,7 @@ Future<void> initDependencies() async {
   // Use cases
   sl.registerLazySingleton(() => AddMedication(sl()));
   sl.registerLazySingleton(() => GetMedications(sl()));
+  sl.registerLazySingleton(() => UpdateMedication(sl()));
   sl.registerLazySingleton(() => UpdateDoseStatus(sl()));
   sl.registerLazySingleton(() => DeleteMedication(sl()));
   sl.registerLazySingleton(() => ResetDailyDoses(sl()));
@@ -67,6 +69,7 @@ Future<void> initDependencies() async {
     () => MedicationCubit(
       addMedication: sl(),
       getMedications: sl(),
+      updateMedication: sl(),
       updateDoseStatus: sl(),
       deleteMedication: sl(),
       resetDailyDoses: sl(),

@@ -6,6 +6,7 @@ import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
 import 'add_medication_page.dart';
 import 'settings_page.dart';
+import 'medication_statistics_page.dart';
 import '../../l10n/app_localizations.dart';
 import 'dart:async';
 import '../widgets/medication_list.dart';
@@ -13,8 +14,13 @@ import '../widgets/medication_fab.dart';
 
 class HomePage extends StatefulWidget {
   final Function(Locale) onLocaleChanged;
+  final VoidCallback? onRestartApp;
 
-  const HomePage({super.key, required this.onLocaleChanged});
+  const HomePage({
+    super.key,
+    required this.onLocaleChanged,
+    this.onRestartApp,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -100,13 +106,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         title: Text(AppLocalizations.of(context)!.homeTitle),
         actions: [
           IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MedicationStatisticsPage(),
+                ),
+              );
+            },
+            tooltip: AppLocalizations.of(context)!.statistics,
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) =>
-                      SettingsPage(onLocaleChanged: widget.onLocaleChanged),
+                      SettingsPage(
+                        onLocaleChanged: widget.onLocaleChanged,
+                        onRestartApp: widget.onRestartApp,
+                      ),
                 ),
               );
             },
@@ -133,7 +154,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     now: now,
                   );
                 } else if (state is MedicationError) {
-                  return Center(child: Text('Error: ${state.message}'));
+                  return Center(child: Text(AppLocalizations.of(context)!.error(state.message)));
                 }
                 return const SizedBox.shrink();
               },

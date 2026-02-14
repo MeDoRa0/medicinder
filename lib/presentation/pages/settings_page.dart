@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/meal_time_selector.dart';
 import '../widgets/language_selector.dart';
 import '../widgets/settings_save_button.dart';
 import '../../l10n/app_localizations.dart';
+import '../cubit/medication_cubit.dart';
 import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool isInitialSetup;
   final void Function(Locale)? onLocaleChanged;
+  final VoidCallback? onRestartApp;
   const SettingsPage({
     super.key,
     this.isInitialSetup = false,
     this.onLocaleChanged,
+    this.onRestartApp,
   });
 
   @override
@@ -83,18 +87,43 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     }
     if (!mounted) return;
+    final isInitial =
+        widget.isInitialSetup ||
+        (ModalRoute.of(context)?.settings.arguments == 'initialSetup');
+    if (!isInitial) {
+      try {
+        await context.read<MedicationCubit>().recomputeMealBasedDoseTimesAndReschedule(context);
+      } catch (_) {
+        // Non-fatal: meal times are saved; notifications may use old times until next open
+      }
+    }
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.mealTimesSaved)),
     );
     if (widget.isInitialSetup ||
         (ModalRoute.of(context)?.settings.arguments == 'initialSetup')) {
+      // Call restartApp to trigger MainApp rebuild and re-check meal times
+      if (widget.onRestartApp != null) {
+        widget.onRestartApp!();
+      }
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) =>
-              HomePage(onLocaleChanged: widget.onLocaleChanged ?? (locale) {}),
+          builder: (_) => HomePage(
+            onLocaleChanged: widget.onLocaleChanged ?? (locale) {},
+            onRestartApp: widget.onRestartApp,
+          ),
         ),
         (route) => false,
       );
+    } else {
+      // For non-initial setup, restart to refresh the app state then go back
+      if (widget.onRestartApp != null) {
+        widget.onRestartApp!();
+      }
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 

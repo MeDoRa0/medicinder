@@ -16,7 +16,8 @@ String doseLabel(MedicationDose dose, BuildContext context) {
     final t = dose.time!;
     final hour = t.hour;
     final minute = t.minute;
-    final period = hour >= 12 ? 'PM' : 'AM';
+    final l10n = AppLocalizations.of(context)!;
+    final period = hour >= 12 ? l10n.pm : l10n.am;
     final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
     return '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
   }
@@ -36,5 +37,5 @@ String doseLabel(MedicationDose dose, BuildContext context) {
         return AppLocalizations.of(context)!.afterDinner;
     }
   }
-  return 'Dose';
+  return AppLocalizations.of(context)!.dose;
 }

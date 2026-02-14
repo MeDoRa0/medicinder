@@ -209,4 +209,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tryAgain => 'Please try again';
+
+  @override
+  String get forever => 'Forever';
+
+  @override
+  String get courseCompleted => 'Course Completed';
+
+  @override
+  String get dose => 'Dose';
+
+  @override
+  String get required => 'Required';
+
+  @override
+  String get repeatForever => 'Repeat Forever';
+
+  @override
+  String get statistics => 'Statistics';
+
+  @override
+  String get medicationStatistics => 'Medication Statistics';
+
+  @override
+  String get timePeriod => 'Time Period';
+
+  @override
+  String get days7 => '7 days';
+
+  @override
+  String get days30 => '30 days';
+
+  @override
+  String get days90 => '90 days';
+
+  @override
+  String get mostTakenMedication => 'Most Taken Medication';
+
+  @override
+  String get medicationDistribution => 'Medication Distribution';
+
+  @override
+  String get allMedications => 'All Medications';
+
+  @override
+  String get noMedicationData => 'No medication data available';
+
+  @override
+  String get takeMedicationsForStats =>
+      'Take some medications to see statistics here';
+
+  @override
+  String dosesTaken(int count, String percentage) {
+    return '$count doses taken ($percentage%)';
+  }
+
+  @override
+  String get doses => 'doses';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String error(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get enterValidDays => 'Enter a valid number of days';
+
+  @override
+  String get pillUnit => 'pill';
+
+  @override
+  String get mlUnit => 'ml';
+
+  @override
+  String get exampleDays => 'e.g., 7';
+
+  @override
+  String get medicationReminders => 'Medication Reminders';
+
+  @override
+  String get remindersForMedicationDoses => 'Reminders for medication doses';
+
+  @override
+  String get notificationPermissionDeniedTitle =>
+      'Notification Permission Denied';
+
+  @override
+  String get enableNotificationsMessage =>
+      'To receive medication reminders, please enable notifications in your device settings.';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get medicationReminder => 'Medication Reminder';
+
+  @override
+  String timeToTakeMedication(String medicationName) {
+    return 'Time to take $medicationName';
+  }
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get remindMeLater => 'Remind Me Later';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get goBack => 'Go Back';
+
+  @override
+  String get dosageHintPill => 'e.g., 1 pill, 2 pills';
+
+  @override
+  String get dosageHintSyrup => 'e.g., 5ml, 10ml';
+
+  @override
+  String get am => 'AM';
+
+  @override
+  String get pm => 'PM';
 }

@@ -17,11 +17,15 @@ class MedicationDoseModel extends HiveObject {
   @HiveField(3)
   DateTime? takenDate; // Date when the dose was taken
 
+  @HiveField(4)
+  int? offsetMinutes; // Minutes before/after meal (when context != null)
+
   MedicationDoseModel({
     this.time,
     this.contextIndex,
     this.taken = false,
     this.takenDate,
+    this.offsetMinutes,
   });
 
   factory MedicationDoseModel.fromEntity(MedicationDose dose) =>
@@ -30,6 +34,7 @@ class MedicationDoseModel extends HiveObject {
         contextIndex: dose.context?.index,
         taken: dose.taken,
         takenDate: dose.takenDate,
+        offsetMinutes: dose.offsetMinutes,
       );
 
   MedicationDose toEntity() => MedicationDose(
@@ -37,6 +42,7 @@ class MedicationDoseModel extends HiveObject {
     context: contextIndex != null ? MealContext.values[contextIndex!] : null,
     taken: taken,
     takenDate: takenDate,
+    offsetMinutes: offsetMinutes,
   );
 }
 

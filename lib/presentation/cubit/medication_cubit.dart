@@ -4,19 +4,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/usecases/add_medication.dart';
 import '../../domain/usecases/get_medications.dart';
+import '../../domain/usecases/update_medication.dart';
 import '../../domain/usecases/update_dose_status.dart';
 import '../../domain/usecases/delete_medication.dart';
 import '../../domain/usecases/reset_daily_doses.dart';
 import '../../core/services/awesome_notification_service.dart';
+import '../../core/services/notification_optimizer.dart';
+import '../../main.dart';
+import '../../l10n/app_localizations.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
 
 import 'medication_state.dart';
 
 class MedicationCubit extends Cubit<MedicationState> {
   final AddMedication _addMedication;
   final GetMedications _getMedications;
+  final UpdateMedication _updateMedication;
   final UpdateDoseStatus _updateDoseStatus;
   final DeleteMedication _deleteMedication;
   final ResetDailyDoses _resetDailyDoses;
@@ -24,11 +30,13 @@ class MedicationCubit extends Cubit<MedicationState> {
   MedicationCubit({
     required AddMedication addMedication,
     required GetMedications getMedications,
+    required UpdateMedication updateMedication,
     required UpdateDoseStatus updateDoseStatus,
     required DeleteMedication deleteMedication,
     required ResetDailyDoses resetDailyDoses,
   }) : _addMedication = addMedication,
        _getMedications = getMedications,
+       _updateMedication = updateMedication,
        _updateDoseStatus = updateDoseStatus,
        _deleteMedication = deleteMedication,
        _resetDailyDoses = resetDailyDoses,
@@ -46,7 +54,7 @@ class MedicationCubit extends Cubit<MedicationState> {
       // Don't reschedule notifications here - only schedule when adding new medications
       // or when marking doses as taken to prevent duplicate scheduling
       log('MedicationCubit: Medications loaded successfully');
-    } catch (e) {
+   } catch (e) {
       log('MedicationCubit: Error loading medications: $e');
       emit(MedicationError(e.toString()));
     }
@@ -101,6 +109,20 @@ class MedicationCubit extends Cubit<MedicationState> {
 
       // Schedule notification only for the next upcoming dose
       final now = DateTime.now();
+      final context = navigatorKey.currentContext;
+      String? title;
+      String? body;
+      String? doneLabel;
+      String? remindLaterLabel;
+
+      final l10n = context != null ? AppLocalizations.of(context) : null;
+      if (l10n != null) {
+        title = l10n.medicationReminder;
+        body = l10n.timeToTakeMedication(medication.name);
+        doneLabel = l10n.done;
+        remindLaterLabel = l10n.remindMeLater;
+      }
+
       for (int i = 0; i < medication.doses.length; i++) {
         final dose = medication.doses[i];
         if (dose.time != null && dose.time!.isAfter(now) && !dose.taken) {
@@ -110,6 +132,10 @@ class MedicationCubit extends Cubit<MedicationState> {
             scheduledTime: dose.time!,
             medicationId: medication.id,
             doseIndex: i,
+            title: title,
+            body: body,
+            doneLabel: doneLabel,
+            remindLaterLabel: remindLaterLabel,
           );
           break; // Only schedule the first upcoming dose
         }
@@ -148,6 +174,20 @@ class MedicationCubit extends Cubit<MedicationState> {
             : null;
         if (med != null) {
           final now = DateTime.now();
+          final context = navigatorKey.currentContext;
+          String? title;
+          String? body;
+          String? doneLabel;
+          String? remindLaterLabel;
+
+          final l10n = context != null ? AppLocalizations.of(context) : null;
+          if (l10n != null) {
+            title = l10n.medicationReminder;
+            body = l10n.timeToTakeMedication(med.name);
+            doneLabel = l10n.done;
+            remindLaterLabel = l10n.remindMeLater;
+          }
+
           for (int i = 0; i < med.doses.length; i++) {
             final dose = med.doses[i];
             if (dose.time != null && dose.time!.isAfter(now) && !dose.taken) {
@@ -157,6 +197,10 @@ class MedicationCubit extends Cubit<MedicationState> {
                 scheduledTime: dose.time!,
                 medicationId: med.id,
                 doseIndex: i,
+                title: title,
+                body: body,
+                doneLabel: doneLabel,
+                remindLaterLabel: remindLaterLabel,
               );
               break;
             }
@@ -275,5 +319,115 @@ class MedicationCubit extends Cubit<MedicationState> {
       log('MedicationCubit: Error cleaning up medications: $e');
       emit(MedicationError(e.toString()));
     }
+  }
+
+  /// Recomputes dose times for all meal-based medications using current meal
+  /// times from settings, then reschedules notifications. Call this when the
+  /// user saves new meal times in settings.
+  Future<void> recomputeMealBasedDoseTimesAndReschedule(
+    BuildContext? context,
+  ) async {
+    try {
+      final medications = await _getMedications();
+      final prefs = await SharedPreferences.getInstance();
+
+      final breakfast = _getTimeFromPrefs(prefs, 'breakfastTime', 8, 0);
+      final lunch = _getTimeFromPrefs(prefs, 'lunchTime', 13, 0);
+      final dinner = _getTimeFromPrefs(prefs, 'dinnerTime', 19, 0);
+
+      final mealHourMin = <MealContext, ({int hour, int minute})>{
+        MealContext.beforeBreakfast: breakfast,
+        MealContext.afterBreakfast: breakfast,
+        MealContext.beforeLunch: lunch,
+        MealContext.afterLunch: lunch,
+        MealContext.beforeDinner: dinner,
+        MealContext.afterDinner: dinner,
+      };
+
+      for (final medication in medications) {
+        if (medication.timingType != MedicationTimingType.contextBased) {
+          continue;
+        }
+        final hasMealBasedDoses =
+            medication.doses.any((d) => d.context != null && d.time != null);
+        if (!hasMealBasedDoses) continue;
+
+        final updatedDoses = <MedicationDose>[];
+        for (final dose in medication.doses) {
+          if (dose.context == null || dose.time == null) {
+            updatedDoses.add(dose);
+            continue;
+          }
+          final meal = mealHourMin[dose.context!]!;
+          final offset = dose.offsetMinutes ?? 15;
+          final baseTime = DateTime(
+            dose.time!.year,
+            dose.time!.month,
+            dose.time!.day,
+            meal.hour,
+            meal.minute,
+          );
+          final bool isBefore =
+              dose.context!.name.startsWith('before');
+          final DateTime newTime = isBefore
+              ? baseTime.subtract(Duration(minutes: offset))
+              : baseTime.add(Duration(minutes: offset));
+
+          updatedDoses.add(MedicationDose(
+            time: newTime,
+            context: dose.context,
+            offsetMinutes: dose.offsetMinutes,
+            taken: dose.taken,
+            takenDate: dose.takenDate,
+          ));
+        }
+
+        final updated = Medication(
+          id: medication.id,
+          name: medication.name,
+          usage: medication.usage,
+          dosage: medication.dosage,
+          type: medication.type,
+          timingType: medication.timingType,
+          doses: updatedDoses,
+          totalDays: medication.totalDays,
+          startDate: medication.startDate,
+          repeatForever: medication.repeatForever,
+        );
+        await _updateMedication(updated);
+      }
+
+      final updatedMedications = await _getMedications();
+      emit(MedicationLoaded(updatedMedications));
+
+      await NotificationOptimizer().clearAllNotifications();
+      await NotificationOptimizer().batchScheduleNotifications(
+        updatedMedications,
+        context: context,
+      );
+      log(
+        'MedicationCubit: Recomputed meal-based dose times and rescheduled notifications',
+      );
+    } catch (e) {
+      log(
+        'MedicationCubit: Error recomputing meal-based dose times: $e',
+      );
+      rethrow;
+    }
+  }
+
+  static ({int hour, int minute}) _getTimeFromPrefs(
+    SharedPreferences prefs,
+    String key,
+    int defaultHour,
+    int defaultMinute,
+  ) {
+    final s = prefs.getString(key);
+    if (s == null) return (hour: defaultHour, minute: defaultMinute);
+    final parts = s.split(':');
+    if (parts.length < 2) return (hour: defaultHour, minute: defaultMinute);
+    final hour = int.tryParse(parts[0]) ?? defaultHour;
+    final minute = int.tryParse(parts[1]) ?? defaultMinute;
+    return (hour: hour, minute: minute);
   }
 }

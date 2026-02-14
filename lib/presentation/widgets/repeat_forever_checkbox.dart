@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class RepeatForeverCheckbox extends StatelessWidget {
   final bool value;
@@ -10,7 +11,7 @@ class RepeatForeverCheckbox extends StatelessWidget {
       children: [
         Checkbox(value: value, onChanged: (val) => onChanged(val ?? false)),
         const SizedBox(width: 8),
-        const Text('Repeat Forever'),
+        Text(AppLocalizations.of(context)!.repeatForever),
       ],
     );
   }

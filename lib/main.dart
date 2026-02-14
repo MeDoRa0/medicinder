@@ -10,6 +10,7 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/services/awesome_notification_service.dart';
+import 'core/services/notification_action_handler.dart';
 
 import 'presentation/pages/home_page.dart';
 import 'presentation/cubit/medication_cubit.dart';
@@ -17,40 +18,6 @@ import 'presentation/pages/settings_page.dart';
 
 /// Global navigator key for accessing context outside the widget tree.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-Future<void> onActionReceivedMethod(ReceivedAction action) async {
-  final payload = action.payload ?? {};
-  final medicationId = payload['medicationId'];
-  final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
-  final medicationName = payload['medicationName'];
-  if (action.buttonKeyPressed == 'done') {
-    if (medicationId == null || doseIndex == null) return;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      final context = navigatorKey.currentContext;
-      if (context != null) {
-        context.read<MedicationCubit>().markDoseTaken(
-          medicationId,
-          doseIndex,
-          true,
-        );
-      }
-    });
-  } else if (action.buttonKeyPressed == 'remind_later') {
-    if (medicationId != null && doseIndex != null && medicationName != null) {
-      // Cancel any existing notification for this dose before rescheduling
-      await AwesomeNotificationService.cancelMedicationReminder(
-        medicationId.hashCode + doseIndex,
-      );
-      await AwesomeNotificationService.scheduleMedicationReminder(
-        id: medicationId.hashCode + doseIndex,
-        medicationName: medicationName,
-        scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
-        medicationId: medicationId,
-        doseIndex: doseIndex,
-      );
-    }
-  }
-}
 
 /// The app's entry point. Initializes dependencies and runs the app.
 void main() async {
@@ -218,6 +185,7 @@ class _MainAppState extends State<MainApp> {
                 key: const ValueKey('initialSettings'),
                 isInitialSetup: true,
                 onLocaleChanged: setLocale,
+                onRestartApp: restartApp,
               ),
               debugShowCheckedModeBanner: false,
             );
@@ -232,7 +200,10 @@ class _MainAppState extends State<MainApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [Locale('en'), Locale('ar')],
-            home: HomePage(onLocaleChanged: setLocale),
+            home: HomePage(
+              onLocaleChanged: setLocale,
+              onRestartApp: restartApp,
+            ),
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)!.appTitle,
             navigatorKey: navigatorKey,

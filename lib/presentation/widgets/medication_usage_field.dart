@@ -11,7 +11,7 @@ class MedicationUsageField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.usage,
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+      validator: (v) => v == null || v.isEmpty ? AppLocalizations.of(context)!.required : null,
     );
   }
 }

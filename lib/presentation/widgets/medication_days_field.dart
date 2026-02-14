@@ -17,15 +17,15 @@ class MedicationDaysField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.days,
-        hintText: 'e.g., 7',
+        hintText: AppLocalizations.of(context)!.exampleDays,
       ),
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       validator: (v) {
         if (repeatForever) return null;
-        if (v == null || v.isEmpty) return 'Required';
+        if (v == null || v.isEmpty) return AppLocalizations.of(context)!.required;
         final n = int.tryParse(v);
-        if (n == null || n < 1) return 'Enter a valid number of days';
+        if (n == null || n < 1) return AppLocalizations.of(context)!.enterValidDays;
         return null;
       },
       enabled: enabled,

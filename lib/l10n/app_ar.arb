@@ -199,5 +199,255 @@
   "dailyDosesCompleted": "تم تناول جرعات اليوم. العلاج مستمر.",
   "@dailyDosesCompleted": {
     "description": "Status message when daily doses are completed but course continues"
+  },
+  "forever": "دائماً",
+  "@forever": {
+    "description": "Text for medications that repeat forever"
+  },
+  "courseCompleted": "اكتمل العلاج",
+  "@courseCompleted": {
+    "description": "Status message when medication course is fully completed"
+  },
+  "dose": "جرعة",
+  "@dose": {
+    "description": "Label for a medication dose"
+  },
+  "required": "مطلوب",
+  "@required": {
+    "description": "Validation error message for required fields"
+  },
+  "repeatForever": "تكرار دائماً",
+  "@repeatForever": {
+    "description": "Checkbox label for repeating medication forever"
+  },
+  "statistics": "الإحصائيات",
+  "@statistics": {
+    "description": "Statistics page tooltip and title"
+  },
+  "medicationStatistics": "إحصائيات الأدوية",
+  "@medicationStatistics": {
+    "description": "Title for medication statistics page"
+  },
+  "timePeriod": "الفترة الزمنية",
+  "@timePeriod": {
+    "description": "Label for time period selector"
+  },
+  "days7": "7 أيام",
+  "@days7": {
+    "description": "7 days period button"
+  },
+  "days30": "30 يوم",
+  "@days30": {
+    "description": "30 days period button"
+  },
+  "days90": "90 يوم",
+  "@days90": {
+    "description": "90 days period button"
+  },
+  "mostTakenMedication": "الدواء الأكثر تناولاً",
+  "@mostTakenMedication": {
+    "description": "Label for most taken medication card"
+  },
+  "medicationDistribution": "توزيع الأدوية",
+  "@medicationDistribution": {
+    "description": "Label for medication distribution chart"
+  },
+  "allMedications": "جميع الأدوية",
+  "@allMedications": {
+    "description": "Label for all medications list"
+  },
+  "noMedicationData": "لا توجد بيانات أدوية متاحة",
+  "@noMedicationData": {
+    "description": "Message when no medication statistics data is available"
+  },
+  "takeMedicationsForStats": "تناول بعض الأدوية لرؤية الإحصائيات هنا",
+  "@takeMedicationsForStats": {
+    "description": "Message prompting user to take medications to see statistics"
+  },
+  "dosesTaken": "{count} جرعة تم تناولها ({percentage}%)",
+  "@dosesTaken": {
+    "description": "Format for doses taken with percentage",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      },
+      "percentage": {
+        "type": "String",
+        "example": "25.5"
+      }
+    }
+  },
+  "doses": "جرعات",
+  "@doses": {
+    "description": "Word for doses (plural)"
+  },
+  "other": "أخرى",
+  "@other": {
+    "description": "Label for other medications in statistics"
+  },
+  "error": "خطأ: {message}",
+  "@error": {
+    "description": "Error message prefix",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Something went wrong"
+      }
+    }
+  },
+  "enterValidDays": "أدخل عدد أيام صحيح",
+  "@enterValidDays": {
+    "description": "Validation error for invalid number of days"
+  },
+  "pillUnit": "حبة",
+  "@pillUnit": {
+    "description": "Unit for pill medication"
+  },
+  "mlUnit": "مل",
+  "@mlUnit": {
+    "description": "Unit for syrup medication"
+  },
+  "exampleDays": "مثال: 7",
+  "@exampleDays": {
+    "description": "Example hint for days field"
+  },
+  "medicationReminders": "تذكيرات الأدوية",
+  "@medicationReminders": {
+    "description": "Notification channel name"
+  },
+  "remindersForMedicationDoses": "تذكيرات لجرعات الأدوية",
+  "@remindersForMedicationDoses": {
+    "description": "Notification channel description"
+  },
+  "notificationPermissionDeniedTitle": "تم رفض إذن الإشعارات",
+  "@notificationPermissionDeniedTitle": {
+    "description": "Title for notification permission denied dialog"
+  },
+  "enableNotificationsMessage": "لتلقي تذكيرات الأدوية، يرجى تفعيل الإشعارات في إعدادات جهازك.",
+  "@enableNotificationsMessage": {
+    "description": "Message explaining how to enable notifications"
+  },
+  "openSettings": "فتح الإعدادات",
+  "@openSettings": {
+    "description": "Button to open device settings"
+  },
+  "medicationReminder": "تذكير الدواء",
+  "@medicationReminder": {
+    "description": "Notification title"
+  },
+  "timeToTakeMedication": "حان الوقت لتناول {medicationName}",
+  "@timeToTakeMedication": {
+    "description": "Notification body text",
+    "placeholders": {
+      "medicationName": {
+        "type": "String",
+        "example": "Aspirin"
+      }
+    }
+  },
+  "done": "تم",
+  "@done": {
+    "description": "Button label for marking medication as done"
+  },
+  "remindMeLater": "تذكيرني لاحقاً",
+  "@remindMeLater": {
+    "description": "Button label for reminding later"
+  },
+  "retry": "إعادة المحاولة",
+  "@retry": {
+    "description": "Button label for retrying an action"
+  },
+  "goBack": "العودة",
+  "@goBack": {
+    "description": "Button label for going back"
+  },
+  "dosageHintPill": "مثال: حبة واحدة، حبتان",
+  "@dosageHintPill": {
+    "description": "Example hint for pill dosage field"
+  },
+  "dosageHintSyrup": "مثال: 5 مل، 10 مل",
+  "@dosageHintSyrup": {
+    "description": "Example hint for syrup dosage field"
+  },
+  "am": "ص",
+  "@am": {
+    "description": "AM time period abbreviation"
+  },
+  "pm": "م",
+  "@pm": {
+    "description": "PM time period abbreviation"
+  },
+  "courseContinues": "العلاج مستمر.",
+  "@courseContinues": {
+    "description": "Message shown when today's doses are complete but the course is not yet finished."
+  },
+  "medicationNotFound": "لم يتم العثور على الدواء",
+  "@medicationNotFound": {
+    "description": "Error message when medication is not found"
+  },
+  "invalidData": "بيانات الدواء غير صحيحة",
+  "@invalidData": {
+    "description": "Error message for invalid medication data"
+  },
+  "invalidDoseIndex": "اختيار الجرعة غير صحيح",
+  "@invalidDoseIndex": {
+    "description": "Error message for invalid dose index"
+  },
+  "notificationPermissionDenied": "تم رفض إذن الإشعارات",
+  "@notificationPermissionDenied": {
+    "description": "Error message when notification permission is denied"
+  },
+  "notificationSchedulingFailed": "فشل في جدولة الإشعار",
+  "@notificationSchedulingFailed": {
+    "description": "Error message when notification scheduling fails"
+  },
+  "dataMigrationFailed": "فشل نقل البيانات",
+  "@dataMigrationFailed": {
+    "description": "Error message when data migration fails"
+  },
+  "storageError": "حدث خطأ في التخزين",
+  "@storageError": {
+    "description": "Error message for storage errors"
+  },
+  "networkError": "فشل الاتصال بالشبكة",
+  "@networkError": {
+    "description": "Error message for network errors"
+  },
+  "validationError": "البيانات المقدمة غير صحيحة",
+  "@validationError": {
+    "description": "Error message for validation errors"
+  },
+  "permissionDenied": "تم رفض الإذن",
+  "@permissionDenied": {
+    "description": "Error message when permission is denied"
+  },
+  "resourceNotFound": "لم يتم العثور على المورد",
+  "@resourceNotFound": {
+    "description": "Error message when resource is not found"
+  },
+  "unknownError": "حدث خطأ غير متوقع",
+  "@unknownError": {
+    "description": "Error message for unknown errors"
+  },
+  "retryNetwork": "تحقق من اتصالك وحاول مرة أخرى",
+  "@retryNetwork": {
+    "description": "Suggested action for network errors"
+  },
+  "retryStorage": "حاول مرة أخرى أو أعد تشغيل التطبيق",
+  "@retryStorage": {
+    "description": "Suggested action for storage errors"
+  },
+  "retryNotification": "حاول مرة أخرى أو تحقق من إعدادات الإشعارات",
+  "@retryNotification": {
+    "description": "Suggested action for notification errors"
+  },
+  "checkInput": "يرجى التحقق من المدخلات والمحاولة مرة أخرى",
+  "@checkInput": {
+    "description": "Suggested action for validation errors"
+  },
+  "tryAgain": "يرجى المحاولة مرة أخرى",
+  "@tryAgain": {
+    "description": "Generic retry message"
   }
 } 

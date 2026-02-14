@@ -1,0 +1,13 @@
+🎉 What's New
+
+• Swipeable screens to navigate between medications and taken history
+• Medications automatically move to "Taken" screen when all doses are completed
+• View all taken medications with timestamps in one organized screen
+• Improved navigation with tab indicators
+
+Manage your medications more easily with these new features!
+
+
+
+
+

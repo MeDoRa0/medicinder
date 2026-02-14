@@ -54,6 +54,7 @@ class MedicationLocalDataSource {
           updatedDoses[doseIndex] = MedicationDose(
             time: updatedDoses[doseIndex].time,
             context: updatedDoses[doseIndex].context,
+            offsetMinutes: updatedDoses[doseIndex].offsetMinutes,
             taken: false,
             takenDate: null,
           );
@@ -68,6 +69,7 @@ class MedicationLocalDataSource {
             doses: updatedDoses,
             totalDays: medication.totalDays,
             startDate: medication.startDate,
+            repeatForever: medication.repeatForever,
           );
         }
 

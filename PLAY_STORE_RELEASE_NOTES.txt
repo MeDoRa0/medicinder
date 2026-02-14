@@ -1,0 +1,234 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💊 MEDICINDER - Your Smart Medication Reminder & Tracker
+
+Never miss a dose again! Medicinder is a comprehensive, privacy-first medication management app designed to help you stay on track with your health routine.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 WHY MEDICINDER?
+
+✅ RELIABLE REMINDERS
+Never forget to take your medication with smart, persistent notifications that work even when your phone is locked or the app is closed.
+
+✅ PRIVACY FIRST
+All your medication data is stored locally on your device. We don't collect, share, or store your personal information. Your health data stays private.
+
+✅ EASY TO USE
+Simple, intuitive interface that makes managing multiple medications effortless. No complicated setup or learning curve required.
+
+✅ SMART & EFFICIENT
+Optimized for battery life and performance. The app works smoothly in the background without draining your battery.
+
+✅ MULTILINGUAL SUPPORT
+Fully localized in English and Arabic with proper RTL (Right-to-Left) layout support for Arabic users.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🕐 SMART MEDICATION SCHEDULING
+
+• SPECIFIC TIME SCHEDULING
+  Set exact times for your medication doses (e.g., 8:00 AM, 2:00 PM, 8:00 PM)
+
+• MEAL-BASED SCHEDULING
+  Schedule medications relative to meals:
+  - Before breakfast, lunch, or dinner
+  - After breakfast, lunch, or dinner
+  - Customizable time offsets for each meal
+
+• FLEXIBLE TIMING
+  Adjust meal times in settings to match your daily routine
+  Set custom offsets (e.g., 30 minutes before breakfast)
+
+• DURATION TRACKING
+  Set treatment duration in days
+  Automatic completion detection when treatment courses finish
+  Medications automatically move to "Taken" screen when all doses are completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔔 ADVANCED NOTIFICATION SYSTEM
+
+• PERSISTENT NOTIFICATIONS
+  Notifications stay visible until you take action
+  Won't disappear until you mark the dose as taken or delay it
+
+• QUICK ACTION BUTTONS
+  "Done" - Mark the dose as taken instantly from the notification
+  "Remind Me Later" - Reschedule the reminder for 15 minutes later
+
+• BACKGROUND PROCESSING
+  Works even when the app is completely closed
+  Reliable reminders that don't depend on the app being open
+
+• AUTOMATIC SCHEDULING
+  Notifications are automatically scheduled when you add medications
+  Smart rescheduling for missed doses
+  Optimized notification system for better performance
+
+• HIGH PRIORITY
+  Notifications can wake your device
+  Ensures you never miss an important medication reminder
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💊 COMPREHENSIVE MEDICATION MANAGEMENT
+
+• MULTIPLE MEDICATION TYPES
+  Support for pills, tablets, capsules, and syrups
+  Track different medication forms with ease
+
+• DETAILED DOSAGE TRACKING
+  Record specific dosages with appropriate units (mg, ml, tablets, etc.)
+  Store detailed usage information for each medication
+  Track what each medication is used for
+
+• SMART ORGANIZATION
+  Swipeable screens to navigate between active medications and taken history
+  View all medications you've taken today with timestamps
+  Automatic organization when medications are completed
+
+• MANUAL CONTROL
+  Delete medications at any time
+  Edit medication details
+  Full control over your medication list
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 USER-FRIENDLY INTERFACE
+
+• BILINGUAL SUPPORT
+  Available in English and Arabic
+  Full localization with proper RTL (Right-to-Left) layout for Arabic
+  Switch languages anytime in settings
+
+• INTUITIVE DESIGN
+  Clean, modern Material Design UI
+  Easy navigation with tab indicators
+  Color-coded medication status
+
+• CROSS-PLATFORM
+  Works on Android, iOS, Windows, macOS, Linux, and Web
+  Consistent experience across all your devices
+
+• RESPONSIVE LAYOUT
+  Adapts to different screen sizes and orientations
+  Optimized for phones, tablets, and desktops
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💾 RELIABLE DATA MANAGEMENT
+
+• LOCAL STORAGE
+  All data stored locally on your device using Hive database
+  Fast, efficient, and secure
+
+• OFFLINE ACCESS
+  No internet connection required
+  Works completely offline
+  Your data is always accessible
+
+• AUTOMATIC DATA MIGRATION
+  Seamless updates with automatic handling of model structure changes
+  Your data is safe during app updates
+
+• CROSS-PLATFORM CONSISTENCY
+  Consistent data structure across all platforms
+  Reliable data persistence
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ CUSTOMIZATION & SETTINGS
+
+• LANGUAGE SELECTION
+  Switch between English and Arabic
+  Changes apply immediately without app restart
+
+• MEAL TIME CONFIGURATION
+  Set your breakfast, lunch, and dinner times
+  Customize meal times to match your daily routine
+
+• NOTIFICATION SETTINGS
+  Configure notification preferences
+  Test notification system from settings
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 HOW TO USE
+
+1. ADD YOUR MEDICATIONS
+   Tap the + button to add a new medication
+   Enter medication name, usage, dosage, and schedule
+
+2. SET YOUR SCHEDULE
+   Choose specific times or meal-based scheduling
+   Set treatment duration in days
+
+3. GET REMINDERS
+   Receive timely notifications with action buttons
+   Mark doses as taken directly from notifications
+
+4. TRACK YOUR PROGRESS
+   View active medications on the home screen
+   Swipe to see your taken history with timestamps
+   Medications automatically organize when completed
+
+5. MANAGE EASILY
+   Edit or delete medications anytime
+   Adjust meal times in settings
+   Switch languages as needed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 PRIVACY & SECURITY
+
+• NO DATA COLLECTION
+  We don't collect any personal information
+  No analytics, tracking, or data sharing
+
+• LOCAL STORAGE ONLY
+  All medication data stays on your device
+  No cloud sync, no servers, no third-party access
+
+• NO PERMISSIONS REQUIRED
+  Only notification permission needed for reminders
+  No access to contacts, location, or other sensitive data
+
+• YOUR DATA, YOUR CONTROL
+  You own your data completely
+  Delete the app, delete your data - it's that simple
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ KEY FEATURES SUMMARY
+
+✓ Smart medication scheduling (specific times or meal-based)
+✓ Persistent notifications with action buttons
+✓ Works completely offline
+✓ Bilingual support (English & Arabic with RTL)
+✓ Automatic completion tracking
+✓ Swipeable screens for easy navigation
+✓ Taken medication history with timestamps
+✓ Privacy-first: no data collection
+✓ Cross-platform support
+✓ Optimized for performance and battery life
+✓ Clean, intuitive interface
+✓ Meal time customization
+✓ Multiple medication types support
+✓ Detailed dosage tracking
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💬 FEEDBACK & SUPPORT
+
+We're constantly working to improve Medicinder and make it the best medication reminder app for you. Your feedback helps us make Medicinder better for everyone!
+
+If you have suggestions, encounter issues, or want to share your experience, please reach out to us through the app or leave a review.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Thank you for choosing Medicinder! 💊
+
+Stay healthy and never miss a dose again.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

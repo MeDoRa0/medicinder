@@ -487,6 +487,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please try again'**
   String get tryAgain;
+
+  /// Text for medications that repeat forever
+  ///
+  /// In en, this message translates to:
+  /// **'Forever'**
+  String get forever;
+
+  /// Status message when medication course is fully completed
+  ///
+  /// In en, this message translates to:
+  /// **'Course Completed'**
+  String get courseCompleted;
+
+  /// Label for a medication dose
+  ///
+  /// In en, this message translates to:
+  /// **'Dose'**
+  String get dose;
+
+  /// Validation error message for required fields
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// Checkbox label for repeating medication forever
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat Forever'**
+  String get repeatForever;
+
+  /// Statistics page tooltip and title
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statistics;
+
+  /// Title for medication statistics page
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Statistics'**
+  String get medicationStatistics;
+
+  /// Label for time period selector
+  ///
+  /// In en, this message translates to:
+  /// **'Time Period'**
+  String get timePeriod;
+
+  /// 7 days period button
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get days7;
+
+  /// 30 days period button
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get days30;
+
+  /// 90 days period button
+  ///
+  /// In en, this message translates to:
+  /// **'90 days'**
+  String get days90;
+
+  /// Label for most taken medication card
+  ///
+  /// In en, this message translates to:
+  /// **'Most Taken Medication'**
+  String get mostTakenMedication;
+
+  /// Label for medication distribution chart
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Distribution'**
+  String get medicationDistribution;
+
+  /// Label for all medications list
+  ///
+  /// In en, this message translates to:
+  /// **'All Medications'**
+  String get allMedications;
+
+  /// Message when no medication statistics data is available
+  ///
+  /// In en, this message translates to:
+  /// **'No medication data available'**
+  String get noMedicationData;
+
+  /// Message prompting user to take medications to see statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Take some medications to see statistics here'**
+  String get takeMedicationsForStats;
+
+  /// Format for doses taken with percentage
+  ///
+  /// In en, this message translates to:
+  /// **'{count} doses taken ({percentage}%)'**
+  String dosesTaken(int count, String percentage);
+
+  /// Word for doses (plural)
+  ///
+  /// In en, this message translates to:
+  /// **'doses'**
+  String get doses;
+
+  /// Label for other medications in statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// Error message prefix
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String error(String message);
+
+  /// Validation error for invalid number of days
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number of days'**
+  String get enterValidDays;
+
+  /// Unit for pill medication
+  ///
+  /// In en, this message translates to:
+  /// **'pill'**
+  String get pillUnit;
+
+  /// Unit for syrup medication
+  ///
+  /// In en, this message translates to:
+  /// **'ml'**
+  String get mlUnit;
+
+  /// Example hint for days field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 7'**
+  String get exampleDays;
+
+  /// Notification channel name
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminders'**
+  String get medicationReminders;
+
+  /// Notification channel description
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for medication doses'**
+  String get remindersForMedicationDoses;
+
+  /// Title for notification permission denied dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Permission Denied'**
+  String get notificationPermissionDeniedTitle;
+
+  /// Message explaining how to enable notifications
+  ///
+  /// In en, this message translates to:
+  /// **'To receive medication reminders, please enable notifications in your device settings.'**
+  String get enableNotificationsMessage;
+
+  /// Button to open device settings
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get openSettings;
+
+  /// Notification title
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminder'**
+  String get medicationReminder;
+
+  /// Notification body text
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take {medicationName}'**
+  String timeToTakeMedication(String medicationName);
+
+  /// Button label for marking medication as done
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// Button label for reminding later
+  ///
+  /// In en, this message translates to:
+  /// **'Remind Me Later'**
+  String get remindMeLater;
+
+  /// Button label for retrying an action
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// Button label for going back
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get goBack;
+
+  /// Example hint for pill dosage field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 1 pill, 2 pills'**
+  String get dosageHintPill;
+
+  /// Example hint for syrup dosage field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 5ml, 10ml'**
+  String get dosageHintSyrup;
+
+  /// AM time period abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'AM'**
+  String get am;
+
+  /// PM time period abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'PM'**
+  String get pm;
 }
 
 class _AppLocalizationsDelegate

@@ -271,5 +271,183 @@
   "tryAgain": "Please try again",
   "@tryAgain": {
     "description": "Generic retry message"
+  },
+  "forever": "Forever",
+  "@forever": {
+    "description": "Text for medications that repeat forever"
+  },
+  "courseCompleted": "Course Completed",
+  "@courseCompleted": {
+    "description": "Status message when medication course is fully completed"
+  },
+  "dose": "Dose",
+  "@dose": {
+    "description": "Label for a medication dose"
+  },
+  "required": "Required",
+  "@required": {
+    "description": "Validation error message for required fields"
+  },
+  "repeatForever": "Repeat Forever",
+  "@repeatForever": {
+    "description": "Checkbox label for repeating medication forever"
+  },
+  "statistics": "Statistics",
+  "@statistics": {
+    "description": "Statistics page tooltip and title"
+  },
+  "medicationStatistics": "Medication Statistics",
+  "@medicationStatistics": {
+    "description": "Title for medication statistics page"
+  },
+  "timePeriod": "Time Period",
+  "@timePeriod": {
+    "description": "Label for time period selector"
+  },
+  "days7": "7 days",
+  "@days7": {
+    "description": "7 days period button"
+  },
+  "days30": "30 days",
+  "@days30": {
+    "description": "30 days period button"
+  },
+  "days90": "90 days",
+  "@days90": {
+    "description": "90 days period button"
+  },
+  "mostTakenMedication": "Most Taken Medication",
+  "@mostTakenMedication": {
+    "description": "Label for most taken medication card"
+  },
+  "medicationDistribution": "Medication Distribution",
+  "@medicationDistribution": {
+    "description": "Label for medication distribution chart"
+  },
+  "allMedications": "All Medications",
+  "@allMedications": {
+    "description": "Label for all medications list"
+  },
+  "noMedicationData": "No medication data available",
+  "@noMedicationData": {
+    "description": "Message when no medication statistics data is available"
+  },
+  "takeMedicationsForStats": "Take some medications to see statistics here",
+  "@takeMedicationsForStats": {
+    "description": "Message prompting user to take medications to see statistics"
+  },
+  "dosesTaken": "{count} doses taken ({percentage}%)",
+  "@dosesTaken": {
+    "description": "Format for doses taken with percentage",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      },
+      "percentage": {
+        "type": "String",
+        "example": "25.5"
+      }
+    }
+  },
+  "doses": "doses",
+  "@doses": {
+    "description": "Word for doses (plural)"
+  },
+  "other": "Other",
+  "@other": {
+    "description": "Label for other medications in statistics"
+  },
+  "error": "Error: {message}",
+  "@error": {
+    "description": "Error message prefix",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Something went wrong"
+      }
+    }
+  },
+  "enterValidDays": "Enter a valid number of days",
+  "@enterValidDays": {
+    "description": "Validation error for invalid number of days"
+  },
+  "pillUnit": "pill",
+  "@pillUnit": {
+    "description": "Unit for pill medication"
+  },
+  "mlUnit": "ml",
+  "@mlUnit": {
+    "description": "Unit for syrup medication"
+  },
+  "exampleDays": "e.g., 7",
+  "@exampleDays": {
+    "description": "Example hint for days field"
+  },
+  "medicationReminders": "Medication Reminders",
+  "@medicationReminders": {
+    "description": "Notification channel name"
+  },
+  "remindersForMedicationDoses": "Reminders for medication doses",
+  "@remindersForMedicationDoses": {
+    "description": "Notification channel description"
+  },
+  "notificationPermissionDeniedTitle": "Notification Permission Denied",
+  "@notificationPermissionDeniedTitle": {
+    "description": "Title for notification permission denied dialog"
+  },
+  "enableNotificationsMessage": "To receive medication reminders, please enable notifications in your device settings.",
+  "@enableNotificationsMessage": {
+    "description": "Message explaining how to enable notifications"
+  },
+  "openSettings": "Open Settings",
+  "@openSettings": {
+    "description": "Button to open device settings"
+  },
+  "medicationReminder": "Medication Reminder",
+  "@medicationReminder": {
+    "description": "Notification title"
+  },
+  "timeToTakeMedication": "Time to take {medicationName}",
+  "@timeToTakeMedication": {
+    "description": "Notification body text",
+    "placeholders": {
+      "medicationName": {
+        "type": "String",
+        "example": "Aspirin"
+      }
+    }
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Button label for marking medication as done"
+  },
+  "remindMeLater": "Remind Me Later",
+  "@remindMeLater": {
+    "description": "Button label for reminding later"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button label for retrying an action"
+  },
+  "goBack": "Go Back",
+  "@goBack": {
+    "description": "Button label for going back"
+  },
+  "dosageHintPill": "e.g., 1 pill, 2 pills",
+  "@dosageHintPill": {
+    "description": "Example hint for pill dosage field"
+  },
+  "dosageHintSyrup": "e.g., 5ml, 10ml",
+  "@dosageHintSyrup": {
+    "description": "Example hint for syrup dosage field"
+  },
+  "am": "AM",
+  "@am": {
+    "description": "AM time period abbreviation"
+  },
+  "pm": "PM",
+  "@pm": {
+    "description": "PM time period abbreviation"
   }
 } 
