@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/medication.dart';
-import '../../l10n/app_localizations.dart';
 import 'medication_card_utils.dart';
 import 'package:intl/intl.dart';
 
@@ -19,7 +18,6 @@ class TakenMedicationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timeFormat = DateFormat('h:mm a');
-    final dateFormat = DateFormat('MMM d, yyyy');
 
     return Card(
       color: const Color(0xFFE8F5E8),

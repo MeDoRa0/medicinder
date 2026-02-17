@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/medication.dart';
 import 'taken_medication_card.dart';
-import '../../l10n/app_localizations.dart';
 
 class TakenMedicationList extends StatelessWidget {
   final List<Medication> medications;
