@@ -41,6 +41,7 @@ post_install do |installer|
     target.build_configurations.each do |config|
       # Fix for "Using bridging headers with module interfaces is unsupported"
       config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+      config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
     end
   end
 end
