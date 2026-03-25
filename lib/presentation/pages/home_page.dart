@@ -16,11 +16,7 @@ class HomePage extends StatefulWidget {
   final Function(Locale) onLocaleChanged;
   final VoidCallback? onRestartApp;
 
-  const HomePage({
-    super.key,
-    required this.onLocaleChanged,
-    this.onRestartApp,
-  });
+  const HomePage({super.key, required this.onLocaleChanged, this.onRestartApp});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -123,11 +119,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) =>
-                      SettingsPage(
-                        onLocaleChanged: widget.onLocaleChanged,
-                        onRestartApp: widget.onRestartApp,
-                      ),
+                  builder: (_) => SettingsPage(
+                    onLocaleChanged: widget.onLocaleChanged,
+                    onRestartApp: widget.onRestartApp,
+                  ),
                 ),
               );
             },
@@ -154,7 +149,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     now: now,
                   );
                 } else if (state is MedicationError) {
-                  return Center(child: Text(AppLocalizations.of(context)!.error(state.message)));
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context)!.error(state.message),
+                    ),
+                  );
                 }
                 return const SizedBox.shrink();
               },

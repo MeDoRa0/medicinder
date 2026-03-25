@@ -23,7 +23,9 @@ Future<void> onActionReceivedMethod(ReceivedAction action) async {
           doseIndex,
           true,
         );
-        await AwesomeNotificationService.cancelMedicationReminder(notificationId);
+        await AwesomeNotificationService.cancelMedicationReminder(
+          notificationId,
+        );
       } catch (_) {
         // Leave notification visible so user knows the action did not complete
       }

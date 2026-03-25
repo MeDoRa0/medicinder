@@ -1,0 +1,31 @@
+workflows:
+  ios-simulator-build:
+    name: iOS Simulator Build
+    environment:
+      flutter: stable
+      xcode: latest
+
+    scripts:
+      - name: Install dependencies
+        script: |
+          flutter clean
+          flutter pub get
+          cd ios
+          pod install
+
+      - name: Build Simulator
+        script: |
+          xcodebuild \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            build
+
+      - name: Zip app
+        script: |
+          cd ios/build/Debug-iphonesimulator
+          zip -r Runner.zip Runner.app
+
+    artifacts:
+      - ios/build/Debug-iphonesimulator/Runner.zip

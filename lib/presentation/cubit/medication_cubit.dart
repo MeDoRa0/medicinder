@@ -54,7 +54,7 @@ class MedicationCubit extends Cubit<MedicationState> {
       // Don't reschedule notifications here - only schedule when adding new medications
       // or when marking doses as taken to prevent duplicate scheduling
       log('MedicationCubit: Medications loaded successfully');
-   } catch (e) {
+    } catch (e) {
       log('MedicationCubit: Error loading medications: $e');
       emit(MedicationError(e.toString()));
     }
@@ -348,8 +348,9 @@ class MedicationCubit extends Cubit<MedicationState> {
         if (medication.timingType != MedicationTimingType.contextBased) {
           continue;
         }
-        final hasMealBasedDoses =
-            medication.doses.any((d) => d.context != null && d.time != null);
+        final hasMealBasedDoses = medication.doses.any(
+          (d) => d.context != null && d.time != null,
+        );
         if (!hasMealBasedDoses) continue;
 
         final updatedDoses = <MedicationDose>[];
@@ -367,19 +368,20 @@ class MedicationCubit extends Cubit<MedicationState> {
             meal.hour,
             meal.minute,
           );
-          final bool isBefore =
-              dose.context!.name.startsWith('before');
+          final bool isBefore = dose.context!.name.startsWith('before');
           final DateTime newTime = isBefore
               ? baseTime.subtract(Duration(minutes: offset))
               : baseTime.add(Duration(minutes: offset));
 
-          updatedDoses.add(MedicationDose(
-            time: newTime,
-            context: dose.context,
-            offsetMinutes: dose.offsetMinutes,
-            taken: dose.taken,
-            takenDate: dose.takenDate,
-          ));
+          updatedDoses.add(
+            MedicationDose(
+              time: newTime,
+              context: dose.context,
+              offsetMinutes: dose.offsetMinutes,
+              taken: dose.taken,
+              takenDate: dose.takenDate,
+            ),
+          );
         }
 
         final updated = Medication(
@@ -409,9 +411,7 @@ class MedicationCubit extends Cubit<MedicationState> {
         'MedicationCubit: Recomputed meal-based dose times and rescheduled notifications',
       );
     } catch (e) {
-      log(
-        'MedicationCubit: Error recomputing meal-based dose times: $e',
-      );
+      log('MedicationCubit: Error recomputing meal-based dose times: $e');
       rethrow;
     }
   }
