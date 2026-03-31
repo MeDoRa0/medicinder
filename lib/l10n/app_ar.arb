@@ -346,13 +346,13 @@
       }
     }
   },
-  "done": "تم",
+  "done": "تناولت",
   "@done": {
-    "description": "Button label for marking medication as done"
+    "description": "Notification action: user took the medication"
   },
-  "remindMeLater": "تذكيرني لاحقاً",
+  "remindMeLater": "غفوة",
   "@remindMeLater": {
-    "description": "Button label for reminding later"
+    "description": "Notification action: remind again after a short delay"
   },
   "retry": "إعادة المحاولة",
   "@retry": {

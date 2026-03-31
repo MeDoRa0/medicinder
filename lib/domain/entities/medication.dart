@@ -76,6 +76,12 @@ class Medication {
   /// Returns true if the medication should be visible and manageable
   /// (not yet fully completed or treatment period not ended)
   bool get isActive {
+    if (repeatForever) return true;
+    final now = DateTime.now();
+    final endDate = startDate.add(Duration(days: totalDays));
+    if (now.isAfter(endDate)) {
+      return false;
+    }
     return actualDaysLeft > 0 || !isDailyComplete;
   }
 

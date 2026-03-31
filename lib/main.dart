@@ -10,6 +10,7 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/services/awesome_notification_service.dart';
+import 'core/services/medication_reminder_actions.dart';
 import 'core/services/notification_action_handler.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/cubit/medication_cubit.dart';
@@ -99,18 +100,18 @@ class _MainAppState extends State<MainApp> {
             final payload = receivedAction.payload ?? {};
             final medicationId = payload['medicationId'];
             final doseIndex = int.tryParse(payload['doseIndex'] ?? '');
-            if (receivedAction.buttonKeyPressed == 'done' &&
+            if ((receivedAction.buttonKeyPressed == 'taken' ||
+                    receivedAction.buttonKeyPressed == 'done') &&
                 medicationId != null &&
                 doseIndex != null) {
-              // Wait for the cubit to be available
-              WidgetsBinding.instance.addPostFrameCallback((_) {
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                await MedicationReminderActions.applyDoseTaken(
+                  medicationId,
+                  doseIndex,
+                );
                 final context = navigatorKey.currentContext;
-                if (context != null) {
-                  context.read<MedicationCubit>().markDoseTaken(
-                    medicationId,
-                    doseIndex,
-                    true,
-                  );
+                if (context != null && context.mounted) {
+                  await context.read<MedicationCubit>().loadMedications();
                 }
               });
             }

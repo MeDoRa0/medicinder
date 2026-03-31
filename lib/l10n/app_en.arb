@@ -418,13 +418,13 @@
       }
     }
   },
-  "done": "Done",
+  "done": "Taken",
   "@done": {
-    "description": "Button label for marking medication as done"
+    "description": "Notification action: user took the medication"
   },
-  "remindMeLater": "Remind Me Later",
+  "remindMeLater": "Snooze",
   "@remindMeLater": {
-    "description": "Button label for reminding later"
+    "description": "Notification action: remind again after a short delay"
   },
   "retry": "Retry",
   "@retry": {

@@ -1,24 +1,43 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import '../../l10n/app_localizations.dart';
 
 class AwesomeNotificationService {
-  static const String channelKey = 'medication_channel';
+  /// Small icon (white-on-transparent drawable). Also pass on each [NotificationContent]
+  /// so scheduled notifications resolve the icon in release builds.
+  static const String androidSmallIconResource =
+      'resource://drawable/notification_icon';
+
+  /// Expanded notification artwork on Android (full-color app icon).
+  static const String androidLargeIconResource =
+      'resource://mipmap/launcher_icon';
+
+  /// New channel id so devices pick up alarm-style sound, vibration, and importance.
+  static const String channelKey = 'medication_alarm_channel';
+
+  /// Snooze duration when the user taps "Snooze" on a reminder.
+  static const Duration snoozeDuration = Duration(minutes: 15);
 
   static Future<void> initialize() async {
     log('AwesomeNotificationService: Initializing notifications...');
     try {
       await AwesomeNotifications().initialize(
-        'resource://drawable/notification_icon', // Use our custom notification icon
+        androidSmallIconResource,
         [
           NotificationChannel(
             channelKey: channelKey,
-            channelName: 'Medication Reminders',
-            channelDescription: 'Reminders for medication doses',
+            channelName: 'Medication alarms',
+            channelDescription:
+                'High-priority reminders with sound and vibration until you respond',
             defaultColor: Colors.blue,
-            importance: NotificationImportance.High,
+            importance: NotificationImportance.Max,
             channelShowBadge: true,
+            playSound: true,
+            enableVibration: true,
+            vibrationPattern: highVibrationPattern,
+            defaultRingtoneType: DefaultRingtoneType.Alarm,
           ),
         ],
         debug: true,
@@ -100,6 +119,14 @@ class AwesomeNotificationService {
       // Cancel any existing notification with the same id to prevent duplicates
       await AwesomeNotifications().cancel(id);
 
+      final payload = <String, String?>{
+        'medicationName': medicationName,
+      };
+      if (medicationId != null) payload['medicationId'] = medicationId;
+      if (doseIndex != null) {
+        payload['doseIndex'] = doseIndex.toString();
+      }
+
       // Schedule notification using AwesomeNotifications
       // Using allowWhileIdle: true ensures notifications work even when device is idle
       await AwesomeNotifications().createNotification(
@@ -108,36 +135,36 @@ class AwesomeNotificationService {
           channelKey: channelKey,
           title: title ?? 'Medication Reminder',
           body: body ?? 'Time to take $medicationName',
+          icon: androidSmallIconResource,
+          largeIcon: defaultTargetPlatform == TargetPlatform.android
+              ? androidLargeIconResource
+              : null,
           notificationLayout: NotificationLayout.Default,
-
-          payload: {
-            if (medicationId != null) 'medicationId': medicationId,
-            if (doseIndex != null) 'doseIndex': doseIndex.toString(),
-            'medicationName': medicationName,
-          },
+          category: NotificationCategory.Alarm,
+          payload: payload,
           locked: true,
           fullScreenIntent: true,
+          wakeUpScreen: true,
+          autoDismissible: false,
         ),
         actionButtons: [
           NotificationActionButton(
-            key: 'done',
-            label: doneLabel ?? 'Done',
+            key: 'taken',
+            label: doneLabel ?? 'Taken',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
           NotificationActionButton(
-            key: 'remind_later',
-            label: remindLaterLabel ?? 'Remind Me Later',
+            key: 'snooze',
+            label: remindLaterLabel ?? 'Snooze',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
         ],
         schedule: NotificationCalendar.fromDate(
           date: scheduledTime,
-          preciseAlarm:
-              false, // Set to false to comply with Google Play Store policy
-          allowWhileIdle:
-              true, // Still allow notifications while device is idle
+          preciseAlarm: true,
+          allowWhileIdle: true,
         ),
       );
       log('AwesomeNotificationService: Notification scheduled successfully');

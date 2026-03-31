@@ -310,10 +310,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get done => 'تم';
+  String get done => 'تناولت';
 
   @override
-  String get remindMeLater => 'تذكيرني لاحقاً';
+  String get remindMeLater => 'غفوة';
 
   @override
   String get retry => 'إعادة المحاولة';

@@ -17,9 +17,12 @@ class NotificationHandler {
   // Call this from your main or wherever you listen to notification actions
   void handleActionReceived(Map<String, dynamic> payload, String? actionKey) {
     switch (actionKey) {
+      case 'taken':
+      case 'done':
       case 'confirm':
         _handleDoseTaken(payload);
         break;
+      case 'snooze':
       case 'remind_later':
         _handleRemindLater(payload);
         break;
@@ -53,7 +56,8 @@ class NotificationHandler {
       await AwesomeNotificationService.scheduleMedicationReminder(
         id: medicationId.hashCode + doseIndex,
         medicationName: medicationName,
-        scheduledTime: DateTime.now().add(const Duration(minutes: 15)),
+        scheduledTime:
+            DateTime.now().add(AwesomeNotificationService.snoozeDuration),
       );
       log(
         'Reminder rescheduled for medication: $medicationId, dose: $doseIndex',

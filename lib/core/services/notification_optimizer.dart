@@ -1,8 +1,11 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medicinder/domain/entities/medication.dart';
 import 'dart:developer';
 import '../../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+
+import 'awesome_notification_service.dart';
 
 /// Optimized notification service that reduces redundant operations
 class NotificationOptimizer {
@@ -156,10 +159,15 @@ class NotificationOptimizer {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
-          channelKey: 'medication_channel',
+          channelKey: AwesomeNotificationService.channelKey,
           title: title ?? 'Medication Reminder',
           body: body ?? 'Time to take $medicationName',
+          icon: AwesomeNotificationService.androidSmallIconResource,
+          largeIcon: defaultTargetPlatform == TargetPlatform.android
+              ? AwesomeNotificationService.androidLargeIconResource
+              : null,
           notificationLayout: NotificationLayout.Default,
+          category: NotificationCategory.Alarm,
           payload: {
             'medicationId': medicationId,
             'doseIndex': doseIndex.toString(),
@@ -167,27 +175,27 @@ class NotificationOptimizer {
           },
           locked: true,
           fullScreenIntent: true,
+          wakeUpScreen: true,
+          autoDismissible: false,
         ),
         actionButtons: [
           NotificationActionButton(
-            key: 'done',
-            label: doneLabel ?? 'Done',
+            key: 'taken',
+            label: doneLabel ?? 'Taken',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
           NotificationActionButton(
-            key: 'remind_later',
-            label: remindLaterLabel ?? 'Remind Me Later',
+            key: 'snooze',
+            label: remindLaterLabel ?? 'Snooze',
             autoDismissible: false,
             actionType: ActionType.Default,
           ),
         ],
         schedule: NotificationCalendar.fromDate(
           date: scheduledTime,
-          preciseAlarm:
-              false, // Set to false to comply with Google Play Store policy
-          allowWhileIdle:
-              true, // Still allow notifications while device is idle
+          preciseAlarm: true,
+          allowWhileIdle: true,
         ),
       );
 
@@ -195,7 +203,7 @@ class NotificationOptimizer {
       final notification = NotificationModel(
         content: NotificationContent(
           id: id,
-          channelKey: 'medication_channel',
+          channelKey: AwesomeNotificationService.channelKey,
           title: title ?? 'Medication Reminder',
           body: body ?? 'Time to take $medicationName',
           payload: {

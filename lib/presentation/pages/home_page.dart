@@ -49,18 +49,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  void _handleAppResume() async {
+  Future<void> _handleAppResume() async {
     final cubit = context.read<MedicationCubit>();
     // Check for daily reset when app is reopened
     await cubit.checkDailyResetOnAppOpen();
-    // Then refresh medications and clean up completed ones
-    _cleanupCompletedMedications();
+    // Then refresh medications and clean up completed ones (await so list reloads after cleanup)
+    await cubit.cleanupCompletedMedications();
     await cubit.loadMedications();
-  }
-
-  void _cleanupCompletedMedications() {
-    final cubit = context.read<MedicationCubit>();
-    cubit.cleanupCompletedMedications();
   }
 
   void _startPeriodicMedicationCheck() {
@@ -89,7 +84,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       // New day detected
       final cubit = context.read<MedicationCubit>();
       await cubit.checkDailyResetOnAppOpen();
-      _cleanupCompletedMedications();
+      await cubit.cleanupCompletedMedications();
       await cubit.loadMedications();
       _lastCleanupDate = now;
     }

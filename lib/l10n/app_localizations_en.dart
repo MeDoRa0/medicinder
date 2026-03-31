@@ -313,10 +313,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get done => 'Done';
+  String get done => 'Taken';
 
   @override
-  String get remindMeLater => 'Remind Me Later';
+  String get remindMeLater => 'Snooze';
 
   @override
   String get retry => 'Retry';

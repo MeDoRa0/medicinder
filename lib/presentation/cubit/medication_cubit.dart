@@ -9,6 +9,7 @@ import '../../domain/usecases/update_dose_status.dart';
 import '../../domain/usecases/delete_medication.dart';
 import '../../domain/usecases/reset_daily_doses.dart';
 import '../../core/services/awesome_notification_service.dart';
+import '../../core/services/medication_reminder_actions.dart';
 import '../../core/services/notification_optimizer.dart';
 import '../../main.dart';
 import '../../l10n/app_localizations.dart';
@@ -158,54 +159,10 @@ class MedicationCubit extends Cubit<MedicationState> {
       log(
         'MedicationCubit: Marking dose $doseIndex as \\${taken ? 'taken' : 'not taken'} for medication $medicationId',
       );
-      await _updateDoseStatus(medicationId, doseIndex, taken);
-
       if (taken) {
-        // Cancel the notification for this dose since it's been taken
-        log('MedicationCubit: Cancelling notification for taken dose');
-        await AwesomeNotificationService.cancelMedicationReminder(
-          medicationId.hashCode + doseIndex,
-        );
-
-        // Schedule notification for the next upcoming dose
-        final medications = await _getMedications();
-        final med = medications.where((m) => m.id == medicationId).isNotEmpty
-            ? medications.firstWhere((m) => m.id == medicationId)
-            : null;
-        if (med != null) {
-          final now = DateTime.now();
-          final context = navigatorKey.currentContext;
-          String? title;
-          String? body;
-          String? doneLabel;
-          String? remindLaterLabel;
-
-          final l10n = context != null ? AppLocalizations.of(context) : null;
-          if (l10n != null) {
-            title = l10n.medicationReminder;
-            body = l10n.timeToTakeMedication(med.name);
-            doneLabel = l10n.done;
-            remindLaterLabel = l10n.remindMeLater;
-          }
-
-          for (int i = 0; i < med.doses.length; i++) {
-            final dose = med.doses[i];
-            if (dose.time != null && dose.time!.isAfter(now) && !dose.taken) {
-              await AwesomeNotificationService.scheduleMedicationReminder(
-                id: med.id.hashCode + i,
-                medicationName: med.name,
-                scheduledTime: dose.time!,
-                medicationId: med.id,
-                doseIndex: i,
-                title: title,
-                body: body,
-                doneLabel: doneLabel,
-                remindLaterLabel: remindLaterLabel,
-              );
-              break;
-            }
-          }
-        }
+        await MedicationReminderActions.applyDoseTaken(medicationId, doseIndex);
+      } else {
+        await _updateDoseStatus(medicationId, doseIndex, false);
       }
 
       // Check if the medication is now fully complete

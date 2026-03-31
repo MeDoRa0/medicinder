@@ -674,16 +674,16 @@ abstract class AppLocalizations {
   /// **'Time to take {medicationName}'**
   String timeToTakeMedication(String medicationName);
 
-  /// Button label for marking medication as done
+  /// Notification action: user took the medication
   ///
   /// In en, this message translates to:
-  /// **'Done'**
+  /// **'Taken'**
   String get done;
 
-  /// Button label for reminding later
+  /// Notification action: remind again after a short delay
   ///
   /// In en, this message translates to:
-  /// **'Remind Me Later'**
+  /// **'Snooze'**
   String get remindMeLater;
 
   /// Button label for retrying an action
