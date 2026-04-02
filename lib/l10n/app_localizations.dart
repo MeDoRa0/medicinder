@@ -721,6 +721,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PM'**
   String get pm;
+
+  /// Title for cloud sync status controls
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync'**
+  String get syncStatusTitle;
+
+  /// Cloud sync status when the user is not signed in
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in'**
+  String get syncNotSignedIn;
+
+  /// Cloud sync status when synchronization is in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get syncSyncing;
+
+  /// Cloud sync status when local and remote data are aligned
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get syncUpToDate;
+
+  /// Cloud sync status when the latest sync attempt failed
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed'**
+  String get syncFailed;
+
+  /// Button label for enabling cloud sync
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Sync'**
+  String get syncEnableCloudSync;
+
+  /// Button label for signing out from cloud sync
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get syncDisableCloudSync;
+
+  /// Message shown when cloud sync is unavailable because the user is signed out
+  ///
+  /// In en, this message translates to:
+  /// **'Local-only mode is active until you sign in.'**
+  String get syncUnavailableLocalOnly;
+
+  /// Message shown when cloud sync is linked to a signed-in account
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {userId}'**
+  String syncSignedInAs(String userId);
 }
 
 class _AppLocalizationsDelegate

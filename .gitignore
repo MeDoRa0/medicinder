@@ -45,3 +45,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 ios_backup/
+coverage/
+.env
+.env.*
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist

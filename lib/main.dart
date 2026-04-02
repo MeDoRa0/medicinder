@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'core/di/injector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,8 +13,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/services/awesome_notification_service.dart';
 import 'core/services/medication_reminder_actions.dart';
 import 'core/services/notification_action_handler.dart';
+import 'core/services/sync/sync_diagnostics.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/cubit/medication_cubit.dart';
+import 'presentation/cubit/sync/sync_status_cubit.dart';
 import 'presentation/pages/settings_page.dart';
 
 /// Global navigator key for accessing context outside the widget tree.
@@ -27,8 +30,23 @@ void main() async {
   log('Initializing timezone...');
   tz.initializeTimeZones();
 
+  var firebaseConfigured = false;
+  try {
+    await Firebase.initializeApp();
+    firebaseConfigured = true;
+    log('Firebase initialized for cloud sync foundation.');
+  } catch (error) {
+    log(
+      'Firebase configuration missing or invalid; continuing in local-only mode: $error',
+    );
+  }
+  const SyncDiagnostics().logStartupMode(
+    firebaseConfigured: firebaseConfigured,
+    localOnly: !firebaseConfigured,
+  );
+
   log('Initializing dependencies...');
-  await initDependencies();
+  await initDependencies(firebaseConfigured: firebaseConfigured);
 
   log('Initializing awesome notifications...');
   await AwesomeNotificationService.initialize();
@@ -122,8 +140,15 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     final customColor = const Color(0xFF71C0B2);
-    return BlocProvider(
-      create: (_) => sl<MedicationCubit>()..loadMedications(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => sl<MedicationCubit>()..loadMedications(),
+        ),
+        BlocProvider(
+          create: (_) => sl<SyncStatusCubit>()..initialize(),
+        ),
+      ],
       child: FutureBuilder<bool>(
         future: _areMealTimesSet(),
         builder: (context, snapshot) {

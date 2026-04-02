@@ -79,3 +79,18 @@ class DataMigrationFailure extends Failure {
 class StorageFailure extends Failure {
   const StorageFailure(String message) : super(message, 'STORAGE_FAILED');
 }
+
+class AuthFailure extends Failure {
+  const AuthFailure(String message, [String? code])
+    : super(message, code ?? 'AUTH_FAILED');
+}
+
+class SyncFailure extends Failure {
+  const SyncFailure(String message, [String? code])
+    : super(message, code ?? 'SYNC_FAILED');
+}
+
+class FirebaseConfigFailure extends Failure {
+  const FirebaseConfigFailure(String message)
+    : super(message, 'FIREBASE_CONFIG_FAILED');
+}

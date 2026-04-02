@@ -11,6 +11,7 @@ import '../../l10n/app_localizations.dart';
 import 'dart:async';
 import '../widgets/medication_list.dart';
 import '../widgets/medication_fab.dart';
+import '../widgets/sync/sync_status_banner.dart';
 
 class HomePage extends StatefulWidget {
   final Function(Locale) onLocaleChanged;
@@ -127,6 +128,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
       body: Column(
         children: [
+          const SyncStatusBanner(),
           Expanded(
             child: BlocBuilder<MedicationCubit, MedicationState>(
               builder: (context, state) {
