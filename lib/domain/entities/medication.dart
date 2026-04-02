@@ -1,4 +1,4 @@
-import '../../data/models/medication_model.dart';
+import 'sync_metadata.dart';
 
 enum MedicationTimingType { specificTime, contextBased }
 
@@ -50,6 +50,7 @@ class MedicationDose {
 
 class Medication {
   final String id;
+  final String? userId;
   final String name;
   final String usage;
   final String dosage;
@@ -59,9 +60,13 @@ class Medication {
   final int totalDays;
   final DateTime startDate;
   final bool repeatForever;
+  final bool isDeleted;
+  final DateTime? deletedAt;
+  final SyncMetadata syncMetadata;
 
   const Medication({
     required this.id,
+    this.userId,
     required this.name,
     required this.usage,
     required this.dosage,
@@ -71,11 +76,45 @@ class Medication {
     required this.totalDays,
     required this.startDate,
     this.repeatForever = false,
+    this.isDeleted = false,
+    this.deletedAt,
+    required this.syncMetadata,
   });
+
+  factory Medication.create({
+    required String id,
+    required String name,
+    required String usage,
+    required String dosage,
+    required MedicationType type,
+    required MedicationTimingType timingType,
+    required List<MedicationDose> doses,
+    required int totalDays,
+    required DateTime startDate,
+    bool repeatForever = false,
+    DateTime? now,
+  }) {
+    final timestamp = now ?? DateTime.now();
+    return Medication(
+      id: id,
+      userId: null,
+      name: name,
+      usage: usage,
+      dosage: dosage,
+      type: type,
+      timingType: timingType,
+      doses: doses,
+      totalDays: totalDays,
+      startDate: startDate,
+      repeatForever: repeatForever,
+      syncMetadata: SyncMetadata.initial(timestamp),
+    );
+  }
 
   /// Returns true if the medication should be visible and manageable
   /// (not yet fully completed or treatment period not ended)
   bool get isActive {
+    if (isDeleted) return false;
     if (repeatForever) return true;
     final now = DateTime.now();
     final endDate = startDate.add(Duration(days: totalDays));
@@ -116,7 +155,8 @@ class Medication {
   /// Returns true if the full treatment course is completed
   /// (all doses are taken AND course end date has passed)
   bool get isFullyComplete {
-    return actualDaysLeft <= 0 &&
+    return !isDeleted &&
+        actualDaysLeft <= 0 &&
         doses.isNotEmpty &&
         doses.every((dose) => dose.taken);
   }
@@ -130,6 +170,9 @@ class Medication {
   /// Calculates the actual days left based on dose completion
   /// This considers both elapsed time and completed doses
   int get actualDaysLeft {
+    if (isDeleted) {
+      return 0;
+    }
     final now = DateTime.now();
     final endDate = startDate.add(Duration(days: totalDays));
 
@@ -185,18 +228,7 @@ class Medication {
         )
         .toList();
 
-    return Medication(
-      id: id,
-      name: name,
-      usage: usage,
-      dosage: dosage,
-      type: type,
-      timingType: timingType,
-      doses: updatedDoses,
-      totalDays: totalDays,
-      startDate: startDate,
-      repeatForever: repeatForever,
-    );
+    return copyWith(doses: updatedDoses);
   }
 
   /// Mark a specific dose as taken for today
@@ -212,17 +244,79 @@ class Medication {
       takenDate: DateTime.now(),
     );
 
+    return copyWith(doses: updatedDoses);
+  }
+
+  Medication markUpdated({
+    required DateTime updatedAt,
+    required SyncStatus status,
+  }) {
+    return copyWith(
+      syncMetadata: syncMetadata.copyWith(
+        updatedAt: updatedAt,
+        status: status,
+        syncVersion: syncMetadata.syncVersion + 1,
+      ),
+    );
+  }
+
+  Medication markDeleted(DateTime deletedAt) {
+    return copyWith(
+      isDeleted: true,
+      deletedAt: deletedAt,
+      syncMetadata: syncMetadata.copyWith(
+        updatedAt: deletedAt,
+        deletedAt: deletedAt,
+        status: SyncStatus.pendingDelete,
+        syncVersion: syncMetadata.syncVersion + 1,
+      ),
+    );
+  }
+
+  Medication markSynced(DateTime syncedAt) {
+    return copyWith(
+      syncMetadata: syncMetadata.copyWith(
+        updatedAt: syncedAt,
+        lastSyncedAt: syncedAt,
+        clearDeletedAt: true,
+        status: SyncStatus.synced,
+      ),
+    );
+  }
+
+  Medication copyWith({
+    String? id,
+    String? userId,
+    bool clearUserId = false,
+    String? name,
+    String? usage,
+    String? dosage,
+    MedicationType? type,
+    MedicationTimingType? timingType,
+    List<MedicationDose>? doses,
+    int? totalDays,
+    DateTime? startDate,
+    bool? repeatForever,
+    bool? isDeleted,
+    DateTime? deletedAt,
+    bool clearDeletedAt = false,
+    SyncMetadata? syncMetadata,
+  }) {
     return Medication(
-      id: id,
-      name: name,
-      usage: usage,
-      dosage: dosage,
-      type: type,
-      timingType: timingType,
-      doses: updatedDoses,
-      totalDays: totalDays,
-      startDate: startDate,
-      repeatForever: repeatForever,
+      id: id ?? this.id,
+      userId: clearUserId ? null : (userId ?? this.userId),
+      name: name ?? this.name,
+      usage: usage ?? this.usage,
+      dosage: dosage ?? this.dosage,
+      type: type ?? this.type,
+      timingType: timingType ?? this.timingType,
+      doses: doses ?? this.doses,
+      totalDays: totalDays ?? this.totalDays,
+      startDate: startDate ?? this.startDate,
+      repeatForever: repeatForever ?? this.repeatForever,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deletedAt: clearDeletedAt ? null : (deletedAt ?? this.deletedAt),
+      syncMetadata: syncMetadata ?? this.syncMetadata,
     );
   }
 
@@ -232,25 +326,34 @@ class Medication {
       other is Medication &&
           runtimeType == other.runtimeType &&
           id == other.id &&
+          userId == other.userId &&
           name == other.name &&
           usage == other.usage &&
           dosage == other.dosage &&
           type == other.type &&
           timingType == other.timingType &&
-          doses == other.doses;
+          doses == other.doses &&
+          totalDays == other.totalDays &&
+          startDate == other.startDate &&
+          repeatForever == other.repeatForever &&
+          isDeleted == other.isDeleted &&
+          deletedAt == other.deletedAt &&
+          syncMetadata == other.syncMetadata;
 
   @override
   int get hashCode =>
       id.hashCode ^
+      userId.hashCode ^
       name.hashCode ^
       usage.hashCode ^
       dosage.hashCode ^
       type.hashCode ^
       timingType.hashCode ^
-      doses.hashCode;
-
-  /// Convert to MedicationModel for data layer
-  MedicationModel toModel() {
-    return MedicationModel.fromEntity(this);
-  }
+      doses.hashCode ^
+      totalDays.hashCode ^
+      startDate.hashCode ^
+      repeatForever.hashCode ^
+      isDeleted.hashCode ^
+      deletedAt.hashCode ^
+      syncMetadata.hashCode;
 }

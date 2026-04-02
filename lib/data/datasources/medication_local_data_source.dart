@@ -9,15 +9,34 @@ class MedicationLocalDataSource {
   MedicationLocalDataSource(this._box);
 
   // CRUD Operations
-  Future<List<Medication>> getAllMedications() async {
+  Future<List<Medication>> getAllMedications({bool includeDeleted = false}) async {
     try {
       final models = _box.values.toList();
-      return models.map((model) => model.toEntity()).toList();
+      final medications = models.map((model) => model.toEntity()).toList();
+      if (includeDeleted) {
+        return medications;
+      }
+      return medications.where((medication) => !medication.isDeleted).toList();
     } catch (e) {
       // If there's an error reading medications, clear the box and return empty list
       await _box.clear();
       return [];
     }
+  }
+
+  Future<Medication?> getMedicationById(
+    String id, {
+    bool includeDeleted = false,
+  }) async {
+    final model = _box.get(id);
+    final medication = model?.toEntity();
+    if (medication == null) {
+      return null;
+    }
+    if (!includeDeleted && medication.isDeleted) {
+      return null;
+    }
+    return medication;
   }
 
   Future<void> addMedication(Medication medication) async {
@@ -31,7 +50,11 @@ class MedicationLocalDataSource {
   }
 
   Future<void> deleteMedication(String id) async {
-    await _box.delete(id);
+    final medication = await getMedicationById(id, includeDeleted: true);
+    if (medication == null) {
+      return;
+    }
+    await updateMedication(medication.markDeleted(DateTime.now()));
   }
 
   Future<void> updateDoseStatus(
@@ -59,18 +82,7 @@ class MedicationLocalDataSource {
             takenDate: null,
           );
 
-          updatedMedication = Medication(
-            id: medication.id,
-            name: medication.name,
-            usage: medication.usage,
-            dosage: medication.dosage,
-            type: medication.type,
-            timingType: medication.timingType,
-            doses: updatedDoses,
-            totalDays: medication.totalDays,
-            startDate: medication.startDate,
-            repeatForever: medication.repeatForever,
-          );
+          updatedMedication = medication.copyWith(doses: updatedDoses);
         }
 
         await updateMedication(updatedMedication);
@@ -90,5 +102,9 @@ class MedicationLocalDataSource {
     } catch (e) {
       log('Error resetting daily doses: $e');
     }
+  }
+
+  Future<void> purgeMedication(String id) async {
+    await _box.delete(id);
   }
 }

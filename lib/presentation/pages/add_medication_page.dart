@@ -238,7 +238,20 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
       }
     }
 
-    final medication = Medication(
+    final medication = widget.medication?.copyWith(
+          name: _nameController.text.trim(),
+          usage: _usageController.text.trim(),
+          dosage: _dosageController.text.trim(),
+          type: _medicationType,
+          timingType: _timingType,
+          doses: doses,
+          totalDays: _repeatForever
+              ? 10000
+              : (int.tryParse(_daysController.text) ?? 7),
+          startDate: startDate,
+          repeatForever: _repeatForever,
+        ) ??
+        Medication.create(
       id: widget.medication?.id ?? uuid.v4(),
       name: _nameController.text.trim(),
       usage: _usageController.text.trim(),
