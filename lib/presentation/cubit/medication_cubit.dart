@@ -341,18 +341,7 @@ class MedicationCubit extends Cubit<MedicationState> {
           );
         }
 
-        final updated = Medication(
-          id: medication.id,
-          name: medication.name,
-          usage: medication.usage,
-          dosage: medication.dosage,
-          type: medication.type,
-          timingType: medication.timingType,
-          doses: updatedDoses,
-          totalDays: medication.totalDays,
-          startDate: medication.startDate,
-          repeatForever: medication.repeatForever,
-        );
+        final updated = medication.copyWith(doses: updatedDoses);
         await _updateMedication(updated);
       }
 

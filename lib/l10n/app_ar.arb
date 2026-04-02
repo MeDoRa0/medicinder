@@ -450,4 +450,47 @@
   "@tryAgain": {
     "description": "Generic retry message"
   }
-} 
+  ,
+  "syncStatusTitle": "Cloud Sync",
+  "@syncStatusTitle": {
+    "description": "Title for cloud sync status controls"
+  },
+  "syncNotSignedIn": "Not signed in",
+  "@syncNotSignedIn": {
+    "description": "Cloud sync status when the user is not signed in"
+  },
+  "syncSyncing": "Syncing",
+  "@syncSyncing": {
+    "description": "Cloud sync status when synchronization is in progress"
+  },
+  "syncUpToDate": "Up to date",
+  "@syncUpToDate": {
+    "description": "Cloud sync status when local and remote data are aligned"
+  },
+  "syncFailed": "Sync failed",
+  "@syncFailed": {
+    "description": "Cloud sync status when the latest sync attempt failed"
+  },
+  "syncEnableCloudSync": "Enable Sync",
+  "@syncEnableCloudSync": {
+    "description": "Button label for enabling cloud sync"
+  },
+  "syncDisableCloudSync": "Sign Out",
+  "@syncDisableCloudSync": {
+    "description": "Button label for signing out from cloud sync"
+  },
+  "syncUnavailableLocalOnly": "Local-only mode is active until you sign in.",
+  "@syncUnavailableLocalOnly": {
+    "description": "Message shown when cloud sync is unavailable because the user is signed out"
+  },
+  "syncSignedInAs": "Signed in as {userId}",
+  "@syncSignedInAs": {
+    "description": "Message shown when cloud sync is linked to a signed-in account",
+    "placeholders": {
+      "userId": {
+        "type": "String",
+        "example": "abc123"
+      }
+    }
+  }
+}

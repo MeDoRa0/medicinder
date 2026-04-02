@@ -136,6 +136,24 @@ lib/
 - `get_it: ^8.0.3` - Dependency injection
 - `timezone: ^0.10.1` - Timezone handling
 - `uuid: ^4.5.1` - Unique ID generation
+- `firebase_core` - Firebase bootstrap
+- `firebase_auth` - Account-scoped cloud sync sign-in
+- `cloud_firestore` - Cloud data mirror for sync
+- `connectivity_plus` - Connectivity-driven sync triggers
+
+### Firebase Sync Setup
+
+Cloud sync requires platform Firebase configuration that is intentionally not
+committed to this repository.
+
+1. Create a Firebase project with Authentication and Firestore enabled.
+2. Add the platform apps for Android and iOS.
+3. Place `google-services.json` in `android/app/`.
+4. Place `GoogleService-Info.plist` in `ios/Runner/`.
+5. Run `flutter pub get`.
+
+If those files are missing, the app should continue local-only medication
+tracking and keep cloud sync disabled.
 
 #### Development Dependencies
 - `build_runner: ^2.5.3` - Code generation

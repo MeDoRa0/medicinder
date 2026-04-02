@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
+import 'package:medicinder/domain/entities/sync/auth_session.dart';
+import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
+import 'package:medicinder/domain/entities/sync/sync_types.dart';
+import 'package:medicinder/domain/repositories/auth_repository.dart';
+import 'package:medicinder/domain/repositories/sync_repository.dart';
+import 'package:medicinder/domain/usecases/sync/sign_in_for_sync.dart';
+import 'package:medicinder/domain/usecases/sync/sign_out_from_sync.dart';
+import 'package:medicinder/domain/usecases/sync/watch_auth_session.dart';
+import 'package:medicinder/l10n/app_localizations.dart';
+import 'package:medicinder/presentation/cubit/sync/sync_status_cubit.dart';
+import 'package:medicinder/presentation/cubit/sync/sync_status_state.dart';
+import 'package:medicinder/presentation/widgets/sync/sync_status_banner.dart';
+
+void main() {
+  testWidgets('renders signed out sync status', (tester) async {
+    final authRepository = _FakeAuthRepository();
+    await tester.pumpWidget(
+      _TestApp(
+        cubit: SyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: _FakeSyncRepository(),
+          syncDiagnostics: const SyncDiagnostics(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Not signed in'), findsOneWidget);
+  });
+
+  testWidgets('renders up to date sync status', (tester) async {
+    final authRepository = _FakeAuthRepository();
+    final cubit = _SeededSyncStatusCubit(
+      signInForSync: SignInForSync(authRepository),
+      signOutFromSync: SignOutFromSync(authRepository),
+      watchAuthSession: WatchAuthSession(authRepository),
+      syncRepository: _FakeSyncRepository(),
+      syncDiagnostics: const SyncDiagnostics(),
+    )..seed(
+        const SyncStatusState(
+          viewState: SyncStatusViewState.upToDate,
+          userId: 'user-123',
+        ),
+      );
+
+    await tester.pumpWidget(_TestApp(cubit: cubit));
+
+    expect(find.text('Up to date'), findsOneWidget);
+  });
+}
+
+class _TestApp extends StatelessWidget {
+  final SyncStatusCubit cubit;
+
+  const _TestApp({required this.cubit});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('ar')],
+      home: BlocProvider.value(
+        value: cubit,
+        child: const Scaffold(body: SyncStatusBanner()),
+      ),
+    );
+  }
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+
+  @override
+  Future<AuthSession> signInForSync() async =>
+      const AuthSession.signedIn('user-123');
+
+  @override
+  Future<void> signOutFromSync() async {}
+
+  @override
+  Stream<AuthSession> watchSession() async* {
+    yield const AuthSession.signedOut();
+  }
+}
+
+class _FakeSyncRepository implements SyncRepository {
+  @override
+  Future<SyncResult> syncNow(SyncTrigger trigger) async =>
+      const SyncResult(success: true);
+
+  @override
+  Future<SyncResult> synchronize() => syncNow(SyncTrigger.manualRetry);
+
+  @override
+  Future<void> handleAuthChanged(AuthSession session) async {}
+
+  @override
+  Future<void> handleConnectivityRestored() async {}
+}
+
+class _SeededSyncStatusCubit extends SyncStatusCubit {
+  _SeededSyncStatusCubit({
+    required super.signInForSync,
+    required super.signOutFromSync,
+    required super.watchAuthSession,
+    required super.syncRepository,
+    required super.syncDiagnostics,
+  });
+
+  void seed(SyncStatusState state) => emit(state);
+}

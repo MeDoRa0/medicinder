@@ -335,4 +335,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pm => 'PM';
+
+  @override
+  String get syncStatusTitle => 'Cloud Sync';
+
+  @override
+  String get syncNotSignedIn => 'Not signed in';
+
+  @override
+  String get syncSyncing => 'Syncing';
+
+  @override
+  String get syncUpToDate => 'Up to date';
+
+  @override
+  String get syncFailed => 'Sync failed';
+
+  @override
+  String get syncEnableCloudSync => 'Enable Sync';
+
+  @override
+  String get syncDisableCloudSync => 'Sign Out';
+
+  @override
+  String get syncUnavailableLocalOnly =>
+      'Local-only mode is active until you sign in.';
+
+  @override
+  String syncSignedInAs(String userId) {
+    return 'Signed in as $userId';
+  }
 }

@@ -64,42 +64,66 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
     };
     return MedicationModel(
       id: fields[0] as String,
-      name: fields[1] as String,
-      usage: fields[2] as String,
-      dosage: fields[3] as String,
-      typeIndex: fields[4] as int,
-      timingTypeIndex: fields[5] as int,
-      doses: (fields[6] as List).cast<MedicationDoseModel>(),
-      totalDays: fields[7] as int,
-      startDate: fields[8] as DateTime,
-      repeatForever: fields[9] as bool,
+      userId: fields[1] as String?,
+      name: fields[2] as String,
+      usage: fields[3] as String,
+      dosage: fields[4] as String,
+      typeIndex: fields[5] as int,
+      timingTypeIndex: fields[6] as int,
+      doses: (fields[7] as List).cast<MedicationDoseModel>(),
+      totalDays: fields[8] as int,
+      startDate: fields[9] as DateTime,
+      repeatForever: fields[10] as bool,
+      isDeleted: fields[11] as bool? ?? false,
+      deletedAt: fields[12] as DateTime?,
+      createdAt: fields[13] as DateTime? ?? fields[9] as DateTime,
+      updatedAt: fields[14] as DateTime? ?? fields[9] as DateTime,
+      lastSyncedAt: fields[15] as DateTime?,
+      syncStatusIndex: fields[16] as int? ?? 0,
+      syncVersion: fields[17] as int? ?? 1,
     );
   }
 
   @override
   void write(BinaryWriter writer, MedicationModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.userId)
       ..writeByte(2)
-      ..write(obj.usage)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.dosage)
+      ..write(obj.usage)
       ..writeByte(4)
-      ..write(obj.typeIndex)
+      ..write(obj.dosage)
       ..writeByte(5)
-      ..write(obj.timingTypeIndex)
+      ..write(obj.typeIndex)
       ..writeByte(6)
-      ..write(obj.doses)
+      ..write(obj.timingTypeIndex)
       ..writeByte(7)
-      ..write(obj.totalDays)
+      ..write(obj.doses)
       ..writeByte(8)
-      ..write(obj.startDate)
+      ..write(obj.totalDays)
       ..writeByte(9)
-      ..write(obj.repeatForever);
+      ..write(obj.startDate)
+      ..writeByte(10)
+      ..write(obj.repeatForever)
+      ..writeByte(11)
+      ..write(obj.isDeleted)
+      ..writeByte(12)
+      ..write(obj.deletedAt)
+      ..writeByte(13)
+      ..write(obj.createdAt)
+      ..writeByte(14)
+      ..write(obj.updatedAt)
+      ..writeByte(15)
+      ..write(obj.lastSyncedAt)
+      ..writeByte(16)
+      ..write(obj.syncStatusIndex)
+      ..writeByte(17)
+      ..write(obj.syncVersion);
   }
 
   @override

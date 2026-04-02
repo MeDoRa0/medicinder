@@ -6,6 +6,7 @@ import '../widgets/language_selector.dart';
 import '../widgets/settings_save_button.dart';
 import '../../l10n/app_localizations.dart';
 import '../cubit/medication_cubit.dart';
+import '../widgets/sync/sync_account_tile.dart';
 import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -178,6 +179,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 selectedLanguageCode: _selectedLanguageCode,
                 onChanged: _changeLanguage,
               ),
+              const SizedBox(height: 24),
+              const SyncAccountTile(),
               const SizedBox(height: 24),
               MealTimeSelector(
                 breakfastTime: _breakfastTime,

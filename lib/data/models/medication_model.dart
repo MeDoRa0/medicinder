@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import '../../domain/entities/medication.dart';
+import '../../domain/entities/sync_metadata.dart';
 
 part 'medication_model.g.dart';
 
@@ -52,34 +53,59 @@ class MedicationModel extends HiveObject {
   String id;
 
   @HiveField(1)
-  String name;
+  String? userId;
 
   @HiveField(2)
-  String usage;
+  String name;
 
   @HiveField(3)
-  String dosage;
+  String usage;
 
   @HiveField(4)
-  int typeIndex; // MedicationType index
+  String dosage;
 
   @HiveField(5)
-  int timingTypeIndex; // MedicationTimingType index
+  int typeIndex; // MedicationType index
 
   @HiveField(6)
-  List<MedicationDoseModel> doses;
+  int timingTypeIndex; // MedicationTimingType index
 
   @HiveField(7)
-  int totalDays;
+  List<MedicationDoseModel> doses;
 
   @HiveField(8)
-  DateTime startDate;
+  int totalDays;
 
   @HiveField(9)
+  DateTime startDate;
+
+  @HiveField(10)
   bool repeatForever;
+
+  @HiveField(11)
+  bool isDeleted;
+
+  @HiveField(12)
+  DateTime? deletedAt;
+
+  @HiveField(13)
+  DateTime createdAt;
+
+  @HiveField(14)
+  DateTime updatedAt;
+
+  @HiveField(15)
+  DateTime? lastSyncedAt;
+
+  @HiveField(16)
+  int syncStatusIndex;
+
+  @HiveField(17)
+  int syncVersion;
 
   MedicationModel({
     required this.id,
+    this.userId,
     required this.name,
     required this.usage,
     required this.dosage,
@@ -89,10 +115,18 @@ class MedicationModel extends HiveObject {
     required this.totalDays,
     required this.startDate,
     this.repeatForever = false,
+    this.isDeleted = false,
+    this.deletedAt,
+    required this.createdAt,
+    required this.updatedAt,
+    this.lastSyncedAt,
+    this.syncStatusIndex = 0,
+    this.syncVersion = 1,
   });
 
   factory MedicationModel.fromEntity(Medication med) => MedicationModel(
     id: med.id,
+    userId: med.userId,
     name: med.name,
     usage: med.usage,
     dosage: med.dosage,
@@ -102,10 +136,18 @@ class MedicationModel extends HiveObject {
     totalDays: med.totalDays,
     startDate: med.startDate,
     repeatForever: med.repeatForever,
+    isDeleted: med.isDeleted,
+    deletedAt: med.deletedAt ?? med.syncMetadata.deletedAt,
+    createdAt: med.syncMetadata.createdAt,
+    updatedAt: med.syncMetadata.updatedAt,
+    lastSyncedAt: med.syncMetadata.lastSyncedAt,
+    syncStatusIndex: med.syncMetadata.status.index,
+    syncVersion: med.syncMetadata.syncVersion,
   );
 
   Medication toEntity() => Medication(
     id: id,
+    userId: userId,
     name: name,
     usage: usage,
     dosage: dosage,
@@ -115,5 +157,15 @@ class MedicationModel extends HiveObject {
     totalDays: totalDays,
     startDate: startDate,
     repeatForever: repeatForever,
+    isDeleted: isDeleted,
+    deletedAt: deletedAt,
+    syncMetadata: SyncMetadata(
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      lastSyncedAt: lastSyncedAt,
+      deletedAt: deletedAt,
+      status: SyncStatus.values[syncStatusIndex],
+      syncVersion: syncVersion,
+    ),
   );
 }
