@@ -48,5 +48,11 @@ ios_backup/
 coverage/
 .env
 .env.*
+
+# Temporary cache directories
+.tmp-cache*
+.coderabbit-cache/
+.coderabbit-err.txt
+.coderabbit-out.txt
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
