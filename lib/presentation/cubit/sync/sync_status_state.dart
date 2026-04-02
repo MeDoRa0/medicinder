@@ -14,7 +14,7 @@ class SyncStatusState {
   });
 
   const SyncStatusState.initial()
-    : this(viewState: SyncStatusViewState.notSignedIn);
+    : this(viewState: SyncStatusViewState.signedOut);
 
   SyncStatusState copyWith({
     SyncStatusViewState? viewState,

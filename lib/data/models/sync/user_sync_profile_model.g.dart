@@ -14,35 +14,41 @@ class UserSyncProfileModelAdapter extends TypeAdapter<UserSyncProfileModel> {
     };
     return UserSyncProfileModel(
       userId: fields[0] as String,
-      syncEnabled: fields[1] as bool,
-      createdAt: fields[2] as DateTime,
-      updatedAt: fields[3] as DateTime,
-      lastSuccessfulSyncAt: fields[4] as DateTime?,
-      lastAttemptedSyncAt: fields[5] as DateTime?,
-      lastSyncErrorCode: fields[6] as String?,
-      statusViewStateIndex: fields[7] as int,
+      providerIds: (fields[1] as List).cast<String>(),
+      syncEnabled: fields[2] as bool,
+      workspaceReady: fields[3] as bool,
+      createdAt: fields[4] as DateTime,
+      updatedAt: fields[5] as DateTime,
+      lastSuccessfulSyncAt: fields[6] as DateTime?,
+      lastAttemptedSyncAt: fields[7] as DateTime?,
+      lastSyncErrorCode: fields[8] as String?,
+      statusViewStateIndex: fields[9] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserSyncProfileModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
-      ..write(obj.syncEnabled)
+      ..write(obj.providerIds)
       ..writeByte(2)
-      ..write(obj.createdAt)
+      ..write(obj.syncEnabled)
       ..writeByte(3)
-      ..write(obj.updatedAt)
+      ..write(obj.workspaceReady)
       ..writeByte(4)
-      ..write(obj.lastSuccessfulSyncAt)
+      ..write(obj.createdAt)
       ..writeByte(5)
-      ..write(obj.lastAttemptedSyncAt)
+      ..write(obj.updatedAt)
       ..writeByte(6)
-      ..write(obj.lastSyncErrorCode)
+      ..write(obj.lastSuccessfulSyncAt)
       ..writeByte(7)
+      ..write(obj.lastAttemptedSyncAt)
+      ..writeByte(8)
+      ..write(obj.lastSyncErrorCode)
+      ..writeByte(9)
       ..write(obj.statusViewStateIndex);
   }
 

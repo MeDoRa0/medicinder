@@ -455,17 +455,25 @@
   "@syncStatusTitle": {
     "description": "Title for cloud sync status controls"
   },
-  "syncNotSignedIn": "Not signed in",
-  "@syncNotSignedIn": {
-    "description": "Cloud sync status when the user is not signed in"
+  "syncSignedOut": "تم تسجيل الخروج",
+  "@syncSignedOut": {
+    "description": "Cloud sync status when the user is signed out"
   },
-  "syncSyncing": "Syncing",
-  "@syncSyncing": {
-    "description": "Cloud sync status when synchronization is in progress"
+  "syncSigningIn": "جارٍ تسجيل الدخول",
+  "@syncSigningIn": {
+    "description": "Cloud sync status while authentication is in progress"
   },
-  "syncUpToDate": "Up to date",
-  "@syncUpToDate": {
-    "description": "Cloud sync status when local and remote data are aligned"
+  "syncWorkspaceInitializing": "جارٍ تجهيز مساحة السحابة الخاصة بك",
+  "@syncWorkspaceInitializing": {
+    "description": "Cloud sync status while the user workspace is being initialized"
+  },
+  "syncReady": "مساحة السحابة جاهزة",
+  "@syncReady": {
+    "description": "Cloud sync status when the authenticated workspace is ready"
+  },
+  "syncAccessDenied": "تم رفض الوصول إلى مساحة السحابة",
+  "@syncAccessDenied": {
+    "description": "Cloud sync status when backend access is denied"
   },
   "syncFailed": "Sync failed",
   "@syncFailed": {
@@ -486,6 +494,16 @@
   "syncSignedInAs": "Signed in as {userId}",
   "@syncSignedInAs": {
     "description": "Message shown when cloud sync is linked to a signed-in account",
+    "placeholders": {
+      "userId": {
+        "type": "String",
+        "example": "abc123"
+      }
+    }
+  },
+  "syncReadyAs": "مساحة السحابة جاهزة للمستخدم {userId}",
+  "@syncReadyAs": {
+    "description": "Message shown when the authenticated cloud workspace is ready",
     "placeholders": {
       "userId": {
         "type": "String",

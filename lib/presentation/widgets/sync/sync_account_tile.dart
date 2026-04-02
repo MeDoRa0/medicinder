@@ -16,8 +16,17 @@ class SyncAccountTile extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
         final cubit = context.read<SyncStatusCubit>();
         final isSignedIn =
-            state.viewState != SyncStatusViewState.notSignedIn &&
+            state.viewState != SyncStatusViewState.signedOut &&
             state.userId != null;
+        final subtitle = switch (state.viewState) {
+          SyncStatusViewState.signedOut => l10n.syncUnavailableLocalOnly,
+          SyncStatusViewState.signingIn => l10n.syncSigningIn,
+          SyncStatusViewState.workspaceInitializing =>
+            l10n.syncWorkspaceInitializing,
+          SyncStatusViewState.ready => l10n.syncReadyAs(state.userId ?? ''),
+          SyncStatusViewState.accessDenied => l10n.syncAccessDenied,
+          SyncStatusViewState.syncFailed => state.message ?? l10n.syncFailed,
+        };
 
         return Semantics(
           label: l10n.syncStatusTitle,
@@ -28,11 +37,7 @@ class SyncAccountTile extends StatelessWidget {
                 isSignedIn ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
               ),
               title: Text(l10n.syncStatusTitle),
-              subtitle: Text(
-                isSignedIn
-                    ? l10n.syncSignedInAs(state.userId!)
-                    : l10n.syncUnavailableLocalOnly,
-              ),
+              subtitle: Text(subtitle),
               trailing: TextButton(
                 onPressed: state.busy
                     ? null

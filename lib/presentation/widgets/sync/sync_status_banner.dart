@@ -16,15 +16,20 @@ class SyncStatusBanner extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
         final theme = Theme.of(context);
         final bannerColor = switch (state.viewState) {
-          SyncStatusViewState.notSignedIn => Colors.orange.shade100,
-          SyncStatusViewState.syncing => Colors.blue.shade100,
-          SyncStatusViewState.upToDate => Colors.green.shade100,
+          SyncStatusViewState.signedOut => Colors.orange.shade100,
+          SyncStatusViewState.signingIn => Colors.blue.shade100,
+          SyncStatusViewState.workspaceInitializing => Colors.blue.shade50,
+          SyncStatusViewState.ready => Colors.green.shade100,
+          SyncStatusViewState.accessDenied => Colors.red.shade50,
           SyncStatusViewState.syncFailed => Colors.red.shade100,
         };
         final label = switch (state.viewState) {
-          SyncStatusViewState.notSignedIn => l10n.syncNotSignedIn,
-          SyncStatusViewState.syncing => l10n.syncSyncing,
-          SyncStatusViewState.upToDate => l10n.syncUpToDate,
+          SyncStatusViewState.signedOut => l10n.syncSignedOut,
+          SyncStatusViewState.signingIn => l10n.syncSigningIn,
+          SyncStatusViewState.workspaceInitializing =>
+            l10n.syncWorkspaceInitializing,
+          SyncStatusViewState.ready => l10n.syncReady,
+          SyncStatusViewState.accessDenied => l10n.syncAccessDenied,
           SyncStatusViewState.syncFailed => l10n.syncFailed,
         };
 
@@ -50,9 +55,14 @@ class SyncStatusBanner extends StatelessWidget {
                 else
                   Icon(
                     switch (state.viewState) {
-                      SyncStatusViewState.notSignedIn => Icons.cloud_off_outlined,
-                      SyncStatusViewState.syncing => Icons.sync,
-                      SyncStatusViewState.upToDate => Icons.cloud_done_outlined,
+                      SyncStatusViewState.signedOut =>
+                        Icons.cloud_off_outlined,
+                      SyncStatusViewState.signingIn => Icons.login,
+                      SyncStatusViewState.workspaceInitializing =>
+                        Icons.cloud_upload_outlined,
+                      SyncStatusViewState.ready => Icons.cloud_done_outlined,
+                      SyncStatusViewState.accessDenied =>
+                        Icons.no_accounts_outlined,
                       SyncStatusViewState.syncFailed => Icons.cloud_off,
                     },
                   ),
@@ -65,7 +75,8 @@ class SyncStatusBanner extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (state.viewState == SyncStatusViewState.syncFailed)
+                if (state.viewState == SyncStatusViewState.accessDenied ||
+                    state.viewState == SyncStatusViewState.syncFailed)
                   TextButton(
                     onPressed: state.busy
                         ? null

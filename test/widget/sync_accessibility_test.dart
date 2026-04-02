@@ -73,7 +73,7 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<AuthSession> signInForSync() async =>
-      const AuthSession.signedIn('user-123');
+      const AuthSession.ready('user-123', providerId: 'anonymous');
 
   @override
   Future<void> signOutFromSync() async {}

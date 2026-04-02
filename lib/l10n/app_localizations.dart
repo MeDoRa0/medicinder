@@ -728,23 +728,35 @@ abstract class AppLocalizations {
   /// **'Cloud Sync'**
   String get syncStatusTitle;
 
-  /// Cloud sync status when the user is not signed in
+  /// Cloud sync status when the user is signed out
   ///
   /// In en, this message translates to:
-  /// **'Not signed in'**
-  String get syncNotSignedIn;
+  /// **'Signed out'**
+  String get syncSignedOut;
 
-  /// Cloud sync status when synchronization is in progress
+  /// Cloud sync status while authentication is in progress
   ///
   /// In en, this message translates to:
-  /// **'Syncing'**
-  String get syncSyncing;
+  /// **'Signing in'**
+  String get syncSigningIn;
 
-  /// Cloud sync status when local and remote data are aligned
+  /// Cloud sync status while the user workspace is being initialized
   ///
   /// In en, this message translates to:
-  /// **'Up to date'**
-  String get syncUpToDate;
+  /// **'Preparing your cloud workspace'**
+  String get syncWorkspaceInitializing;
+
+  /// Cloud sync status when the authenticated workspace is ready
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud workspace ready'**
+  String get syncReady;
+
+  /// Cloud sync status when backend access is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud workspace access denied'**
+  String get syncAccessDenied;
 
   /// Cloud sync status when the latest sync attempt failed
   ///
@@ -775,6 +787,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed in as {userId}'**
   String syncSignedInAs(String userId);
+
+  /// Message shown when the authenticated cloud workspace is ready
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud workspace ready for {userId}'**
+  String syncReadyAs(String userId);
 }
 
 class _AppLocalizationsDelegate

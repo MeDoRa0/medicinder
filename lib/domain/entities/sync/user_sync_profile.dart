@@ -2,7 +2,9 @@ import 'sync_status_view_state.dart';
 
 class UserSyncProfile {
   final String userId;
+  final List<String> providerIds;
   final bool syncEnabled;
+  final bool workspaceReady;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? lastSuccessfulSyncAt;
@@ -12,7 +14,9 @@ class UserSyncProfile {
 
   const UserSyncProfile({
     required this.userId,
+    this.providerIds = const <String>[],
     required this.syncEnabled,
+    this.workspaceReady = false,
     required this.createdAt,
     required this.updatedAt,
     required this.statusViewState,
@@ -23,7 +27,9 @@ class UserSyncProfile {
 
   UserSyncProfile copyWith({
     String? userId,
+    List<String>? providerIds,
     bool? syncEnabled,
+    bool? workspaceReady,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? lastSuccessfulSyncAt,
@@ -36,7 +42,9 @@ class UserSyncProfile {
   }) {
     return UserSyncProfile(
       userId: userId ?? this.userId,
+      providerIds: providerIds ?? this.providerIds,
       syncEnabled: syncEnabled ?? this.syncEnabled,
+      workspaceReady: workspaceReady ?? this.workspaceReady,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       lastSuccessfulSyncAt: clearLastSuccessfulSyncAt

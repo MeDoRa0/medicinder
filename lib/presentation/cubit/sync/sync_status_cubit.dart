@@ -36,17 +36,15 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
        super(const SyncStatusState.initial());
 
   void initialize() {
-    _sessionSubscription ??= _watchAuthSession().listen(
-      (session) {
-        unawaited(_handleStreamSessionChanged(session));
-      },
-    );
+    _sessionSubscription ??= _watchAuthSession().listen((session) {
+      unawaited(_handleStreamSessionChanged(session));
+    });
   }
 
   Future<void> signIn() async {
     emit(
       state.copyWith(
-        viewState: SyncStatusViewState.syncing,
+        viewState: SyncStatusViewState.signingIn,
         busy: true,
         clearMessage: true,
       ),
@@ -54,7 +52,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     try {
       final session = await _signInForSync();
       _ignoreNextSignedInUserId = session.userId;
-      await _syncForSession(session, trigger: SyncTrigger.userSignIn);
+      await _applySessionState(session, trigger: SyncTrigger.userSignIn);
     } catch (error) {
       emit(
         state.copyWith(
@@ -71,7 +69,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     _ignoreNextSignedInUserId = null;
     emit(
       state.copyWith(
-        viewState: SyncStatusViewState.notSignedIn,
+        viewState: SyncStatusViewState.signedOut,
         busy: false,
         clearUserId: true,
         clearMessage: true,
@@ -82,7 +80,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   Future<void> retry() async {
     emit(
       state.copyWith(
-        viewState: SyncStatusViewState.syncing,
+        viewState: SyncStatusViewState.workspaceInitializing,
         busy: true,
         clearMessage: true,
       ),
@@ -92,7 +90,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
       emit(
         state.copyWith(
           viewState: result.success
-              ? SyncStatusViewState.upToDate
+              ? SyncStatusViewState.ready
               : SyncStatusViewState.syncFailed,
           busy: false,
           message: result.message,
@@ -130,30 +128,73 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     final trigger = currentEventIsFirst
         ? SyncTrigger.appStartup
         : SyncTrigger.userSignIn;
-    await _syncForSession(session, trigger: trigger);
+    await _applySessionState(session, trigger: trigger);
   }
 
-  Future<void> _syncForSession(
+  Future<void> _applySessionState(
     AuthSession session, {
     required SyncTrigger trigger,
   }) async {
-    if (!session.isSignedIn) {
-      _ignoreNextSignedInUserId = null;
-      emit(
-        state.copyWith(
-          viewState: SyncStatusViewState.notSignedIn,
-          busy: false,
-          clearUserId: true,
-          clearMessage: true,
-        ),
-      );
-      return;
+    switch (session.status) {
+      case AuthSessionStatus.signedOut:
+        _ignoreNextSignedInUserId = null;
+        emit(
+          state.copyWith(
+            viewState: SyncStatusViewState.signedOut,
+            busy: false,
+            clearUserId: true,
+            clearMessage: true,
+          ),
+        );
+        return;
+      case AuthSessionStatus.signingIn:
+        emit(
+          state.copyWith(
+            viewState: SyncStatusViewState.signingIn,
+            busy: true,
+            clearMessage: true,
+          ),
+        );
+        return;
+      case AuthSessionStatus.signedIn:
+      case AuthSessionStatus.workspaceInitializing:
+        emit(
+          state.copyWith(
+            userId: session.userId,
+            viewState: SyncStatusViewState.workspaceInitializing,
+            busy: true,
+            clearMessage: true,
+          ),
+        );
+        return;
+      case AuthSessionStatus.accessDenied:
+        emit(
+          state.copyWith(
+            userId: session.userId,
+            viewState: SyncStatusViewState.accessDenied,
+            busy: false,
+            message: session.failureMessage,
+          ),
+        );
+        return;
+      case AuthSessionStatus.failed:
+        emit(
+          state.copyWith(
+            userId: session.userId,
+            viewState: SyncStatusViewState.syncFailed,
+            busy: false,
+            message: session.failureMessage,
+          ),
+        );
+        return;
+      case AuthSessionStatus.ready:
+        break;
     }
 
     emit(
       state.copyWith(
         userId: session.userId,
-        viewState: SyncStatusViewState.syncing,
+        viewState: SyncStatusViewState.workspaceInitializing,
         busy: true,
         clearMessage: true,
       ),
@@ -165,7 +206,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
         state.copyWith(
           userId: session.userId,
           viewState: result.success
-              ? SyncStatusViewState.upToDate
+              ? SyncStatusViewState.ready
               : SyncStatusViewState.syncFailed,
           busy: false,
           message: result.message,

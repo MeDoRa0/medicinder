@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
+import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart';
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/repositories/sync_repository.dart';
@@ -24,11 +25,11 @@ void main() {
       cubit.initialize();
       await Future<void>.delayed(Duration.zero);
 
-      expect(cubit.state.viewState.name, 'notSignedIn');
+      expect(cubit.state.viewState, SyncStatusViewState.signedOut);
       await cubit.close();
     });
 
-    test('moves to upToDate after sign in and sync success', () async {
+    test('moves to ready after sign in and sync success', () async {
       final authRepository = _FakeAuthRepository();
       final cubit = SyncStatusCubit(
         signInForSync: SignInForSync(authRepository),
@@ -40,7 +41,7 @@ void main() {
 
       await cubit.signIn();
 
-      expect(cubit.state.viewState.name, 'upToDate');
+      expect(cubit.state.viewState, SyncStatusViewState.ready);
       expect(cubit.state.userId, 'user-123');
       await cubit.close();
     });
@@ -61,7 +62,7 @@ void main() {
       await cubit.close();
     });
 
-    test('returns to notSignedIn after sign out', () async {
+    test('returns to signedOut after sign out', () async {
       final authRepository = _FakeAuthRepository();
       final cubit = SyncStatusCubit(
         signInForSync: SignInForSync(authRepository),
@@ -74,22 +75,52 @@ void main() {
       await cubit.signIn();
       await cubit.signOut();
 
-      expect(cubit.state.viewState.name, 'notSignedIn');
+      expect(cubit.state.viewState, SyncStatusViewState.signedOut);
       expect(cubit.state.userId, isNull);
+      await cubit.close();
+    });
+
+    test('surfaces access denied state from auth session', () async {
+      final authRepository = _FakeAuthRepository(
+        watchedSession: const AuthSession.accessDenied(
+          'user-123',
+          failureMessage: 'Access denied',
+        ),
+      );
+      final cubit = SyncStatusCubit(
+        signInForSync: SignInForSync(authRepository),
+        signOutFromSync: SignOutFromSync(authRepository),
+        watchAuthSession: WatchAuthSession(authRepository),
+        syncRepository: _FakeSyncRepository(),
+        syncDiagnostics: const SyncDiagnostics(),
+      );
+
+      cubit.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.viewState, SyncStatusViewState.accessDenied);
+      expect(cubit.state.message, 'Access denied');
       await cubit.close();
     });
   });
 }
 
 class _FakeAuthRepository implements AuthRepository {
-  AuthSession _session = const AuthSession.signedOut();
+  AuthSession _session;
+  final AuthSession watchedSession;
+
+  _FakeAuthRepository({
+    AuthSession initialSession = const AuthSession.signedOut(),
+    AuthSession? watchedSession,
+  }) : _session = initialSession,
+       watchedSession = watchedSession ?? initialSession;
 
   @override
   Future<AuthSession> getCurrentSession() async => _session;
 
   @override
   Future<AuthSession> signInForSync() async {
-    _session = const AuthSession.signedIn('user-123');
+    _session = const AuthSession.ready('user-123', providerId: 'anonymous');
     return _session;
   }
 
@@ -100,7 +131,7 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Stream<AuthSession> watchSession() async* {
-    yield _session;
+    yield watchedSession;
   }
 }
 

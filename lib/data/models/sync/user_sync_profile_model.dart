@@ -11,29 +11,37 @@ class UserSyncProfileModel extends HiveObject {
   String userId;
 
   @HiveField(1)
-  bool syncEnabled;
+  List<String> providerIds;
 
   @HiveField(2)
-  DateTime createdAt;
+  bool syncEnabled;
 
   @HiveField(3)
-  DateTime updatedAt;
+  bool workspaceReady;
 
   @HiveField(4)
-  DateTime? lastSuccessfulSyncAt;
+  DateTime createdAt;
 
   @HiveField(5)
-  DateTime? lastAttemptedSyncAt;
+  DateTime updatedAt;
 
   @HiveField(6)
-  String? lastSyncErrorCode;
+  DateTime? lastSuccessfulSyncAt;
 
   @HiveField(7)
+  DateTime? lastAttemptedSyncAt;
+
+  @HiveField(8)
+  String? lastSyncErrorCode;
+
+  @HiveField(9)
   int statusViewStateIndex;
 
   UserSyncProfileModel({
     required this.userId,
+    this.providerIds = const <String>[],
     required this.syncEnabled,
+    this.workspaceReady = false,
     required this.createdAt,
     required this.updatedAt,
     required this.statusViewStateIndex,
@@ -45,7 +53,9 @@ class UserSyncProfileModel extends HiveObject {
   factory UserSyncProfileModel.fromEntity(UserSyncProfile profile) {
     return UserSyncProfileModel(
       userId: profile.userId,
+      providerIds: profile.providerIds,
       syncEnabled: profile.syncEnabled,
+      workspaceReady: profile.workspaceReady,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
       lastSuccessfulSyncAt: profile.lastSuccessfulSyncAt,
@@ -56,15 +66,23 @@ class UserSyncProfileModel extends HiveObject {
   }
 
   UserSyncProfile toEntity() {
+    final statusViewState =
+        statusViewStateIndex >= 0 &&
+                statusViewStateIndex < SyncStatusViewState.values.length
+            ? SyncStatusViewState.values[statusViewStateIndex]
+            : SyncStatusViewState.values.first;
+
     return UserSyncProfile(
       userId: userId,
+      providerIds: providerIds,
       syncEnabled: syncEnabled,
+      workspaceReady: workspaceReady,
       createdAt: createdAt,
       updatedAt: updatedAt,
       lastSuccessfulSyncAt: lastSuccessfulSyncAt,
       lastAttemptedSyncAt: lastAttemptedSyncAt,
       lastSyncErrorCode: lastSyncErrorCode,
-      statusViewState: SyncStatusViewState.values[statusViewStateIndex],
+      statusViewState: statusViewState,
     );
   }
 }

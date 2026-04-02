@@ -1,18 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../domain/entities/sync/auth_session.dart';
+import '../../../domain/entities/sync/sync_status_view_state.dart';
+import '../../../domain/entities/sync/user_sync_profile.dart';
+import '../sync_state_local_data_source.dart';
 
 abstract class AuthRemoteDataSource {
   Stream<AuthSession> watchSession();
   Future<AuthSession> getCurrentSession();
-  Future<AuthSession> signInAnonymouslyForSync();
+  Future<AuthSession> signInForSync({String? providerId});
   Future<void> signOut();
 }
 
 class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore Function() _firestoreProvider;
+  final SyncStateLocalDataSource _syncStateLocalDataSource;
 
-  FirebaseAuthRemoteDataSource(this._firebaseAuth);
+  FirebaseAuthRemoteDataSource(
+    this._firebaseAuth,
+    this._firestoreProvider,
+    this._syncStateLocalDataSource,
+  );
 
   @override
   Future<AuthSession> getCurrentSession() async {
@@ -20,17 +30,27 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
     if (user == null) {
       return const AuthSession.signedOut();
     }
-    return AuthSession.signedIn(user.uid);
+    return _resolveWorkspaceSession(user);
   }
 
   @override
-  Future<AuthSession> signInAnonymouslyForSync() async {
-    final credential = await _firebaseAuth.signInAnonymously();
-    final user = credential.user;
-    if (user == null) {
-      return const AuthSession.signedOut();
+  Future<AuthSession> signInForSync({String? providerId}) async {
+    try {
+      final credential = await _firebaseAuth.signInAnonymously();
+      final user = credential.user;
+      if (user == null) {
+        return const AuthSession.failed(
+          failureCode: 'AUTH_USER_MISSING',
+          failureMessage: 'Authentication succeeded without a user session.',
+        );
+      }
+      return _resolveWorkspaceSession(user);
+    } on FirebaseAuthException catch (error) {
+      return AuthSession.failed(
+        failureCode: error.code,
+        failureMessage: error.message ?? 'Authentication failed.',
+      );
     }
-    return AuthSession.signedIn(user.uid);
   }
 
   @override
@@ -38,12 +58,121 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
   @override
   Stream<AuthSession> watchSession() {
-    return _firebaseAuth.authStateChanges().map((user) {
+    return _firebaseAuth.authStateChanges().asyncExpand((user) async* {
       if (user == null) {
-        return const AuthSession.signedOut();
+        yield const AuthSession.signedOut();
+        return;
       }
-      return AuthSession.signedIn(user.uid);
+      yield AuthSession.workspaceInitializing(
+        user.uid,
+        providerId: _resolveProviderId(user),
+      );
+      yield await _resolveWorkspaceSession(user);
     });
+  }
+
+  Future<AuthSession> _resolveWorkspaceSession(User user) async {
+    final providerId = _resolveProviderId(user);
+    await _saveLocalProfile(
+      user,
+      statusViewState: SyncStatusViewState.workspaceInitializing,
+      workspaceReady: false,
+    );
+    try {
+      await _ensureWorkspaceReady(user);
+      await _saveLocalProfile(
+        user,
+        statusViewState: SyncStatusViewState.ready,
+        workspaceReady: true,
+      );
+      return AuthSession.ready(user.uid, providerId: providerId);
+    } on FirebaseException catch (error) {
+      final isAccessDenied = error.code == 'permission-denied';
+      await _saveLocalProfile(
+        user,
+        statusViewState: isAccessDenied
+            ? SyncStatusViewState.accessDenied
+            : SyncStatusViewState.syncFailed,
+        workspaceReady: false,
+        lastSyncErrorCode: error.code,
+      );
+      if (isAccessDenied) {
+        return AuthSession.accessDenied(
+          user.uid,
+          providerId: providerId,
+          failureCode: error.code,
+          failureMessage:
+              error.message ?? 'Cloud workspace access was denied.',
+        );
+      }
+      return AuthSession.failed(
+        userId: user.uid,
+        providerId: providerId,
+        failureCode: error.code,
+        failureMessage:
+            error.message ?? 'Cloud workspace initialization failed.',
+      );
+    }
+  }
+
+  Future<void> _ensureWorkspaceReady(User user) async {
+    final firestore = _firestoreProvider();
+    final userDoc = firestore.collection('users').doc(user.uid);
+    final profileDoc = userDoc.collection('profile').doc('summary');
+    final now = DateTime.now();
+    final batch = firestore.batch();
+
+    batch.set(userDoc, {
+      'userId': user.uid,
+      'workspaceReady': true,
+      'updatedAt': now.toIso8601String(),
+    }, SetOptions(merge: true));
+
+    batch.set(profileDoc, {
+      'userId': user.uid,
+      'providerIds': user.providerData.map((item) => item.providerId).toList(),
+      'createdAt': user.metadata.creationTime?.toIso8601String() ??
+          now.toIso8601String(),
+      'updatedAt': now.toIso8601String(),
+      'status': 'active',
+      'workspaceReady': true,
+    }, SetOptions(merge: true));
+
+    await batch.commit();
+  }
+
+  Future<void> _saveLocalProfile(
+    User user, {
+    required SyncStatusViewState statusViewState,
+    required bool workspaceReady,
+    String? lastSyncErrorCode,
+  }) {
+    final now = DateTime.now();
+    return _syncStateLocalDataSource.saveProfile(
+      UserSyncProfile(
+        userId: user.uid,
+        providerIds: user.providerData.map((item) => item.providerId).toList(),
+        syncEnabled: true,
+        workspaceReady: workspaceReady,
+        createdAt: user.metadata.creationTime ?? now,
+        updatedAt: now,
+        lastSuccessfulSyncAt: workspaceReady ? now : null,
+        lastAttemptedSyncAt: now,
+        lastSyncErrorCode: lastSyncErrorCode,
+        statusViewState: statusViewState,
+      ),
+    );
+  }
+
+  String _resolveProviderId(User user) {
+    final providerIds = user.providerData
+        .map((item) => item.providerId)
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
+    if (providerIds.isEmpty) {
+      return 'anonymous';
+    }
+    return providerIds.first;
   }
 }
 
@@ -54,8 +183,11 @@ class DisabledAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
 
   @override
-  Future<AuthSession> signInAnonymouslyForSync() async =>
-      const AuthSession.signedOut();
+  Future<AuthSession> signInForSync({String? providerId}) async =>
+      const AuthSession.failed(
+        failureCode: 'CLOUD_SYNC_DISABLED',
+        failureMessage: 'Cloud sync backend is not configured.',
+      );
 
   @override
   Future<void> signOut() async {}

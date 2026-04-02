@@ -337,29 +337,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
-  String get syncNotSignedIn => 'Not signed in';
+  String get syncSignedOut => 'تم تسجيل الخروج';
 
   @override
-  String get syncSyncing => 'Syncing';
+  String get syncSigningIn => 'جارٍ تسجيل الدخول';
 
   @override
-  String get syncUpToDate => 'Up to date';
+  String get syncWorkspaceInitializing => 'جارٍ تجهيز مساحة السحابة الخاصة بك';
 
   @override
-  String get syncFailed => 'Sync failed';
+  String get syncReady => 'مساحة السحابة جاهزة';
 
   @override
-  String get syncEnableCloudSync => 'Enable Sync';
+  String get syncAccessDenied => 'تم رفض الوصول إلى مساحة السحابة';
 
   @override
-  String get syncDisableCloudSync => 'Sign Out';
+  String get syncFailed => 'فشل المزامنة';
+
+  @override
+  String get syncEnableCloudSync => 'تفعيل المزامنة';
+
+  @override
+  String get syncDisableCloudSync => 'تسجيل الخروج';
 
   @override
   String get syncUnavailableLocalOnly =>
-      'Local-only mode is active until you sign in.';
+      'الوضع المحلي مفعل حتى تقوم بتسجيل الدخول.';
 
   @override
   String syncSignedInAs(String userId) {
-    return 'Signed in as $userId';
+    return 'مسجل الدخول كـ $userId';
+  }
+
+  @override
+  String syncReadyAs(String userId) {
+    return 'مساحة السحابة جاهزة للمستخدم $userId';
   }
 }

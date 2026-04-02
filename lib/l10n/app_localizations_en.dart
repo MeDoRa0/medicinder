@@ -340,13 +340,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
-  String get syncNotSignedIn => 'Not signed in';
+  String get syncSignedOut => 'Signed out';
 
   @override
-  String get syncSyncing => 'Syncing';
+  String get syncSigningIn => 'Signing in';
 
   @override
-  String get syncUpToDate => 'Up to date';
+  String get syncWorkspaceInitializing => 'Preparing your cloud workspace';
+
+  @override
+  String get syncReady => 'Cloud workspace ready';
+
+  @override
+  String get syncAccessDenied => 'Cloud workspace access denied';
 
   @override
   String get syncFailed => 'Sync failed';
@@ -364,5 +370,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String syncSignedInAs(String userId) {
     return 'Signed in as $userId';
+  }
+
+  @override
+  String syncReadyAs(String userId) {
+    return 'Cloud workspace ready for $userId';
   }
 }

@@ -32,10 +32,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Not signed in'), findsOneWidget);
+    expect(find.text('Signed out'), findsOneWidget);
   });
 
-  testWidgets('renders up to date sync status', (tester) async {
+  testWidgets('renders ready sync status', (tester) async {
     final authRepository = _FakeAuthRepository();
     final cubit = _SeededSyncStatusCubit(
       signInForSync: SignInForSync(authRepository),
@@ -45,14 +45,14 @@ void main() {
       syncDiagnostics: const SyncDiagnostics(),
     )..seed(
         const SyncStatusState(
-          viewState: SyncStatusViewState.upToDate,
+          viewState: SyncStatusViewState.ready,
           userId: 'user-123',
         ),
       );
 
     await tester.pumpWidget(_TestApp(cubit: cubit));
 
-    expect(find.text('Up to date'), findsOneWidget);
+    expect(find.text('Cloud workspace ready'), findsOneWidget);
   });
 }
 
@@ -85,7 +85,7 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<AuthSession> signInForSync() async =>
-      const AuthSession.signedIn('user-123');
+      const AuthSession.ready('user-123', providerId: 'anonymous');
 
   @override
   Future<void> signOutFromSync() async {}

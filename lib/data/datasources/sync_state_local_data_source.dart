@@ -16,10 +16,10 @@ class SyncStateLocalDataSource {
     if (userId == null) {
       final profiles = _profileBox.values.toList(growable: false);
       final profile = profiles.isEmpty ? null : profiles.first;
-      return profile?.toEntity().statusViewState ?? SyncStatusViewState.notSignedIn;
+      return profile?.toEntity().statusViewState ?? SyncStatusViewState.signedOut;
     }
     final profile = _profileBox.get(userId);
-    return profile?.toEntity().statusViewState ?? SyncStatusViewState.notSignedIn;
+    return profile?.toEntity().statusViewState ?? SyncStatusViewState.signedOut;
   }
 
   Future<void> setStatus(SyncStatusViewState status) async {

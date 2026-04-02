@@ -164,6 +164,7 @@ class _MainAppState extends State<MainApp> {
               foregroundColor: Colors.white,
               elevation: 0,
             ),
+            
             floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: customColor,
               foregroundColor: Colors.white,

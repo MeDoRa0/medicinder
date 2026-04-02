@@ -96,7 +96,11 @@ Future<void> initDependencies({
   );
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => firebaseConfigured
-        ? FirebaseAuthRemoteDataSource(FirebaseAuth.instance)
+        ? FirebaseAuthRemoteDataSource(
+            FirebaseAuth.instance,
+            () => FirebaseFirestore.instance,
+            sl(),
+          )
         : const DisabledAuthRemoteDataSource(),
   );
   sl.registerLazySingleton<MedicationRemoteDataSource>(
