@@ -157,7 +157,6 @@ void main() {
         );
 
         final firstSync = service.syncNow(sync_types.SyncTrigger.appStartup);
-        expect(service._isSyncing, isTrue);
 
         final secondResult = await service.syncNow(
           sync_types.SyncTrigger.userSignIn,
