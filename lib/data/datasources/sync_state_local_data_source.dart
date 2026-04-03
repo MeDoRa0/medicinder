@@ -25,7 +25,8 @@ class SyncStateLocalDataSource {
     if (userId == null) {
       final profiles = _profileBox.values.toList(growable: false);
       final profile = profiles.isEmpty ? null : profiles.first;
-      return profile?.toEntity().statusViewState ?? SyncStatusViewState.signedOut;
+      return profile?.toEntity().statusViewState ??
+          SyncStatusViewState.signedOut;
     }
     final profile = _profileBox.get(userId);
     return profile?.toEntity().statusViewState ?? SyncStatusViewState.signedOut;
@@ -38,11 +39,13 @@ class SyncStateLocalDataSource {
       return;
     }
     final entity = profile.toEntity().copyWith(
-          statusViewState: status,
-          updatedAt: DateTime.now(),
-        );
+      statusViewState: status,
+      updatedAt: DateTime.now(),
+    );
     await _profileBox.put(
-        entity.userId, UserSyncProfileModel.fromEntity(entity));
+      entity.userId,
+      UserSyncProfileModel.fromEntity(entity),
+    );
   }
 
   Future<UserSyncProfile?> getProfile(String userId) async {
@@ -67,15 +70,19 @@ class SyncStateLocalDataSource {
           } catch (e) {
             // Log and skip corrupted conflict metadata records
             // This handles migration issues with missing userId in legacy data
-            log('SyncStateLocalDataSource: Skipping corrupted conflict metadata: $e',
-                name: 'SyncStateLocalDataSource');
+            log(
+              'SyncStateLocalDataSource: Skipping corrupted conflict metadata: $e',
+              name: 'SyncStateLocalDataSource',
+            );
             return null;
           }
         })
-        .where((item) =>
-            item != null &&
-            item.entityId == entityId &&
-            (userId == null || item.userId == userId))
+        .where(
+          (item) =>
+              item != null &&
+              item.entityId == entityId &&
+              (userId == null || item.userId == userId),
+        )
         .cast<ConflictMetadata>()
         .toList();
   }
@@ -87,10 +94,9 @@ class SyncStateLocalDataSource {
   }
 
   Future<SyncCycleState?> getLatestCycle(String userId) async {
-    final cycles = _syncCycleBox.values
-        .where((c) => c.userId == userId)
-        .toList()
-      ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    final cycles =
+        _syncCycleBox.values.where((c) => c.userId == userId).toList()
+          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
     return cycles.isEmpty ? null : cycles.first.toEntity();
   }
 
@@ -101,4 +107,3 @@ class SyncStateLocalDataSource {
     );
   }
 }
-
