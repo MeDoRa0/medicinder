@@ -12,6 +12,7 @@ void main() {
 
       expect(session.isSignedIn, isFalse);
       expect(session.userId, isNull);
+      expect(session.status, AuthSessionStatus.signedOut);
     });
 
     test('signs in through remote data source', () async {
@@ -22,6 +23,8 @@ void main() {
 
       expect(session.isSignedIn, isTrue);
       expect(session.userId, 'user-123');
+      expect(session.workspaceReady, isTrue);
+      expect(session.status, AuthSessionStatus.ready);
     });
   });
 }
@@ -33,8 +36,8 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<AuthSession> getCurrentSession() async => _session;
 
   @override
-  Future<AuthSession> signInAnonymouslyForSync() async {
-    _session = const AuthSession.signedIn('user-123');
+  Future<AuthSession> signInForSync({String? providerId}) async {
+    _session = const AuthSession.ready('user-123', providerId: 'anonymous');
     return _session;
   }
 

@@ -2,6 +2,10 @@
 
 part of 'sync_operation_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
 class SyncOperationModelAdapter extends TypeAdapter<SyncOperationModel> {
   @override
   final int typeId = 2;
@@ -19,7 +23,7 @@ class SyncOperationModelAdapter extends TypeAdapter<SyncOperationModel> {
       typeIndex: fields[3] as int,
       createdAt: fields[4] as DateTime,
       lastAttemptAt: fields[5] as DateTime?,
-      attemptCount: fields[6] as int? ?? 0,
+      attemptCount: (fields[6] as int?) ?? 0,
       errorMessage: fields[7] as String?,
     );
   }
