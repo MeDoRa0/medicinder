@@ -74,13 +74,13 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
       totalDays: fields[8] as int,
       startDate: fields[9] as DateTime,
       repeatForever: fields[10] as bool,
-      isDeleted: fields[11] as bool? ?? false,
+      isDeleted: fields[11] as bool,
       deletedAt: fields[12] as DateTime?,
-      createdAt: fields[13] as DateTime? ?? fields[9] as DateTime,
-      updatedAt: fields[14] as DateTime? ?? fields[9] as DateTime,
+      createdAt: fields[13] as DateTime,
+      updatedAt: fields[14] as DateTime,
       lastSyncedAt: fields[15] as DateTime?,
-      syncStatusIndex: fields[16] as int? ?? 0,
-      syncVersion: fields[17] as int? ?? 1,
+      syncStatusIndex: fields[16] as int,
+      syncVersion: fields[17] as int,
     );
   }
 

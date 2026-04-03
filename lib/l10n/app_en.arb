@@ -509,5 +509,41 @@
         "example": "abc123"
       }
     }
+  },
+  "syncRunning": "Syncing...",
+  "@syncRunning": {
+    "description": "Cloud sync status while sync is in progress"
+  },
+  "syncSucceeded": "Sync complete",
+  "@syncSucceeded": {
+    "description": "Cloud sync status when the latest sync attempt succeeded"
+  },
+  "syncPartialFailure": "Sync completed with some errors",
+  "@syncPartialFailure": {
+    "description": "Cloud sync status when sync completed but with partial failures"
+  },
+  "syncRetrySafeFailure": "Sync failed. Tap to retry.",
+  "@syncRetrySafeFailure": {
+    "description": "Actionable failure message for retryable sync errors"
+  },
+  "syncLastSuccess": "Last sync: {timestamp}",
+  "@syncLastSuccess": {
+    "description": "Timestamp of the last successful sync",
+    "placeholders": {
+      "timestamp": {
+        "type": "String",
+        "example": "2026-04-03 10:00"
+      }
+    }
+  },
+  "syncLastFailure": "Sync failed at {timestamp}",
+  "@syncLastFailure": {
+    "description": "Timestamp of the last failed sync",
+    "placeholders": {
+      "timestamp": {
+        "type": "String",
+        "example": "2026-04-03 10:00"
+      }
+    }
   }
 }

@@ -25,6 +25,7 @@ class SyncAccountTile extends StatelessWidget {
             l10n.syncWorkspaceInitializing,
           SyncStatusViewState.ready => l10n.syncReadyAs(state.userId ?? ''),
           SyncStatusViewState.accessDenied => l10n.syncAccessDenied,
+          SyncStatusViewState.syncing => l10n.syncRunning,
           SyncStatusViewState.syncFailed => state.message ?? l10n.syncFailed,
         };
 

@@ -2,6 +2,10 @@
 
 part of 'conflict_metadata_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
 class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
   @override
   final int typeId = 5;
@@ -15,6 +19,7 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
     return ConflictMetadataModel(
       entityTypeIndex: fields[0] as int,
       entityId: fields[1] as String,
+      userId: fields[7] as String,
       localUpdatedAt: fields[2] as DateTime,
       remoteUpdatedAt: fields[3] as DateTime,
       winningSource: fields[4] as String,
@@ -26,7 +31,7 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
   @override
   void write(BinaryWriter writer, ConflictMetadataModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.entityTypeIndex)
       ..writeByte(1)
@@ -40,7 +45,9 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
       ..writeByte(5)
       ..write(obj.resolutionStrategyIndex)
       ..writeByte(6)
-      ..write(obj.resolvedAt);
+      ..write(obj.resolvedAt)
+      ..writeByte(7)
+      ..write(obj.userId);
   }
 
   @override

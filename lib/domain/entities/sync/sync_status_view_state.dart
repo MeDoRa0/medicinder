@@ -4,5 +4,6 @@ enum SyncStatusViewState {
   workspaceInitializing,
   ready,
   accessDenied,
+  syncing,
   syncFailed,
 }

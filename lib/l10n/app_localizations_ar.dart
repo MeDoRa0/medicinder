@@ -352,25 +352,47 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncAccessDenied => 'تم رفض الوصول إلى مساحة السحابة';
 
   @override
-  String get syncFailed => 'فشل المزامنة';
+  String get syncFailed => 'Sync failed';
 
   @override
-  String get syncEnableCloudSync => 'تفعيل المزامنة';
+  String get syncEnableCloudSync => 'Enable Sync';
 
   @override
-  String get syncDisableCloudSync => 'تسجيل الخروج';
+  String get syncDisableCloudSync => 'Sign Out';
 
   @override
   String get syncUnavailableLocalOnly =>
-      'الوضع المحلي مفعل حتى تقوم بتسجيل الدخول.';
+      'Local-only mode is active until you sign in.';
 
   @override
   String syncSignedInAs(String userId) {
-    return 'مسجل الدخول كـ $userId';
+    return 'Signed in as $userId';
   }
 
   @override
   String syncReadyAs(String userId) {
     return 'مساحة السحابة جاهزة للمستخدم $userId';
+  }
+
+  @override
+  String get syncRunning => 'جارٍ المزامنة...';
+
+  @override
+  String get syncSucceeded => 'اكتملت المزامنة';
+
+  @override
+  String get syncPartialFailure => 'اكتملت المزامنة مع وجود بعض الأخطاء';
+
+  @override
+  String get syncRetrySafeFailure => 'فشلت المزامنة. اضغط لإعادة المحاولة.';
+
+  @override
+  String syncLastSuccess(String timestamp) {
+    return 'آخر مزامنة: $timestamp';
+  }
+
+  @override
+  String syncLastFailure(String timestamp) {
+    return 'فشلت المزامنة في $timestamp';
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
@@ -27,6 +28,7 @@ void main() {
           watchAuthSession: WatchAuthSession(authRepository),
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
         ),
       ),
     );
@@ -43,6 +45,7 @@ void main() {
       watchAuthSession: WatchAuthSession(authRepository),
       syncRepository: _FakeSyncRepository(),
       syncDiagnostics: const SyncDiagnostics(),
+      connectivitySignal: _FakeConnectivitySignalService(),
     )..seed(
         const SyncStatusState(
           viewState: SyncStatusViewState.ready,
@@ -53,6 +56,27 @@ void main() {
     await tester.pumpWidget(_TestApp(cubit: cubit));
 
     expect(find.text('Cloud workspace ready'), findsOneWidget);
+  });
+
+  testWidgets('renders syncing sync status', (tester) async {
+    final authRepository = _FakeAuthRepository();
+    final cubit = _SeededSyncStatusCubit(
+      signInForSync: SignInForSync(authRepository),
+      signOutFromSync: SignOutFromSync(authRepository),
+      watchAuthSession: WatchAuthSession(authRepository),
+      syncRepository: _FakeSyncRepository(),
+      syncDiagnostics: const SyncDiagnostics(),
+      connectivitySignal: _FakeConnectivitySignalService(),
+    )..seed(
+        const SyncStatusState(
+          viewState: SyncStatusViewState.syncing,
+          userId: 'user-123',
+        ),
+      );
+
+    await tester.pumpWidget(_TestApp(cubit: cubit));
+
+    expect(find.text('Syncing...'), findsOneWidget);
   });
 }
 
@@ -118,7 +142,16 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
     required super.watchAuthSession,
     required super.syncRepository,
     required super.syncDiagnostics,
+    required super.connectivitySignal,
   });
 
   void seed(SyncStatusState state) => emit(state);
+}
+
+class _FakeConnectivitySignalService implements ConnectivitySignalService {
+  @override
+  Stream<void> get onReconnect => const Stream.empty();
+
+  @override
+  void dispose() {}
 }

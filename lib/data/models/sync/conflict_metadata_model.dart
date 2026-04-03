@@ -28,9 +28,13 @@ class ConflictMetadataModel extends HiveObject {
   @HiveField(6)
   DateTime resolvedAt;
 
+  @HiveField(7)
+  String userId;
+
   ConflictMetadataModel({
     required this.entityTypeIndex,
     required this.entityId,
+    required this.userId,
     required this.localUpdatedAt,
     required this.remoteUpdatedAt,
     required this.winningSource,
@@ -42,6 +46,7 @@ class ConflictMetadataModel extends HiveObject {
     return ConflictMetadataModel(
       entityTypeIndex: conflict.entityType.index,
       entityId: conflict.entityId,
+      userId: conflict.userId,
       localUpdatedAt: conflict.localUpdatedAt,
       remoteUpdatedAt: conflict.remoteUpdatedAt,
       winningSource: conflict.winningSource,
@@ -54,6 +59,7 @@ class ConflictMetadataModel extends HiveObject {
     return ConflictMetadata(
       entityType: SyncEntityType.values[entityTypeIndex],
       entityId: entityId,
+      userId: userId,
       localUpdatedAt: localUpdatedAt,
       remoteUpdatedAt: remoteUpdatedAt,
       winningSource: winningSource,

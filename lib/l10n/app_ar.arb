@@ -510,5 +510,41 @@
         "example": "abc123"
       }
     }
+  },
+  "syncRunning": "جارٍ المزامنة...",
+  "@syncRunning": {
+    "description": "Cloud sync status while sync is in progress"
+  },
+  "syncSucceeded": "اكتملت المزامنة",
+  "@syncSucceeded": {
+    "description": "Cloud sync status when the latest sync attempt succeeded"
+  },
+  "syncPartialFailure": "اكتملت المزامنة مع وجود بعض الأخطاء",
+  "@syncPartialFailure": {
+    "description": "Cloud sync status when sync completed but with partial failures"
+  },
+  "syncRetrySafeFailure": "فشلت المزامنة. اضغط لإعادة المحاولة.",
+  "@syncRetrySafeFailure": {
+    "description": "Actionable failure message for retryable sync errors"
+  },
+  "syncLastSuccess": "آخر مزامنة: {timestamp}",
+  "@syncLastSuccess": {
+    "description": "Timestamp of the last successful sync",
+    "placeholders": {
+      "timestamp": {
+        "type": "String",
+        "example": "2026-04-03 10:00"
+      }
+    }
+  },
+  "syncLastFailure": "فشلت المزامنة في {timestamp}",
+  "@syncLastFailure": {
+    "description": "Timestamp of the last failed sync",
+    "placeholders": {
+      "timestamp": {
+        "type": "String",
+        "example": "2026-04-03 10:00"
+      }
+    }
   }
 }

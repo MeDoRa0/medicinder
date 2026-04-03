@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "Create a specification for Phase 3 Sync Engine Implementation from plan.md, covering connectivity detection, upload and download synchronization, merge behavior, conflict resolution, and sync lifecycle management only."
 
+## Clarifications
+
+### Session 2026-04-03
+
+- Q: How should sync resolve a delete-versus-update conflict? → A: Deletion wins if it has the newest last-changed timestamp.
+- Q: When should the sync engine automatically start a sync cycle? → A: On connectivity return and app start.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Synchronize Changes After Reconnection (Priority: P1)
@@ -26,7 +33,10 @@ reaches a synchronized state without duplicate records.
 1. **Given** a signed-in user has local record changes that are not yet backed up,
    **When** connectivity becomes available, **Then** the system starts a sync
    cycle and uploads the pending changes to that user's cloud-backed records.
-2. **Given** a signed-in user has no unsynced differences between local and cloud
+2. **Given** a signed-in user opens the app with cloud-backed access available,
+   **When** the app session starts, **Then** the system starts a sync cycle for
+   that active account.
+3. **Given** a signed-in user has no unsynced differences between local and cloud
    copies, **When** a sync cycle starts, **Then** the system completes the cycle
    without creating unnecessary record changes.
 
@@ -84,7 +94,8 @@ failure outcomes for the active account.
 - Connectivity becomes available briefly and drops again before a sync cycle
   completes.
 - Local and cloud copies both changed since the last successful sync and one side
-  deleted a record while the other side updated it.
+  deleted a record while the other side updated it; the newest last-changed
+  timestamp wins, including deletion.
 - A sync cycle starts while another sync cycle for the same signed-in user is
   already in progress.
 - The user signs out while a sync cycle is running.
@@ -99,6 +110,8 @@ failure outcomes for the active account.
   records.
 - **FR-002**: The system MUST detect when connectivity becomes available after an
   offline period and MUST be able to start a sync cycle in response.
+- **FR-002a**: The system MUST be able to start a sync cycle automatically when a
+  signed-in user's app session starts and cloud-backed access is available.
 - **FR-003**: The system MUST upload supported local record changes that are not
   yet reflected in the cloud for the signed-in user.
 - **FR-004**: The system MUST download supported cloud record changes that are
@@ -109,6 +122,9 @@ failure outcomes for the active account.
 - **FR-006**: When the same supported record changed both locally and in the
   cloud, the system MUST resolve the conflict using a last-write-wins rule based
   on the record's last-changed timestamp.
+- **FR-006a**: When one side deletes a supported record and the other side
+  updates it, the system MUST treat the deletion as the winning outcome only if
+  the deletion has the most recent last-changed timestamp.
 - **FR-007**: The system MUST avoid creating duplicate supported records while
   synchronizing local and cloud changes.
 - **FR-008**: The system MUST keep synchronization scoped to the currently

@@ -793,6 +793,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cloud workspace ready for {userId}'**
   String syncReadyAs(String userId);
+
+  /// Cloud sync status while sync is in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get syncRunning;
+
+  /// Cloud sync status when the latest sync attempt succeeded
+  ///
+  /// In en, this message translates to:
+  /// **'Sync complete'**
+  String get syncSucceeded;
+
+  /// Cloud sync status when sync completed but with partial failures
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed with some errors'**
+  String get syncPartialFailure;
+
+  /// Actionable failure message for retryable sync errors
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed. Tap to retry.'**
+  String get syncRetrySafeFailure;
+
+  /// Timestamp of the last successful sync
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync: {timestamp}'**
+  String syncLastSuccess(String timestamp);
+
+  /// Timestamp of the last failed sync
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed at {timestamp}'**
+  String syncLastFailure(String timestamp);
 }
 
 class _AppLocalizationsDelegate

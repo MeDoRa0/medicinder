@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
+import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart';
@@ -18,91 +18,51 @@ import 'package:medicinder/presentation/cubit/sync/sync_status_state.dart';
 import 'package:medicinder/presentation/widgets/sync/sync_status_banner.dart';
 
 void main() {
-  testWidgets('exposes sync status semantics label', (tester) async {
+  testWidgets('tapping retry button in banner triggers cubit retry', (tester) async {
     final authRepository = _FakeAuthRepository();
-    final cubit = _SeededSyncStatusCubit(
+    final syncRepository = _FakeSyncRepository();
+    final cubit = _MockSyncStatusCubit(
       signInForSync: SignInForSync(authRepository),
       signOutFromSync: SignOutFromSync(authRepository),
       watchAuthSession: WatchAuthSession(authRepository),
-      syncRepository: _FakeFailingSyncRepository(),
+      syncRepository: syncRepository,
       syncDiagnostics: const SyncDiagnostics(),
       connectivitySignal: _FakeConnectivitySignalService(),
     )..seed(
         const SyncStatusState(
           viewState: SyncStatusViewState.syncFailed,
-          message: 'failed',
+          userId: 'user-123',
+          message: 'Sync failed',
         ),
       );
 
     await tester.pumpWidget(
-      _AccessibilityTestApp(
-        cubit: cubit,
+      MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('en')],
+        home: BlocProvider<SyncStatusCubit>.value(
+          value: cubit,
+          child: const Scaffold(body: SyncStatusBanner()),
+        ),
       ),
     );
+
+    await tester.tap(find.text('Retry'));
     await tester.pump();
 
-    expect(find.text('Retry'), findsOneWidget);
-    expect(find.byType(TextButton), findsOneWidget);
+    expect(cubit.retryCalled, isTrue);
   });
 }
 
-class _AccessibilityTestApp extends StatelessWidget {
-  final SyncStatusCubit cubit;
+class _MockSyncStatusCubit extends SyncStatusCubit {
+  bool retryCalled = false;
 
-  const _AccessibilityTestApp({required this.cubit});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('en'), Locale('ar')],
-      home: BlocProvider.value(
-        value: cubit,
-        child: const Scaffold(body: SyncStatusBanner()),
-      ),
-    );
-  }
-}
-
-class _FakeAuthRepository implements AuthRepository {
-  @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
-
-  @override
-  Future<AuthSession> signInForSync() async =>
-      const AuthSession.ready('user-123', providerId: 'anonymous');
-
-  @override
-  Future<void> signOutFromSync() async {}
-
-  @override
-  Stream<AuthSession> watchSession() async* {
-    yield const AuthSession.signedOut();
-  }
-}
-
-class _FakeFailingSyncRepository implements SyncRepository {
-  @override
-  Future<SyncResult> syncNow(SyncTrigger trigger) async =>
-      const SyncResult(success: false, message: 'failed');
-
-  @override
-  Future<SyncResult> synchronize() => syncNow(SyncTrigger.manualRetry);
-
-  @override
-  Future<void> handleAuthChanged(AuthSession session) async {}
-
-  @override
-  Future<void> handleConnectivityRestored() async {}
-}
-
-class _SeededSyncStatusCubit extends SyncStatusCubit {
-  _SeededSyncStatusCubit({
+  _MockSyncStatusCubit({
     required super.signInForSync,
     required super.signOutFromSync,
     required super.watchAuthSession,
@@ -112,12 +72,38 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
   });
 
   void seed(SyncStatusState state) => emit(state);
+
+  @override
+  Future<void> retry() async {
+    retryCalled = true;
+  }
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  @override
+  Future<AuthSession> signInForSync() async => const AuthSession.ready('u1');
+  @override
+  Future<void> signOutFromSync() async {}
+  @override
+  Stream<AuthSession> watchSession() async* { yield const AuthSession.signedOut(); }
+}
+
+class _FakeSyncRepository implements SyncRepository {
+  @override
+  Future<SyncResult> syncNow(SyncTrigger trigger) async => const SyncResult(success: true);
+  @override
+  Future<SyncResult> synchronize() async => const SyncResult(success: true);
+  @override
+  Future<void> handleAuthChanged(AuthSession session) async {}
+  @override
+  Future<void> handleConnectivityRestored() async {}
 }
 
 class _FakeConnectivitySignalService implements ConnectivitySignalService {
   @override
-  Stream<void> get onReconnect => const Stream<void>.empty();
-
+  Stream<void> get onReconnect => const Stream.empty();
   @override
   void dispose() {}
 }

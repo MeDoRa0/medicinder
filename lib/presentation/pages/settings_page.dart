@@ -7,6 +7,12 @@ import '../widgets/settings_save_button.dart';
 import '../../l10n/app_localizations.dart';
 import '../cubit/medication_cubit.dart';
 import '../widgets/sync/sync_account_tile.dart';
+import '../widgets/sync/sync_summary_card.dart';
+import '../../core/di/injector.dart';
+import '../../core/services/sync/sync_diagnostics.dart';
+import '../../domain/entities/sync/user_sync_profile.dart';
+import '../cubit/sync/sync_status_cubit.dart';
+import '../cubit/sync/sync_status_state.dart';
 import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -181,6 +187,20 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 24),
               const SyncAccountTile(),
+              BlocBuilder<SyncStatusCubit, SyncStatusState>(
+                builder: (context, state) {
+                  if (state.userId == null) return const SizedBox.shrink();
+                  return FutureBuilder<UserSyncProfile?>(
+                    future: sl<SyncDiagnostics>().getProfile(state.userId!),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return SyncSummaryCard(profile: snapshot.data!);
+                    },
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               MealTimeSelector(
                 breakfastTime: _breakfastTime,

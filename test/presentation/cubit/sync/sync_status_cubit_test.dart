@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
@@ -20,6 +22,7 @@ void main() {
         watchAuthSession: WatchAuthSession(authRepository),
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
       );
 
       cubit.initialize();
@@ -37,6 +40,7 @@ void main() {
         watchAuthSession: WatchAuthSession(authRepository),
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
       );
 
       await cubit.signIn();
@@ -54,11 +58,12 @@ void main() {
         watchAuthSession: WatchAuthSession(authRepository),
         syncRepository: _FakeSyncRepository(success: false),
         syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
       );
 
       await cubit.retry();
 
-      expect(cubit.state.viewState.name, 'syncFailed');
+      expect(cubit.state.viewState, SyncStatusViewState.syncFailed);
       await cubit.close();
     });
 
@@ -70,6 +75,7 @@ void main() {
         watchAuthSession: WatchAuthSession(authRepository),
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
       );
 
       await cubit.signIn();
@@ -93,6 +99,7 @@ void main() {
         watchAuthSession: WatchAuthSession(authRepository),
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
       );
 
       cubit.initialize();
@@ -102,7 +109,82 @@ void main() {
       expect(cubit.state.message, 'Access denied');
       await cubit.close();
     });
+
+    group('Startup and Reconnect Triggers', () {
+      test('initialize() with a signed-in session triggers startup sync', () async {
+        final authRepository = _FakeAuthRepository(
+          watchedSession: const AuthSession.ready('user-123', providerId: 'anonymous'),
+        );
+        final syncRepository = _FakeSyncRepository();
+        final cubit = SyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: syncRepository,
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+        );
+
+        cubit.initialize();
+        await Future<void>.delayed(Duration.zero);
+
+        expect(syncRepository.syncCalls, contains(SyncTrigger.appStartup));
+      });
+
+      test('triggers sync when connectivity is restored', () async {
+        final authRepository = _FakeAuthRepository(
+          initialSession: const AuthSession.ready('user-123', providerId: 'anonymous'),
+        );
+        final syncRepository = _FakeSyncRepository();
+        final connectivitySignal = _FakeConnectivitySignalService();
+        final cubit = SyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: syncRepository,
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: connectivitySignal,
+        );
+
+        cubit.initialize();
+        await Future<void>.delayed(Duration.zero); // Let it reach 'ready'
+        syncRepository.syncCalls.clear();
+
+        connectivitySignal.triggerReconnect();
+        await Future<void>.delayed(Duration.zero);
+
+        expect(syncRepository.syncCalls, contains(SyncTrigger.connectivityRestored));
+      });
+    });
   });
+}
+
+class _FakeSyncRepository implements SyncRepository {
+  final bool success;
+  final List<SyncTrigger> syncCalls = [];
+
+  _FakeSyncRepository({this.success = true});
+
+  @override
+  Future<SyncResult> syncNow(SyncTrigger trigger) async {
+    syncCalls.add(trigger);
+    return SyncResult(success: success, message: success ? null : 'failed');
+  }
+
+  @override
+  Future<SyncResult> synchronize() => syncNow(SyncTrigger.manualRetry);
+
+  @override
+  Future<void> handleAuthChanged(AuthSession session) async {
+    if (session.isSignedIn) {
+      await syncNow(SyncTrigger.userSignIn);
+    }
+  }
+
+  @override
+  Future<void> handleConnectivityRestored() async {
+    await syncNow(SyncTrigger.connectivityRestored);
+  }
 }
 
 class _FakeAuthRepository implements AuthRepository {
@@ -135,21 +217,16 @@ class _FakeAuthRepository implements AuthRepository {
   }
 }
 
-class _FakeSyncRepository implements SyncRepository {
-  final bool success;
-
-  _FakeSyncRepository({this.success = true});
+class _FakeConnectivitySignalService implements ConnectivitySignalService {
+  final StreamController<void> _controller = StreamController<void>.broadcast();
 
   @override
-  Future<SyncResult> syncNow(SyncTrigger trigger) async =>
-      SyncResult(success: success, message: success ? null : 'failed');
+  Stream<void> get onReconnect => _controller.stream;
+
+  void triggerReconnect() => _controller.add(null);
 
   @override
-  Future<SyncResult> synchronize() => syncNow(SyncTrigger.manualRetry);
-
-  @override
-  Future<void> handleAuthChanged(AuthSession session) async {}
-
-  @override
-  Future<void> handleConnectivityRestored() async {}
+  void dispose() {
+    _controller.close();
+  }
 }

@@ -21,6 +21,7 @@ class SyncStatusBanner extends StatelessWidget {
           SyncStatusViewState.workspaceInitializing => Colors.blue.shade50,
           SyncStatusViewState.ready => Colors.green.shade100,
           SyncStatusViewState.accessDenied => Colors.red.shade50,
+          SyncStatusViewState.syncing => Colors.blue.shade100,
           SyncStatusViewState.syncFailed => Colors.red.shade100,
         };
         final label = switch (state.viewState) {
@@ -30,6 +31,7 @@ class SyncStatusBanner extends StatelessWidget {
             l10n.syncWorkspaceInitializing,
           SyncStatusViewState.ready => l10n.syncReady,
           SyncStatusViewState.accessDenied => l10n.syncAccessDenied,
+          SyncStatusViewState.syncing => l10n.syncRunning,
           SyncStatusViewState.syncFailed => l10n.syncFailed,
         };
 
@@ -63,6 +65,7 @@ class SyncStatusBanner extends StatelessWidget {
                       SyncStatusViewState.ready => Icons.cloud_done_outlined,
                       SyncStatusViewState.accessDenied =>
                         Icons.no_accounts_outlined,
+                      SyncStatusViewState.syncing => Icons.sync,
                       SyncStatusViewState.syncFailed => Icons.cloud_off,
                     },
                   ),

@@ -2,6 +2,10 @@
 
 part of 'user_sync_profile_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
 class UserSyncProfileModelAdapter extends TypeAdapter<UserSyncProfileModel> {
   @override
   final int typeId = 3;
@@ -19,17 +23,27 @@ class UserSyncProfileModelAdapter extends TypeAdapter<UserSyncProfileModel> {
       workspaceReady: fields[3] as bool,
       createdAt: fields[4] as DateTime,
       updatedAt: fields[5] as DateTime,
+      statusViewStateIndex: fields[9] as int,
       lastSuccessfulSyncAt: fields[6] as DateTime?,
       lastAttemptedSyncAt: fields[7] as DateTime?,
       lastSyncErrorCode: fields[8] as String?,
-      statusViewStateIndex: fields[9] as int,
+      engineStatusIndex: fields[10] as int,
+      lastTriggerIndex: fields[11] as int?,
+      lastStartedAt: fields[12] as DateTime?,
+      lastCompletedAt: fields[13] as DateTime?,
+      lastSuccessAt: fields[14] as DateTime?,
+      lastFailureAt: fields[15] as DateTime?,
+      message: fields[16] as String?,
+      lastPushedCount: fields[17] as int,
+      lastPulledCount: fields[18] as int,
+      lastFailedCount: fields[19] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserSyncProfileModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
@@ -49,7 +63,27 @@ class UserSyncProfileModelAdapter extends TypeAdapter<UserSyncProfileModel> {
       ..writeByte(8)
       ..write(obj.lastSyncErrorCode)
       ..writeByte(9)
-      ..write(obj.statusViewStateIndex);
+      ..write(obj.statusViewStateIndex)
+      ..writeByte(10)
+      ..write(obj.engineStatusIndex)
+      ..writeByte(11)
+      ..write(obj.lastTriggerIndex)
+      ..writeByte(12)
+      ..write(obj.lastStartedAt)
+      ..writeByte(13)
+      ..write(obj.lastCompletedAt)
+      ..writeByte(14)
+      ..write(obj.lastSuccessAt)
+      ..writeByte(15)
+      ..write(obj.lastFailureAt)
+      ..writeByte(16)
+      ..write(obj.message)
+      ..writeByte(17)
+      ..write(obj.lastPushedCount)
+      ..writeByte(18)
+      ..write(obj.lastPulledCount)
+      ..writeByte(19)
+      ..write(obj.lastFailedCount);
   }
 
   @override

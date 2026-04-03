@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 import '../../domain/entities/sync/pending_change.dart';
 import '../../domain/entities/sync/sync_types.dart';
-import '../../domain/entities/sync_operation.dart';
+import '../../domain/entities/sync_operation.dart' hide SyncEntityType, SyncOperationType;
 import '../models/sync/pending_change_model.dart';
 import '../models/sync_operation_model.dart';
 
@@ -28,6 +28,39 @@ class SyncQueueLocalDataSource {
 
   Future<void> replace(SyncOperation operation) async {
     await _legacyBox.put(operation.id, SyncOperationModel.fromEntity(operation));
+  }
+
+  Future<List<PendingChange>> getEffectivePendingChanges({String? userId}) async {
+    final pendingChanges = await listPendingChanges(userId: userId);
+    if (pendingChanges.isNotEmpty) {
+      return pendingChanges;
+    }
+
+    // Fallback to legacy operations
+    final legacyOperations = await getPendingOperations();
+    return legacyOperations.map((op) {
+      final entityType = switch (op.entityType.name) {
+        'medication' => SyncEntityType.medication,
+        _ => SyncEntityType.medication,
+      };
+      final operation = switch (op.type.name) {
+        'create' => SyncOperationType.create,
+        'update' => SyncOperationType.update,
+        'delete' => SyncOperationType.delete,
+        _ => SyncOperationType.create,
+      };
+
+      return PendingChange(
+        changeId: op.id,
+        entityType: entityType,
+        entityId: op.entityId,
+        operation: operation,
+        queuedAt: op.createdAt,
+        sourceUpdatedAt: op.createdAt,
+        userId: userId,
+        status: SyncOperationStatus.pending,
+      );
+    }).toList();
   }
 
   Future<void> enqueuePendingChange(PendingChange change) async {

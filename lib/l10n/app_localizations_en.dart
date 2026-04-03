@@ -376,4 +376,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String syncReadyAs(String userId) {
     return 'Cloud workspace ready for $userId';
   }
+
+  @override
+  String get syncRunning => 'Syncing...';
+
+  @override
+  String get syncSucceeded => 'Sync complete';
+
+  @override
+  String get syncPartialFailure => 'Sync completed with some errors';
+
+  @override
+  String get syncRetrySafeFailure => 'Sync failed. Tap to retry.';
+
+  @override
+  String syncLastSuccess(String timestamp) {
+    return 'Last sync: $timestamp';
+  }
+
+  @override
+  String syncLastFailure(String timestamp) {
+    return 'Sync failed at $timestamp';
+  }
 }
