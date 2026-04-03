@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:hive/hive.dart';
 
 import '../../domain/entities/sync/conflict_metadata.dart';
@@ -59,9 +61,22 @@ class SyncStateLocalDataSource {
     String? userId,
   }) async {
     return _conflictBox.values
-        .map((item) => item.toEntity())
+        .map((item) {
+          try {
+            return item.toEntity();
+          } catch (e) {
+            // Log and skip corrupted conflict metadata records
+            // This handles migration issues with missing userId in legacy data
+            log('SyncStateLocalDataSource: Skipping corrupted conflict metadata: $e',
+                name: 'SyncStateLocalDataSource');
+            return null;
+          }
+        })
         .where((item) =>
-            item.entityId == entityId && (userId == null || item.userId == userId))
+            item != null &&
+            item.entityId == entityId &&
+            (userId == null || item.userId == userId))
+        .cast<ConflictMetadata>()
         .toList();
   }
 
