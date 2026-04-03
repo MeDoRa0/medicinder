@@ -111,29 +111,38 @@ void main() {
     });
 
     group('Startup and Reconnect Triggers', () {
-      test('initialize() with a signed-in session triggers startup sync', () async {
-        final authRepository = _FakeAuthRepository(
-          watchedSession: const AuthSession.ready('user-123', providerId: 'anonymous'),
-        );
-        final syncRepository = _FakeSyncRepository();
-        final cubit = SyncStatusCubit(
-          signInForSync: SignInForSync(authRepository),
-          signOutFromSync: SignOutFromSync(authRepository),
-          watchAuthSession: WatchAuthSession(authRepository),
-          syncRepository: syncRepository,
-          syncDiagnostics: const SyncDiagnostics(),
-          connectivitySignal: _FakeConnectivitySignalService(),
-        );
+      test(
+        'initialize() with a signed-in session triggers startup sync',
+        () async {
+          final authRepository = _FakeAuthRepository(
+            watchedSession: const AuthSession.ready(
+              'user-123',
+              providerId: 'anonymous',
+            ),
+          );
+          final syncRepository = _FakeSyncRepository();
+          final cubit = SyncStatusCubit(
+            signInForSync: SignInForSync(authRepository),
+            signOutFromSync: SignOutFromSync(authRepository),
+            watchAuthSession: WatchAuthSession(authRepository),
+            syncRepository: syncRepository,
+            syncDiagnostics: const SyncDiagnostics(),
+            connectivitySignal: _FakeConnectivitySignalService(),
+          );
 
-        cubit.initialize();
-        await Future<void>.delayed(Duration.zero);
+          cubit.initialize();
+          await Future<void>.delayed(Duration.zero);
 
-        expect(syncRepository.syncCalls, contains(SyncTrigger.appStartup));
-      });
+          expect(syncRepository.syncCalls, contains(SyncTrigger.appStartup));
+        },
+      );
 
       test('triggers sync when connectivity is restored', () async {
         final authRepository = _FakeAuthRepository(
-          initialSession: const AuthSession.ready('user-123', providerId: 'anonymous'),
+          initialSession: const AuthSession.ready(
+            'user-123',
+            providerId: 'anonymous',
+          ),
         );
         final syncRepository = _FakeSyncRepository();
         final connectivitySignal = _FakeConnectivitySignalService();
@@ -153,7 +162,10 @@ void main() {
         connectivitySignal.triggerReconnect();
         await Future<void>.delayed(Duration.zero);
 
-        expect(syncRepository.syncCalls, contains(SyncTrigger.connectivityRestored));
+        expect(
+          syncRepository.syncCalls,
+          contains(SyncTrigger.connectivityRestored),
+        );
       });
     });
   });
@@ -226,7 +238,7 @@ class _FakeConnectivitySignalService implements ConnectivitySignalService {
   void triggerReconnect() => _controller.add(null);
 
   @override
-  void dispose() {
-    _controller.close();
+  Future<void> dispose() async {
+    await _controller.close();
   }
 }
