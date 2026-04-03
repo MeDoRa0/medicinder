@@ -63,7 +63,7 @@ void main() {
     test('merges dose statuses based on union of taken doses when structures are identical', () async {
       const resolver = MedicationConflictResolver();
       final baseDate = DateTime(2026, 4, 1);
-      
+
       final medication = _buildMedication(
         id: 'med-1',
         updatedAt: baseDate,
@@ -98,6 +98,96 @@ void main() {
       // Even if remote is newer, we merge the 'taken' flags if structures match.
       expect(resolved.doses[0].taken, isTrue);
       expect(resolved.doses[1].taken, isTrue);
+    });
+
+    test('returns winner without merging doses when dose counts differ', () {
+      const resolver = MedicationConflictResolver();
+      final baseDate = DateTime(2026, 4, 1);
+
+      final localMedication = _buildMedication(
+        id: 'med-1',
+        updatedAt: baseDate.add(const Duration(hours: 1)),
+      ).copyWith(
+        doses: [
+          MedicationDose(taken: true, takenDate: baseDate),
+        ],
+      );
+
+      final remoteMedication = _buildMedication(
+        id: 'med-1',
+        updatedAt: baseDate.add(const Duration(hours: 2)),
+      ).copyWith(
+        doses: [
+          const MedicationDose(taken: false),
+          const MedicationDose(taken: false),
+        ],
+      );
+
+      final resolved = resolver.resolve(
+        local: localMedication,
+        remote: remoteMedication,
+      );
+
+      // Remote wins (newer), no merge because dose counts differ.
+      expect(resolved.doses, hasLength(2));
+      expect(resolved.doses[0].taken, isFalse);
+    });
+
+    test('returns winner without merging doses when timing types differ', () {
+      const resolver = MedicationConflictResolver();
+      final baseDate = DateTime(2026, 4, 1);
+
+      final localMedication = _buildMedication(
+        id: 'med-1',
+        updatedAt: baseDate.add(const Duration(hours: 1)),
+      ).copyWith(timingType: MedicationTimingType.specificTime);
+
+      final remoteMedication = _buildMedication(
+        id: 'med-1',
+        updatedAt: baseDate.add(const Duration(hours: 2)),
+      ).copyWith(timingType: MedicationTimingType.contextBased);
+
+      final resolved = resolver.resolve(
+        local: localMedication,
+        remote: remoteMedication,
+      );
+
+      // Remote wins because it's newer; no merge due to different timing type.
+      expect(resolved.timingType, MedicationTimingType.contextBased);
+    });
+
+    test('does not overwrite already-taken dose in winner with non-taken from loser', () {
+      const resolver = MedicationConflictResolver();
+      final baseDate = DateTime(2026, 4, 1);
+      final takenDate = baseDate.add(const Duration(hours: 2));
+
+      final localMedication = _buildMedication(
+        id: 'med-1',
+        updatedAt: baseDate.add(const Duration(hours: 1)),
+      ).copyWith(
+        doses: [
+          const MedicationDose(taken: false),
+        ],
+      );
+
+      final remoteMedication = _buildMedication(
+        id: 'med-1',
+        updatedAt: baseDate.add(const Duration(hours: 2)),
+      ).copyWith(
+        doses: [
+          MedicationDose(taken: true, takenDate: takenDate),
+        ],
+      );
+
+      final resolved = resolver.resolve(
+        local: localMedication,
+        remote: remoteMedication,
+      );
+
+      // Remote winner already has dose taken; local loser has it not taken.
+      // Winner's taken state should be preserved.
+      expect(resolved.doses[0].taken, isTrue);
+      expect(resolved.doses[0].takenDate, takenDate);
     });
   });
 }

@@ -27,6 +27,45 @@ void main() {
       expect(session.status, AuthSessionStatus.ready);
     });
   });
+
+  group('DisabledAuthRemoteDataSource', () {
+    test('getCurrentSession returns signedOut', () async {
+      const remote = DisabledAuthRemoteDataSource();
+
+      final session = await remote.getCurrentSession();
+
+      expect(session.status, AuthSessionStatus.signedOut);
+      expect(session.isSignedIn, isFalse);
+    });
+
+    test('signInForSync returns failed with CLOUD_SYNC_DISABLED code', () async {
+      const remote = DisabledAuthRemoteDataSource();
+
+      final session = await remote.signInForSync();
+
+      expect(session.status, AuthSessionStatus.failed);
+      expect(session.isSignedIn, isFalse);
+      expect(session.failureCode, 'CLOUD_SYNC_DISABLED');
+      expect(session.failureMessage, isNotNull);
+    });
+
+    test('watchSession emits signedOut', () async {
+      const remote = DisabledAuthRemoteDataSource();
+
+      final sessions = await remote.watchSession().toList();
+
+      // watchSession returns signedOut (via getCurrentSession delegation)
+      expect(sessions, isNotEmpty);
+      expect(sessions.first.status, AuthSessionStatus.signedOut);
+    });
+
+    test('signOut completes without error', () async {
+      const remote = DisabledAuthRemoteDataSource();
+
+      // Should not throw
+      await remote.signOut();
+    });
+  });
 }
 
 class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
