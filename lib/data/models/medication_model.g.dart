@@ -70,17 +70,19 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
       dosage: fields[4] as String,
       typeIndex: fields[5] as int,
       timingTypeIndex: fields[6] as int,
-      doses: (fields[7] as List).cast<MedicationDoseModel>(),
+      doses: (fields[7] as List?)?.cast<MedicationDoseModel>() ?? const [],
       totalDays: fields[8] as int,
       startDate: fields[9] as DateTime,
       repeatForever: fields[10] as bool,
-      isDeleted: fields[11] as bool,
+      isDeleted: (fields[11] as bool?) ?? false,
       deletedAt: fields[12] as DateTime?,
-      createdAt: fields[13] as DateTime,
-      updatedAt: fields[14] as DateTime,
+      createdAt:
+          (fields[13] as DateTime?) ?? DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt:
+          (fields[14] as DateTime?) ?? DateTime.fromMillisecondsSinceEpoch(0),
       lastSyncedAt: fields[15] as DateTime?,
-      syncStatusIndex: fields[16] as int,
-      syncVersion: fields[17] as int,
+      syncStatusIndex: (fields[16] as int?) ?? 0,
+      syncVersion: (fields[17] as int?) ?? 0,
     );
   }
 

@@ -23,7 +23,7 @@ class SyncOperationModelAdapter extends TypeAdapter<SyncOperationModel> {
       typeIndex: fields[3] as int,
       createdAt: fields[4] as DateTime,
       lastAttemptAt: fields[5] as DateTime?,
-      attemptCount: fields[6] as int,
+      attemptCount: (fields[6] as int?) ?? 0,
       errorMessage: fields[7] as String?,
     );
   }

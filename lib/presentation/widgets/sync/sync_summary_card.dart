@@ -35,10 +35,7 @@ class SyncSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.syncStatusTitle,
-              style: theme.textTheme.titleMedium,
-            ),
+            Text(l10n.syncStatusTitle, style: theme.textTheme.titleMedium),
             if (statusText != null) ...[
               const SizedBox(height: 8),
               Text(statusText),
@@ -48,17 +45,17 @@ class SyncSummaryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _StatItem(
-                  label: 'pushed',
+                  label: l10n.pushed,
                   count: profile.lastPushedCount,
                   icon: Icons.cloud_upload_outlined,
                 ),
                 _StatItem(
-                  label: 'pulled',
+                  label: l10n.pulled,
                   count: profile.lastPulledCount,
                   icon: Icons.cloud_download_outlined,
                 ),
                 _StatItem(
-                  label: 'failed',
+                  label: l10n.failed,
                   count: profile.lastFailedCount,
                   icon: Icons.error_outline,
                   color: profile.lastFailedCount > 0 ? Colors.red : null,

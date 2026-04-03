@@ -8,7 +8,7 @@ Auto-generated from all feature plans. Last updated: 2026-04-03
 - Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `hive`, `hive_flutter`, `firebase_auth`, `cloud_firestore`, `intl` (003-sync-engine)
 - Hive remains the local source of truth for medication records and sync state; Firestore stores user-scoped cloud medication copies; lightweight sync diagnostics stay in local state/logs only (003-sync-engine)
 
-- Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `hive`, `hive_flutter`, `awesome_notifications`, `intl`, planned `firebase_auth`, planned `cloud_firestore`, planned connectivity monitoring (001-phase-0-sync-architecture)
+- Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `hive`, `hive_flutter`, `awesome_notifications`, `intl`, `firebase_auth`, `cloud_firestore`, connectivity monitoring (001-phase-0-sync-architecture)
 
 ## Project Structure
 

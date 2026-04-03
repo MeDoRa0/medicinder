@@ -12,6 +12,9 @@
 .swiftpm/
 migrate_working_dir/
 
+# Temporary configuration
+.tmp-config/
+
 # IntelliJ related
 *.iml
 *.ipr

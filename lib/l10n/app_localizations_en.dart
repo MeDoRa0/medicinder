@@ -340,6 +340,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
+  String get pushed => 'Pushed';
+
+  @override
+  String get pulled => 'Pulled';
+
+  @override
+  String get failed => 'Failed';
+
+  @override
   String get syncSignedOut => 'Signed out';
 
   @override

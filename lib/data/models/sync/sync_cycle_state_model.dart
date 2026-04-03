@@ -13,7 +13,7 @@ class SyncCycleStateModel extends HiveObject {
   String userId;
 
   @HiveField(2)
-  int triggerIndex;
+  String triggerName;
 
   @HiveField(3)
   DateTime startedAt;
@@ -22,7 +22,7 @@ class SyncCycleStateModel extends HiveObject {
   DateTime? completedAt;
 
   @HiveField(5)
-  int statusIndex;
+  String statusName;
 
   @HiveField(6)
   int pushedCount;
@@ -36,13 +36,16 @@ class SyncCycleStateModel extends HiveObject {
   @HiveField(9)
   String? failureClass;
 
+  static const String defaultStatusName = 'idle';
+  static const String defaultTriggerName = 'appStartup';
+
   SyncCycleStateModel({
     required this.cycleId,
     required this.userId,
-    required this.triggerIndex,
+    required this.triggerName,
     required this.startedAt,
     this.completedAt,
-    this.statusIndex = 0,
+    this.statusName = defaultStatusName,
     this.pushedCount = 0,
     this.pulledCount = 0,
     this.failedCount = 0,
@@ -53,10 +56,10 @@ class SyncCycleStateModel extends HiveObject {
     return SyncCycleStateModel(
       cycleId: state.cycleId,
       userId: state.userId,
-      triggerIndex: state.trigger.index,
+      triggerName: state.trigger.name,
       startedAt: state.startedAt,
       completedAt: state.completedAt,
-      statusIndex: state.status.index,
+      statusName: state.status.name,
       pushedCount: state.pushedCount,
       pulledCount: state.pulledCount,
       failedCount: state.failedCount,
@@ -65,13 +68,27 @@ class SyncCycleStateModel extends HiveObject {
   }
 
   SyncCycleState toEntity() {
+    SyncTrigger trigger;
+    try {
+      trigger = SyncTrigger.values.byName(triggerName);
+    } catch (_) {
+      trigger = SyncTrigger.appStartup;
+    }
+
+    SyncCycleStatus status;
+    try {
+      status = SyncCycleStatus.values.byName(statusName);
+    } catch (_) {
+      status = SyncCycleStatus.idle;
+    }
+
     return SyncCycleState(
       cycleId: cycleId,
       userId: userId,
-      trigger: SyncTrigger.values[triggerIndex],
+      trigger: trigger,
       startedAt: startedAt,
       completedAt: completedAt,
-      status: SyncCycleStatus.values[statusIndex],
+      status: status,
       pushedCount: pushedCount,
       pulledCount: pulledCount,
       failedCount: failedCount,

@@ -337,6 +337,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
+  String get pushed => 'تم رفعها';
+
+  @override
+  String get pulled => 'تم سحبها';
+
+  @override
+  String get failed => 'فشلت';
+
+  @override
   String get syncSignedOut => 'تم تسجيل الخروج';
 
   @override

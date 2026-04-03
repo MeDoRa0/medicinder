@@ -9,6 +9,8 @@ import '../../../domain/entities/sync_operation.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/entities/sync/pending_change.dart';
 import '../../../domain/entities/sync/sync_types.dart' as sync_types;
+import '../../../domain/entities/sync/user_sync_profile.dart';
+import '../../../domain/entities/sync/sync_status_view_state.dart';
 import '../../../data/datasources/sync_state_local_data_source.dart';
 import '../../../domain/entities/sync/conflict_metadata.dart';
 import '../../../domain/repositories/medication_repository.dart';
@@ -40,7 +42,8 @@ class SyncService implements SyncRepository {
        _syncState = syncState;
 
   @override
-  Future<SyncResult> synchronize() => syncNow(sync_types.SyncTrigger.manualRetry);
+  Future<SyncResult> synchronize() =>
+      syncNow(sync_types.SyncTrigger.manualRetry);
 
   @override
   Future<SyncResult> syncNow(sync_types.SyncTrigger trigger) async {
@@ -51,16 +54,17 @@ class SyncService implements SyncRepository {
       );
     }
 
-    final session = await _authRepository.getCurrentSession();
-    if (!session.isSignedIn || session.userId == null) {
-      return const SyncResult(
-        success: false,
-        message: 'Cloud sync requires a signed-in account.',
-      );
-    }
-
-    final userId = session.userId!;
     _isSyncing = true;
+    try {
+      final session = await _authRepository.getCurrentSession();
+      if (!session.isSignedIn || session.userId == null) {
+        return const SyncResult(
+          success: false,
+          message: 'Cloud sync requires a signed-in account.',
+        );
+      }
+
+      final userId = session.userId!;
 
     final cycleId = DateTime.now().millisecondsSinceEpoch.toString();
     var cycle = SyncCycleState(
@@ -73,12 +77,13 @@ class SyncService implements SyncRepository {
 
     await _syncState.saveCycle(cycle);
 
-    try {
-      final changes = await _syncQueue.getEffectivePendingChanges(userId: userId);
-      var pushedCount = 0;
-      var failedCount = 0;
-      var pulledCount = 0;
-      String? message;
+    final changes = await _syncQueue.getEffectivePendingChanges(
+      userId: userId,
+    );
+    var pushedCount = 0;
+    var failedCount = 0;
+    var pulledCount = 0;
+    String? message;
 
       for (final change in changes) {
         try {
@@ -132,7 +137,34 @@ class SyncService implements SyncRepository {
       // Update User Sync Profile
       final profile = await _syncState.getProfile(userId);
       if (profile != null) {
-        await _syncState.saveProfile(profile.copyWith(
+        await _syncState.saveProfile(
+          profile.copyWith(
+            engineStatus: cycle.status,
+            lastTrigger: trigger,
+            lastStartedAt: cycle.startedAt,
+            lastCompletedAt: completedAt,
+            lastSuccessAt: success ? completedAt : null,
+            lastFailureAt: !success ? completedAt : null,
+            message: message,
+            lastPushedCount: pushedCount,
+            lastPulledCount: pulledCount,
+            lastFailedCount: failedCount,
+            updatedAt: completedAt,
+          ),
+        );
+      } else {
+        log(
+          'SyncService: profile missing for user $userId, creating default profile.',
+          name: 'SyncService',
+        );
+        final newProfile = UserSyncProfile(
+          userId: userId,
+          providerIds: const <String>[],
+          syncEnabled: true,
+          workspaceReady: true,
+          createdAt: completedAt,
+          updatedAt: completedAt,
+          statusViewState: SyncStatusViewState.ready,
           engineStatus: cycle.status,
           lastTrigger: trigger,
           lastStartedAt: cycle.startedAt,
@@ -143,8 +175,8 @@ class SyncService implements SyncRepository {
           lastPushedCount: pushedCount,
           lastPulledCount: pulledCount,
           lastFailedCount: failedCount,
-          updatedAt: completedAt,
-        ));
+        );
+        await _syncState.saveProfile(newProfile);
       }
 
       return SyncResult(
@@ -153,7 +185,8 @@ class SyncService implements SyncRepository {
         failedCount: failedCount,
         pulledCount: pulledCount,
         userId: userId,
-        message: message ??
+        message:
+            message ??
             (failedCount == 0
                 ? null
                 : 'Some operations could not be synchronized.'),
@@ -204,9 +237,7 @@ class SyncService implements SyncRepository {
     );
   }
 
-  Future<int> _pullRemoteChanges({
-    required String userId,
-  }) async {
+  Future<int> _pullRemoteChanges({required String userId}) async {
     final remoteMedications = await _remoteDataSource.pullMedications(userId);
     final localMedications = await _medicationRepository.getMedications(
       includeDeleted: true,
@@ -232,19 +263,21 @@ class SyncService implements SyncRepository {
       // Log conflict metadata
       final winningSource =
           mergedMedication.syncMetadata.updatedAt ==
-                  remoteMedication.syncMetadata.updatedAt
-              ? 'remote'
-              : 'local';
+              remoteMedication.syncMetadata.updatedAt
+          ? 'remote'
+          : 'local';
 
-      await _syncState.saveConflict(ConflictMetadata(
-        entityType: sync_types.SyncEntityType.medication,
-        entityId: remoteMedication.id,
-        userId: userId,
-        localUpdatedAt: localMedication.syncMetadata.updatedAt,
-        remoteUpdatedAt: remoteMedication.syncMetadata.updatedAt,
-        winningSource: winningSource,
-        resolvedAt: DateTime.now(),
-      ));
+      await _syncState.saveConflict(
+        ConflictMetadata(
+          entityType: sync_types.SyncEntityType.medication,
+          entityId: remoteMedication.id,
+          userId: userId,
+          localUpdatedAt: localMedication.syncMetadata.updatedAt,
+          remoteUpdatedAt: remoteMedication.syncMetadata.updatedAt,
+          winningSource: winningSource,
+          resolvedAt: DateTime.now(),
+        ),
+      );
 
       final resolvedMedication = mergedMedication.copyWith(
         userId: userId,

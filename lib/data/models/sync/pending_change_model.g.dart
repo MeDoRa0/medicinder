@@ -24,9 +24,9 @@ class PendingChangeModelAdapter extends TypeAdapter<PendingChangeModel> {
       queuedAt: fields[5] as DateTime,
       sourceUpdatedAt: fields[6] as DateTime,
       payload: (fields[4] as Map?)?.cast<String, dynamic>(),
-      attemptCount: fields[7] as int,
+      attemptCount: (fields[7] as int?) ?? 0,
       lastAttemptAt: fields[8] as DateTime?,
-      statusIndex: fields[9] as int,
+      statusIndex: (fields[9] as int?) ?? 0,
       userId: fields[10] as String?,
       errorMessage: fields[11] as String?,
     );

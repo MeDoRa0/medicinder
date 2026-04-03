@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -50,6 +51,17 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
         failureCode: error.code,
         failureMessage: error.message ?? 'Authentication failed.',
       );
+    } catch (error, stack) {
+      log(
+        'signInForSync unexpected error: $error',
+        name: 'FirebaseAuthRemoteDataSource',
+        error: error,
+        stackTrace: stack,
+      );
+      return AuthSession.failed(
+        failureCode: 'unknown_error',
+        failureMessage: error.toString(),
+      );
     }
   }
 
@@ -101,8 +113,7 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
           user.uid,
           providerId: providerId,
           failureCode: error.code,
-          failureMessage:
-              error.message ?? 'Cloud workspace access was denied.',
+          failureMessage: error.message ?? 'Cloud workspace access was denied.',
         );
       }
       return AuthSession.failed(
@@ -131,7 +142,8 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
     batch.set(profileDoc, {
       'userId': user.uid,
       'providerIds': user.providerData.map((item) => item.providerId).toList(),
-      'createdAt': user.metadata.creationTime?.toIso8601String() ??
+      'createdAt':
+          user.metadata.creationTime?.toIso8601String() ??
           now.toIso8601String(),
       'updatedAt': now.toIso8601String(),
       'status': 'active',
@@ -180,7 +192,8 @@ class DisabledAuthRemoteDataSource implements AuthRemoteDataSource {
   const DisabledAuthRemoteDataSource();
 
   @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  Future<AuthSession> getCurrentSession() async =>
+      const AuthSession.signedOut();
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) async =>

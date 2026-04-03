@@ -35,6 +35,8 @@ class _SettingsPageState extends State<SettingsPage> {
   TimeOfDay? _lunchTime;
   TimeOfDay? _dinnerTime;
   String? _selectedLanguageCode;
+  Future<UserSyncProfile?>? _profileFuture;
+  String? _profileUserId;
 
   @override
   void initState() {
@@ -99,7 +101,9 @@ class _SettingsPageState extends State<SettingsPage> {
         (ModalRoute.of(context)?.settings.arguments == 'initialSetup');
     if (!isInitial) {
       try {
-        await context.read<MedicationCubit>().recomputeMealBasedDoseTimesAndReschedule(context);
+        await context
+            .read<MedicationCubit>()
+            .recomputeMealBasedDoseTimesAndReschedule(context);
       } catch (_) {
         // Non-fatal: meal times are saved; notifications may use old times until next open
       }
@@ -188,10 +192,19 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(height: 24),
               const SyncAccountTile(),
               BlocBuilder<SyncStatusCubit, SyncStatusState>(
+                buildWhen: (previous, current) =>
+                    previous.userId != current.userId,
                 builder: (context, state) {
                   if (state.userId == null) return const SizedBox.shrink();
+                  if (_profileUserId != state.userId ||
+                      _profileFuture == null) {
+                    _profileUserId = state.userId;
+                    _profileFuture = sl<SyncDiagnostics>().getProfile(
+                      state.userId!,
+                    );
+                  }
                   return FutureBuilder<UserSyncProfile?>(
-                    future: sl<SyncDiagnostics>().getProfile(state.userId!),
+                    future: _profileFuture,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData || snapshot.data == null) {
                         return const SizedBox.shrink();

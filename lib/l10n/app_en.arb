@@ -252,6 +252,18 @@
   "@unknownError": {
     "description": "Error message for unknown errors"
   },
+  "pushed": "Pushed",
+  "@pushed": {
+    "description": "Label for number of pushed sync entities"
+  },
+  "pulled": "Pulled",
+  "@pulled": {
+    "description": "Label for number of pulled sync entities"
+  },
+  "failed": "Failed",
+  "@failed": {
+    "description": "Label for number of failed sync entities"
+  },
   "retryNetwork": "Check your connection and try again",
   "@retryNetwork": {
     "description": "Suggested action for network errors"

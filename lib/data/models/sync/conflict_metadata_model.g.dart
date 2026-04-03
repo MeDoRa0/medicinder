@@ -16,10 +16,11 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+    final userIdField = fields.containsKey(7) ? fields[7] : null;
     return ConflictMetadataModel(
       entityTypeIndex: fields[0] as int,
       entityId: fields[1] as String,
-      userId: fields[7] as String,
+      userId: userIdField is String ? userIdField : null,
       localUpdatedAt: fields[2] as DateTime,
       remoteUpdatedAt: fields[3] as DateTime,
       winningSource: fields[4] as String,

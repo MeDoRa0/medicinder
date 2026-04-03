@@ -430,6 +430,18 @@
   "@unknownError": {
     "description": "Error message for unknown errors"
   },
+  "pushed": "تم رفعها",
+  "@pushed": {
+    "description": "Label for number of pushed sync entities"
+  },
+  "pulled": "تم سحبها",
+  "@pulled": {
+    "description": "Label for number of pulled sync entities"
+  },
+  "failed": "فشلت",
+  "@failed": {
+    "description": "Label for number of failed sync entities"
+  },
   "retryNetwork": "تحقق من اتصالك وحاول مرة أخرى",
   "@retryNetwork": {
     "description": "Suggested action for network errors"

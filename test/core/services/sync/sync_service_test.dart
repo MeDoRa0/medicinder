@@ -14,7 +14,8 @@ import 'package:medicinder/domain/entities/sync/sync_cycle_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/user_sync_profile.dart';
 import 'package:medicinder/domain/entities/sync_metadata.dart';
-import 'package:medicinder/domain/entities/sync_operation.dart' hide SyncEntityType, SyncOperationType;
+import 'package:medicinder/domain/entities/sync_operation.dart'
+    hide SyncEntityType, SyncOperationType;
 import 'package:medicinder/domain/entities/sync/sync_types.dart' as sync_types;
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
@@ -22,46 +23,53 @@ import 'package:medicinder/domain/repositories/sync_repository.dart';
 
 void main() {
   group('SyncService', () {
-    test('processes queued create operations and marks medication as synced', () async {
-      final medication = _buildMedication(
-        id: 'med-1',
-        updatedAt: DateTime(2026, 4, 1, 8),
-      );
-      final repository = _FakeMedicationRepository([medication]);
-      final queue = _FakeSyncQueue([]);
-      final remote = _FakeMedicationRemoteDataSource();
-      final syncState = _FakeSyncStateLocalDataSource();
-      final service = SyncService(
-        authRepository: _FakeAuthRepository(),
-        medicationRepository: repository,
-        remoteDataSource: remote,
-        syncQueue: queue,
-        conflictResolver: const MedicationConflictResolver(),
-        syncState: syncState,
-      );
+    test(
+      'processes queued create operations and marks medication as synced',
+      () async {
+        final medication = _buildMedication(
+          id: 'med-1',
+          updatedAt: DateTime(2026, 4, 1, 8),
+        );
+        final repository = _FakeMedicationRepository([medication]);
+        final queue = _FakeSyncQueue([]);
+        final remote = _FakeMedicationRemoteDataSource();
+        final syncState = _FakeSyncStateLocalDataSource();
+        final service = SyncService(
+          authRepository: _FakeAuthRepository(),
+          medicationRepository: repository,
+          remoteDataSource: remote,
+          syncQueue: queue,
+          conflictResolver: const MedicationConflictResolver(),
+          syncState: syncState,
+        );
 
-      await queue.enqueuePendingChange(PendingChange(
-        changeId: 'op-1',
-        entityType: sync_types.SyncEntityType.medication,
-        entityId: medication.id,
-        operation: sync_types.SyncOperationType.create,
-        queuedAt: DateTime(2026, 4, 1, 8),
-        sourceUpdatedAt: DateTime(2026, 4, 1, 8),
-        userId: 'user-123',
-        status: sync_types.SyncOperationStatus.pending,
-      ));
+        await queue.enqueuePendingChange(
+          PendingChange(
+            changeId: 'op-1',
+            entityType: sync_types.SyncEntityType.medication,
+            entityId: medication.id,
+            operation: sync_types.SyncOperationType.create,
+            queuedAt: DateTime(2026, 4, 1, 8),
+            sourceUpdatedAt: DateTime(2026, 4, 1, 8),
+            userId: 'user-123',
+            status: sync_types.SyncOperationStatus.pending,
+          ),
+        );
 
-      final result = await service.synchronize();
+        final result = await service.synchronize();
 
-      expect(result.success, isTrue);
-      expect(result.pushedCount, 1);
-      expect(await queue.listPendingChanges(), isEmpty);
-      expect(remote.upsertedMedicationIds, [medication.id]);
-      expect(
-        (await repository.getMedicationById(medication.id))?.syncMetadata.status,
-        SyncStatus.synced,
-      );
-    });
+        expect(result.success, isTrue);
+        expect(result.pushedCount, 1);
+        expect(await queue.listPendingChanges(), isEmpty);
+        expect(remote.upsertedMedicationIds, [medication.id]);
+        expect(
+          (await repository.getMedicationById(
+            medication.id,
+          ))?.syncMetadata.status,
+          SyncStatus.synced,
+        );
+      },
+    );
 
     test('keeps queued operations when remote sync is disabled', () async {
       final medication = _buildMedication(
@@ -81,16 +89,18 @@ void main() {
         syncState: syncState,
       );
 
-      await queue.enqueuePendingChange(PendingChange(
-        changeId: 'op-2',
-        entityType: sync_types.SyncEntityType.medication,
-        entityId: medication.id,
-        operation: sync_types.SyncOperationType.create,
-        queuedAt: DateTime(2026, 4, 1, 8),
-        sourceUpdatedAt: DateTime(2026, 4, 1, 8),
-        userId: 'user-123',
-        status: sync_types.SyncOperationStatus.pending,
-      ));
+      await queue.enqueuePendingChange(
+        PendingChange(
+          changeId: 'op-2',
+          entityType: sync_types.SyncEntityType.medication,
+          entityId: medication.id,
+          operation: sync_types.SyncOperationType.create,
+          queuedAt: DateTime(2026, 4, 1, 8),
+          sourceUpdatedAt: DateTime(2026, 4, 1, 8),
+          userId: 'user-123',
+          status: sync_types.SyncOperationStatus.pending,
+        ),
+      );
 
       final result = await service.synchronize();
 
@@ -116,41 +126,53 @@ void main() {
         expect(result.success, isTrue);
       });
 
-      test('handleConnectivityRestored() triggers syncNow(connectivityRestored)', () async {
-        final queue = _FakeSyncQueue([]);
-        final service = SyncService(
-          authRepository: _FakeAuthRepository(),
-          medicationRepository: _FakeMedicationRepository([]),
-          remoteDataSource: _FakeMedicationRemoteDataSource(),
-          syncQueue: queue,
-          conflictResolver: const MedicationConflictResolver(),
-          syncState: _FakeSyncStateLocalDataSource(),
-        );
+      test(
+        'handleConnectivityRestored() triggers syncNow(connectivityRestored)',
+        () async {
+          final queue = _FakeSyncQueue([]);
+          final service = SyncService(
+            authRepository: _FakeAuthRepository(),
+            medicationRepository: _FakeMedicationRepository([]),
+            remoteDataSource: _FakeMedicationRemoteDataSource(),
+            syncQueue: queue,
+            conflictResolver: const MedicationConflictResolver(),
+            syncState: _FakeSyncStateLocalDataSource(),
+          );
 
-        await service.handleConnectivityRestored();
-      });
+          await service.handleConnectivityRestored();
+        },
+      );
 
       test('rejects overlapping cycles for the same user', () async {
+        final completer = Completer<void>();
         final service = SyncService(
           authRepository: _FakeAuthRepository(),
           medicationRepository: _FakeMedicationRepository([]),
-          remoteDataSource: _FakeMedicationRemoteDataSource(),
+          remoteDataSource: _FakeMedicationRemoteDataSource(
+            pullDelayer: completer.future,
+          ),
           syncQueue: _FakeSyncQueue([]),
           conflictResolver: const MedicationConflictResolver(),
           syncState: _FakeSyncStateLocalDataSource(),
         );
 
-        // We can't easily test overlapping calls without making one of them async and waiting.
-        // But the code has the flag.
+        final firstSync = service.syncNow(sync_types.SyncTrigger.appStartup);
+        expect(service._isSyncing, isTrue);
+
+        final secondResult = await service.syncNow(
+          sync_types.SyncTrigger.userSignIn,
+        );
+        expect(secondResult.success, isFalse);
+        expect(secondResult.message, contains('already in progress'));
+
+        completer.complete();
+        await firstSync;
       });
     });
   });
 }
 
-Medication _buildMedication({
-  required String id,
-  required DateTime updatedAt,
-}) {
+Medication _buildMedication({required String id, required DateTime updatedAt}) {
   return Medication.create(
     id: id,
     name: 'Medication $id',
@@ -224,7 +246,11 @@ class _FakeMedicationRepository implements MedicationRepository {
   }
 
   @override
-  Future<void> updateDoseStatus(String medicationId, int doseIndex, bool taken) async {}
+  Future<void> updateDoseStatus(
+    String medicationId,
+    int doseIndex,
+    bool taken,
+  ) async {}
 
   @override
   Future<void> updateMedication(Medication medication) async {
@@ -234,6 +260,9 @@ class _FakeMedicationRepository implements MedicationRepository {
 
 class _FakeMedicationRemoteDataSource implements MedicationRemoteDataSource {
   final List<String> upsertedMedicationIds = [];
+  final Future<void>? pullDelayer;
+
+  _FakeMedicationRemoteDataSource({this.pullDelayer});
 
   @override
   Future<void> deleteMedication(String id) async {}
@@ -249,8 +278,15 @@ class _FakeMedicationRemoteDataSource implements MedicationRemoteDataSource {
   Future<List<Medication>> fetchMedications() async => [];
 
   @override
-  Future<List<Medication>> pullMedications(String userId, {DateTime? since}) async =>
-      [];
+  Future<List<Medication>> pullMedications(
+    String userId, {
+    DateTime? since,
+  }) async {
+    if (pullDelayer != null) {
+      await pullDelayer!;
+    }
+    return [];
+  }
 
   @override
   Future<void> pushChanges(String userId, List<PendingChange> changes) async {}
@@ -261,12 +297,16 @@ class _FakeMedicationRemoteDataSource implements MedicationRemoteDataSource {
   }
 
   @override
-  Future<void> upsertMedicationForUser(String userId, Medication medication) async {
+  Future<void> upsertMedicationForUser(
+    String userId,
+    Medication medication,
+  ) async {
     upsertedMedicationIds.add(medication.id);
   }
 }
 
-class _DisabledFakeMedicationRemoteDataSource implements MedicationRemoteDataSource {
+class _DisabledFakeMedicationRemoteDataSource
+    implements MedicationRemoteDataSource {
   @override
   Future<void> deleteMedication(String id) {
     throw const CloudSyncDisabledException();
@@ -338,7 +378,8 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
   }
 
   @override
-  Future<List<SyncOperation>> getPendingOperations() async => List.of(legacyOperations);
+  Future<List<SyncOperation>> getPendingOperations() async =>
+      List.of(legacyOperations);
 
   @override
   Future<void> enqueuePendingChange(PendingChange change) async {
@@ -352,7 +393,9 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
   }
 
   @override
-  Future<List<PendingChange>> getEffectivePendingChanges({String? userId}) async {
+  Future<List<PendingChange>> getEffectivePendingChanges({
+    String? userId,
+  }) async {
     return List.of(pendingChanges);
   }
 
@@ -386,7 +429,9 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
 
   @override
   Future<void> replace(SyncOperation operation) async {
-    final index = legacyOperations.indexWhere((item) => item.id == operation.id);
+    final index = legacyOperations.indexWhere(
+      (item) => item.id == operation.id,
+    );
     if (index == -1) {
       legacyOperations.add(operation);
       return;
@@ -399,8 +444,10 @@ class _FakeSyncStateLocalDataSource implements SyncStateLocalDataSource {
   final List<ConflictMetadata> conflicts = [];
 
   @override
-  Future<List<ConflictMetadata>> getConflictsForEntity(String entityId, {String? userId}) async =>
-      conflicts.where((c) => c.entityId == entityId).toList();
+  Future<List<ConflictMetadata>> getConflictsForEntity(
+    String entityId, {
+    String? userId,
+  }) async => conflicts.where((c) => c.entityId == entityId).toList();
 
   @override
   Future<SyncCycleState?> getLatestCycle(String userId) async => null;
@@ -409,7 +456,8 @@ class _FakeSyncStateLocalDataSource implements SyncStateLocalDataSource {
   Future<UserSyncProfile?> getProfile(String userId) async => null;
 
   @override
-  Future<SyncStatusViewState> getStatus([String? userId]) async => SyncStatusViewState.ready;
+  Future<SyncStatusViewState> getStatus([String? userId]) async =>
+      SyncStatusViewState.ready;
 
   @override
   Future<void> saveConflict(ConflictMetadata conflict) async {

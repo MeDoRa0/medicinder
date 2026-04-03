@@ -728,6 +728,24 @@ abstract class AppLocalizations {
   /// **'Cloud Sync'**
   String get syncStatusTitle;
 
+  /// Count label for pushed sync items
+  ///
+  /// In en, this message translates to:
+  /// **'Pushed'**
+  String get pushed;
+
+  /// Count label for pulled sync items
+  ///
+  /// In en, this message translates to:
+  /// **'Pulled'**
+  String get pulled;
+
+  /// Count label for failed sync items
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get failed;
+
   /// Cloud sync status when the user is signed out
   ///
   /// In en, this message translates to:

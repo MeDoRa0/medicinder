@@ -37,7 +37,7 @@ void main() {
     );
 
     expect(find.textContaining('Last sync:'), findsOneWidget);
-    expect(find.textContaining('5 pushed'), findsOneWidget);
-    expect(find.textContaining('10 pulled'), findsOneWidget);
+    expect(find.textContaining('5 Pushed'), findsOneWidget);
+    expect(find.textContaining('10 Pulled'), findsOneWidget);
   });
 }

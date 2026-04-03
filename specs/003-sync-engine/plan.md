@@ -1,7 +1,7 @@
 # Implementation Plan: Sync Engine Implementation
 
-**Branch**: `003-sync-engine` | **Date**: 2026-04-03 | **Spec**: [spec.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\spec.md)
-**Input**: Feature specification from `C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\spec.md`
+**Branch**: `003-sync-engine` | **Date**: 2026-04-03 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `specs/003-sync-engine/spec.md`
 
 ## Summary
 
@@ -109,7 +109,7 @@ in `presentation/cubit/sync` and `presentation/widgets/sync`.
 
 ## Phase 0: Research
 
-See [research.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\research.md) for resolved decisions covering:
+See [research.md](research.md) for resolved decisions covering:
 
 - Automatic sync triggers for app startup, connectivity restoration, sign-in, and manual retry semantics
 - Conflict resolution rules, including delete tombstones as timestamped winners
@@ -119,8 +119,8 @@ See [research.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-e
 
 ## Phase 1: Design & Contracts
 
-- Data model documented in [data-model.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\data-model.md)
-- Internal contracts documented in [contracts/sync-engine-contract.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\contracts\sync-engine-contract.md) and [contracts/medication-reconciliation-contract.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\contracts\medication-reconciliation-contract.md)
+- Data model documented in [data-model.md](data-model.md)
+- Internal contracts documented in [contracts/sync-engine-contract.md](contracts/sync-engine-contract.md) and [contracts/medication-reconciliation-contract.md](contracts/medication-reconciliation-contract.md)
 - Validation flow documented in [quickstart.md](C:\Users\medo2\Desktop\programming\medicinder\specs\003-sync-engine\quickstart.md)
 
 ## Post-Design Constitution Check

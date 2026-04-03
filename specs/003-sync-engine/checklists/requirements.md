@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning  
 **Created**: 2026-04-03  
-**Feature**: [spec.md](C:/Users/medo2/Desktop/programming/medicinder/specs/003-sync-engine/spec.md)
+**Feature**: [spec.md](spec.md)
 
 ## Content Quality
 
