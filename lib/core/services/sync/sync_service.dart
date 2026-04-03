@@ -66,24 +66,24 @@ class SyncService implements SyncRepository {
 
       final userId = session.userId!;
 
-    final cycleId = DateTime.now().millisecondsSinceEpoch.toString();
-    var cycle = SyncCycleState(
-      cycleId: cycleId,
-      userId: userId,
-      trigger: trigger,
-      startedAt: DateTime.now(),
-      status: sync_types.SyncCycleStatus.running,
-    );
+      final cycleId = DateTime.now().millisecondsSinceEpoch.toString();
+      var cycle = SyncCycleState(
+        cycleId: cycleId,
+        userId: userId,
+        trigger: trigger,
+        startedAt: DateTime.now(),
+        status: sync_types.SyncCycleStatus.running,
+      );
 
-    await _syncState.saveCycle(cycle);
+      await _syncState.saveCycle(cycle);
 
-    final changes = await _syncQueue.getEffectivePendingChanges(
-      userId: userId,
-    );
-    var pushedCount = 0;
-    var failedCount = 0;
-    var pulledCount = 0;
-    String? message;
+      final changes = await _syncQueue.getEffectivePendingChanges(
+        userId: userId,
+      );
+      var pushedCount = 0;
+      var failedCount = 0;
+      var pulledCount = 0;
+      String? message;
 
       for (final change in changes) {
         try {
