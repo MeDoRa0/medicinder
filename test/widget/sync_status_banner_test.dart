@@ -39,19 +39,20 @@ void main() {
 
   testWidgets('renders ready sync status', (tester) async {
     final authRepository = _FakeAuthRepository();
-    final cubit = _SeededSyncStatusCubit(
-      signInForSync: SignInForSync(authRepository),
-      signOutFromSync: SignOutFromSync(authRepository),
-      watchAuthSession: WatchAuthSession(authRepository),
-      syncRepository: _FakeSyncRepository(),
-      syncDiagnostics: const SyncDiagnostics(),
-      connectivitySignal: _FakeConnectivitySignalService(),
-    )..seed(
-        const SyncStatusState(
-          viewState: SyncStatusViewState.ready,
-          userId: 'user-123',
-        ),
-      );
+    final cubit =
+        _SeededSyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: _FakeSyncRepository(),
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+        )..seed(
+          const SyncStatusState(
+            viewState: SyncStatusViewState.ready,
+            userId: 'user-123',
+          ),
+        );
 
     await tester.pumpWidget(_TestApp(cubit: cubit));
 
@@ -60,19 +61,20 @@ void main() {
 
   testWidgets('renders syncing sync status', (tester) async {
     final authRepository = _FakeAuthRepository();
-    final cubit = _SeededSyncStatusCubit(
-      signInForSync: SignInForSync(authRepository),
-      signOutFromSync: SignOutFromSync(authRepository),
-      watchAuthSession: WatchAuthSession(authRepository),
-      syncRepository: _FakeSyncRepository(),
-      syncDiagnostics: const SyncDiagnostics(),
-      connectivitySignal: _FakeConnectivitySignalService(),
-    )..seed(
-        const SyncStatusState(
-          viewState: SyncStatusViewState.syncing,
-          userId: 'user-123',
-        ),
-      );
+    final cubit =
+        _SeededSyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: _FakeSyncRepository(),
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+        )..seed(
+          const SyncStatusState(
+            viewState: SyncStatusViewState.syncing,
+            userId: 'user-123',
+          ),
+        );
 
     await tester.pumpWidget(_TestApp(cubit: cubit));
 
@@ -105,7 +107,8 @@ class _TestApp extends StatelessWidget {
 
 class _FakeAuthRepository implements AuthRepository {
   @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  Future<AuthSession> getCurrentSession() async =>
+      const AuthSession.signedOut();
 
   @override
   Future<AuthSession> signInForSync() async =>
@@ -153,5 +156,5 @@ class _FakeConnectivitySignalService implements ConnectivitySignalService {
   Stream<void> get onReconnect => const Stream.empty();
 
   @override
-  void dispose() {}
+  Future<void> dispose() async {}
 }

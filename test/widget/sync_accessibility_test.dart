@@ -20,25 +20,22 @@ import 'package:medicinder/presentation/widgets/sync/sync_status_banner.dart';
 void main() {
   testWidgets('exposes sync status semantics label', (tester) async {
     final authRepository = _FakeAuthRepository();
-    final cubit = _SeededSyncStatusCubit(
-      signInForSync: SignInForSync(authRepository),
-      signOutFromSync: SignOutFromSync(authRepository),
-      watchAuthSession: WatchAuthSession(authRepository),
-      syncRepository: _FakeFailingSyncRepository(),
-      syncDiagnostics: const SyncDiagnostics(),
-      connectivitySignal: _FakeConnectivitySignalService(),
-    )..seed(
-        const SyncStatusState(
-          viewState: SyncStatusViewState.syncFailed,
-          message: 'failed',
-        ),
-      );
+    final cubit =
+        _SeededSyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: _FakeFailingSyncRepository(),
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+        )..seed(
+          const SyncStatusState(
+            viewState: SyncStatusViewState.syncFailed,
+            message: 'failed',
+          ),
+        );
 
-    await tester.pumpWidget(
-      _AccessibilityTestApp(
-        cubit: cubit,
-      ),
-    );
+    await tester.pumpWidget(_AccessibilityTestApp(cubit: cubit));
     await tester.pump();
 
     expect(find.text('Retry'), findsOneWidget);
@@ -71,7 +68,8 @@ class _AccessibilityTestApp extends StatelessWidget {
 
 class _FakeAuthRepository implements AuthRepository {
   @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  Future<AuthSession> getCurrentSession() async =>
+      const AuthSession.signedOut();
 
   @override
   Future<AuthSession> signInForSync() async =>
@@ -119,5 +117,5 @@ class _FakeConnectivitySignalService implements ConnectivitySignalService {
   Stream<void> get onReconnect => const Stream<void>.empty();
 
   @override
-  void dispose() {}
+  Future<void> dispose() async {}
 }

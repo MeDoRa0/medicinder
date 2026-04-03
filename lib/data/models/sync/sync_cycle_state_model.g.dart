@@ -16,38 +16,13 @@ class SyncCycleStateModelAdapter extends TypeAdapter<SyncCycleStateModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    final triggerNameField = fields.containsKey(2) ? fields[2] : null;
-    final statusNameField = fields.containsKey(5) ? fields[5] : null;
-
-    String triggerName;
-    if (triggerNameField is String) {
-      triggerName = triggerNameField;
-    } else if (triggerNameField is int &&
-        triggerNameField >= 0 &&
-        triggerNameField < SyncTrigger.values.length) {
-      triggerName = SyncTrigger.values[triggerNameField].name;
-    } else {
-      triggerName = SyncTrigger.appStartup.name;
-    }
-
-    String statusName;
-    if (statusNameField is String) {
-      statusName = statusNameField;
-    } else if (statusNameField is int &&
-        statusNameField >= 0 &&
-        statusNameField < SyncCycleStatus.values.length) {
-      statusName = SyncCycleStatus.values[statusNameField].name;
-    } else {
-      statusName = SyncCycleStatus.idle.name;
-    }
-
     return SyncCycleStateModel(
       cycleId: fields[0] as String,
       userId: fields[1] as String,
-      triggerName: triggerName,
+      triggerName: fields[2] as String,
       startedAt: fields[3] as DateTime,
       completedAt: fields[4] as DateTime?,
-      statusName: statusName,
+      statusName: fields[5] as String,
       pushedCount: fields[6] as int,
       pulledCount: fields[7] as int,
       failedCount: fields[8] as int,

@@ -8,7 +8,9 @@ import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/widgets/sync/sync_summary_card.dart';
 
 void main() {
-  testWidgets('renders sync summary with last success timestamp', (tester) async {
+  testWidgets('renders sync summary with last success timestamp', (
+    tester,
+  ) async {
     final lastSuccess = DateTime(2026, 4, 3, 10, 0);
     final profile = UserSyncProfile(
       userId: 'user-123',
@@ -30,9 +32,7 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en')],
-        home: Scaffold(
-          body: SyncSummaryCard(profile: profile),
-        ),
+        home: Scaffold(body: SyncSummaryCard(profile: profile)),
       ),
     );
 

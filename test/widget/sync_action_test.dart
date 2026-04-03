@@ -18,23 +18,26 @@ import 'package:medicinder/presentation/cubit/sync/sync_status_state.dart';
 import 'package:medicinder/presentation/widgets/sync/sync_status_banner.dart';
 
 void main() {
-  testWidgets('tapping retry button in banner triggers cubit retry', (tester) async {
+  testWidgets('tapping retry button in banner triggers cubit retry', (
+    tester,
+  ) async {
     final authRepository = _FakeAuthRepository();
     final syncRepository = _FakeSyncRepository();
-    final cubit = _MockSyncStatusCubit(
-      signInForSync: SignInForSync(authRepository),
-      signOutFromSync: SignOutFromSync(authRepository),
-      watchAuthSession: WatchAuthSession(authRepository),
-      syncRepository: syncRepository,
-      syncDiagnostics: const SyncDiagnostics(),
-      connectivitySignal: _FakeConnectivitySignalService(),
-    )..seed(
-        const SyncStatusState(
-          viewState: SyncStatusViewState.syncFailed,
-          userId: 'user-123',
-          message: 'Sync failed',
-        ),
-      );
+    final cubit =
+        _MockSyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          syncRepository: syncRepository,
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+        )..seed(
+          const SyncStatusState(
+            viewState: SyncStatusViewState.syncFailed,
+            userId: 'user-123',
+            message: 'Sync failed',
+          ),
+        );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -81,18 +84,22 @@ class _MockSyncStatusCubit extends SyncStatusCubit {
 
 class _FakeAuthRepository implements AuthRepository {
   @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  Future<AuthSession> getCurrentSession() async =>
+      const AuthSession.signedOut();
   @override
   Future<AuthSession> signInForSync() async => const AuthSession.ready('u1');
   @override
   Future<void> signOutFromSync() async {}
   @override
-  Stream<AuthSession> watchSession() async* { yield const AuthSession.signedOut(); }
+  Stream<AuthSession> watchSession() async* {
+    yield const AuthSession.signedOut();
+  }
 }
 
 class _FakeSyncRepository implements SyncRepository {
   @override
-  Future<SyncResult> syncNow(SyncTrigger trigger) async => const SyncResult(success: true);
+  Future<SyncResult> syncNow(SyncTrigger trigger) async =>
+      const SyncResult(success: true);
   @override
   Future<SyncResult> synchronize() async => const SyncResult(success: true);
   @override
@@ -104,6 +111,7 @@ class _FakeSyncRepository implements SyncRepository {
 class _FakeConnectivitySignalService implements ConnectivitySignalService {
   @override
   Stream<void> get onReconnect => const Stream.empty();
+
   @override
-  void dispose() {}
+  Future<void> dispose() async {}
 }
