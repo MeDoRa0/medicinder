@@ -81,19 +81,74 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
     medicationBox = await Hive.openBox<MedicationModel>('medications');
   }
 
-  // Clean up legacy sync_queue box (no longer needed after PendingChange migration)
-  try {
-    await Hive.deleteBoxFromDisk('sync_queue');
-  } catch (_) {
-    // Box might not exist, which is fine
-  }
-
   syncProfileBox = await Hive.openBox<UserSyncProfileModel>('sync_profiles');
   pendingChangeBox = await Hive.openBox<PendingChangeModel>('pending_changes');
   conflictMetadataBox = await Hive.openBox<ConflictMetadataModel>(
     'sync_conflicts',
   );
   syncCycleBox = await Hive.openBox<SyncCycleStateModel>('sync_cycles');
+
+  // Migrate legacy sync_queue box (no longer needed after PendingChange migration)
+  try {
+    if (await Hive.boxExists('sync_queue')) {
+      if (!Hive.isAdapterRegistered(2)) {
+        Hive.registerAdapter(_LegacySyncOperationAdapter());
+      }
+      final legacyBox = await Hive.openBox<Map<dynamic, dynamic>>('sync_queue');
+      
+      for (final key in legacyBox.keys) {
+        final legacyMap = legacyBox.get(key);
+        if (legacyMap == null) continue;
+        
+        final changeId = legacyMap['id'] as String?;
+        final operationIndex = legacyMap['typeIndex'] as int?;
+        final entityId = legacyMap['entityId'] as String?;
+        final entityTypeIndex = legacyMap['entityTypeIndex'] as int?;
+        final queuedAt = legacyMap['createdAt'] as DateTime?;
+        
+        if (changeId == null || operationIndex == null || entityId == null || entityTypeIndex == null || queuedAt == null) {
+          continue;
+        }
+
+        Map<String, dynamic>? payload;
+        
+        // operationIndex: 0 = create, 1 = update, 2 = delete
+        if (operationIndex == 0 || operationIndex == 1) {
+          try {
+            final medication = medicationBox.values.firstWhere(
+              (m) => m.id == entityId,
+            );
+            payload = medication.toEntity().toMap();
+          } catch (_) {
+            continue;
+          }
+        }
+        
+        final changeModel = PendingChangeModel(
+          changeId: changeId,
+          entityTypeIndex: entityTypeIndex,
+          entityId: entityId,
+          operationIndex: operationIndex,
+          queuedAt: queuedAt,
+          sourceUpdatedAt: queuedAt,
+          payload: payload,
+          attemptCount: (legacyMap['attemptCount'] as int?) ?? 0,
+          lastAttemptAt: legacyMap['lastAttemptAt'] as DateTime?,
+          errorMessage: legacyMap['errorMessage'] as String?,
+          statusIndex: 0,
+        );
+        
+        await pendingChangeBox.put(changeModel.changeId, changeModel);
+      }
+      await legacyBox.clear();
+      await legacyBox.close();
+      await Hive.deleteBoxFromDisk('sync_queue');
+    }
+  } catch (_) {
+    try {
+      await Hive.deleteBoxFromDisk('sync_queue');
+    } catch (_) {}
+  }
 
   // Data sources
   sl.registerLazySingleton<MedicationLocalDataSource>(
@@ -186,4 +241,30 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
       syncQueue: sl(),
     ),
   );
+}
+
+class _LegacySyncOperationAdapter extends TypeAdapter<Map<dynamic, dynamic>> {
+  @override
+  final int typeId = 2;
+
+  @override
+  Map<dynamic, dynamic> read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return {
+      'id': fields[0],
+      'entityTypeIndex': fields[1],
+      'entityId': fields[2],
+      'typeIndex': fields[3],
+      'createdAt': fields[4],
+      'lastAttemptAt': fields[5],
+      'attemptCount': fields[6],
+      'errorMessage': fields[7],
+    };
+  }
+
+  @override
+  void write(BinaryWriter writer, Map<dynamic, dynamic> obj) {}
 }

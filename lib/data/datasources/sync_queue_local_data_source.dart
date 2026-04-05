@@ -37,13 +37,14 @@ class SyncQueueLocalDataSource {
       return true;
     }).toList();
 
-    return _coalescePendingChanges(eligible);
+    return await _coalescePendingChanges(eligible);
   }
 
-  List<PendingChange> _coalescePendingChanges(List<PendingChange> changes) {
+  Future<List<PendingChange>> _coalescePendingChanges(List<PendingChange> changes) async {
     if (changes.isEmpty) return changes;
 
     final List<PendingChange> coalesced = [];
+    final List<String> toDelete = [];
 
     for (final change in changes) {
       final entityId = change.entityId;
@@ -61,12 +62,14 @@ class SyncQueueLocalDataSource {
       final currentIsUpdate = change.operation == SyncOperationType.update;
 
       if (previousIsUpdateOrCreate && currentIsUpdate) {
+        toDelete.add(previous.changeId);
         coalesced[previousIndex] = change.copyWith(
           operation: previous.operation,
           queuedAt: previous.queuedAt,
         );
       } else if (previous.operation == SyncOperationType.create &&
           change.operation == SyncOperationType.delete) {
+        toDelete.add(previous.changeId);
         coalesced[previousIndex] = change.copyWith(
           operation: SyncOperationType.delete,
           queuedAt: previous.queuedAt,
@@ -75,6 +78,10 @@ class SyncQueueLocalDataSource {
       } else {
         coalesced.add(change);
       }
+    }
+
+    if (toDelete.isNotEmpty) {
+      await _pendingChangeBox.deleteAll(toDelete);
     }
 
     return coalesced;
@@ -120,7 +127,7 @@ class SyncQueueLocalDataSource {
     if (current == null) {
       return;
     }
-    final newAttemptCount = current.attemptCount + 1;
+    final newAttemptCount = current.attemptCount; // Already incremented by markPendingChangeInFlight
     await enqueuePendingChange(
       current.copyWith(
         status: newAttemptCount >= 9
