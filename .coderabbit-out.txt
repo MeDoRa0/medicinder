@@ -1,0 +1,5 @@
+[90m┌[39m  Welcome to Stardrop!
+[?25l[90m│[39m
+[36m◆[39m  What's your name?
+[36m│[39m  [7mY[27m[2mour name[22m
+[36m└[39m
