@@ -56,8 +56,9 @@ class NotificationHandler {
       await AwesomeNotificationService.scheduleMedicationReminder(
         id: medicationId.hashCode + doseIndex,
         medicationName: medicationName,
-        scheduledTime:
-            DateTime.now().add(AwesomeNotificationService.snoozeDuration),
+        scheduledTime: DateTime.now().add(
+          AwesomeNotificationService.snoozeDuration,
+        ),
       );
       log(
         'Reminder rescheduled for medication: $medicationId, dose: $doseIndex',

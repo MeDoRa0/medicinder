@@ -1,6 +1,9 @@
 enum SyncStatusViewState {
-  notSignedIn,
+  signedOut,
+  signingIn,
+  workspaceInitializing,
+  ready,
+  accessDenied,
   syncing,
-  upToDate,
   syncFailed,
 }

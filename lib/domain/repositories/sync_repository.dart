@@ -3,20 +3,27 @@ import '../entities/sync/sync_types.dart';
 
 class SyncResult {
   final bool success;
-  final int processedOperations;
-  final int failedOperations;
+  final int pushedCount;
+  final int pulledCount;
+  final int failedCount;
+  final String? failureClass;
   final String? message;
-  final int pulledRecords;
   final String? userId;
 
   const SyncResult({
     required this.success,
-    this.processedOperations = 0,
-    this.failedOperations = 0,
+    this.pushedCount = 0,
+    this.pulledCount = 0,
+    this.failedCount = 0,
+    this.failureClass,
     this.message,
-    this.pulledRecords = 0,
     this.userId,
   });
+
+  // Backward compatibility with legacy fields
+  int get processedOperations => pushedCount;
+  int get failedOperations => failedCount;
+  int get pulledRecords => pulledCount;
 }
 
 abstract class SyncRepository {

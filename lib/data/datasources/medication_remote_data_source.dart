@@ -74,12 +74,15 @@ class DisabledMedicationRemoteDataSource implements MedicationRemoteDataSource {
   }
 }
 
-class FirestoreMedicationRemoteDataSource implements MedicationRemoteDataSource {
+class FirestoreMedicationRemoteDataSource
+    implements MedicationRemoteDataSource {
   final FirebaseFirestore Function() _firestoreProvider;
 
   FirestoreMedicationRemoteDataSource(this._firestoreProvider);
 
-  CollectionReference<Map<String, dynamic>> _medicationsCollection(String userId) {
+  CollectionReference<Map<String, dynamic>> _medicationsCollection(
+    String userId,
+  ) {
     return _firestoreProvider()
         .collection('users')
         .doc(userId)
@@ -115,13 +118,13 @@ class FirestoreMedicationRemoteDataSource implements MedicationRemoteDataSource 
   }
 
   @override
-  Future<List<Medication>> pullMedications(String userId, {DateTime? since}) async {
+  Future<List<Medication>> pullMedications(
+    String userId, {
+    DateTime? since,
+  }) async {
     Query<Map<String, dynamic>> query = _medicationsCollection(userId);
     if (since != null) {
-      query = query.where(
-        'updatedAt',
-        isGreaterThan: since.toIso8601String(),
-      );
+      query = query.where('updatedAt', isGreaterThan: since.toIso8601String());
     }
     final snapshot = await query.get();
     return snapshot.docs
@@ -165,13 +168,16 @@ class FirestoreMedicationRemoteDataSource implements MedicationRemoteDataSource 
   }
 
   @override
-  Future<void> upsertMedicationForUser(String userId, Medication medication) async {
-    await _medicationsCollection(userId).doc(medication.id).set(
-      _medicationToRemoteMap(
-        medication.copyWith(userId: userId),
-      ),
-      SetOptions(merge: true),
-    );
+  Future<void> upsertMedicationForUser(
+    String userId,
+    Medication medication,
+  ) async {
+    await _medicationsCollection(userId)
+        .doc(medication.id)
+        .set(
+          _medicationToRemoteMap(medication.copyWith(userId: userId)),
+          SetOptions(merge: true),
+        );
   }
 
   Medication _medicationFromRemoteMap(
@@ -181,9 +187,11 @@ class FirestoreMedicationRemoteDataSource implements MedicationRemoteDataSource 
     final metadata = Map<String, dynamic>.from(
       data['syncMetadata'] as Map<String, dynamic>? ??
           <String, dynamic>{
-            'createdAt': data['createdAt'] as String? ??
+            'createdAt':
+                data['createdAt'] as String? ??
                 DateTime.now().toIso8601String(),
-            'updatedAt': data['updatedAt'] as String? ??
+            'updatedAt':
+                data['updatedAt'] as String? ??
                 DateTime.now().toIso8601String(),
             'lastSyncedAt': data['lastSyncedAt'] as String?,
             'deletedAt': data['deletedAt'] as String?,
@@ -205,13 +213,13 @@ class FirestoreMedicationRemoteDataSource implements MedicationRemoteDataSource 
       ),
       doses: (data['doses'] as List<dynamic>? ?? const [])
           .map(
-            (item) => _doseFromRemoteMap(
-              Map<String, dynamic>.from(item as Map),
-            ),
+            (item) =>
+                _doseFromRemoteMap(Map<String, dynamic>.from(item as Map)),
           )
           .toList(growable: false),
       totalDays: data['totalDays'] as int? ?? 0,
-      startDate: DateTime.tryParse(data['startDate'] as String? ?? '') ??
+      startDate:
+          DateTime.tryParse(data['startDate'] as String? ?? '') ??
           DateTime.now(),
       repeatForever: data['repeatForever'] as bool? ?? false,
       isDeleted: (data['deletedAt'] as String?) != null,

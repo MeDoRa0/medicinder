@@ -8,11 +8,11 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<AuthSession> getCurrentSession() => _remoteDataSource.getCurrentSession();
+  Future<AuthSession> getCurrentSession() =>
+      _remoteDataSource.getCurrentSession();
 
   @override
-  Future<AuthSession> signInForSync() =>
-      _remoteDataSource.signInAnonymouslyForSync();
+  Future<AuthSession> signInForSync() => _remoteDataSource.signInForSync();
 
   @override
   Future<void> signOutFromSync() => _remoteDataSource.signOut();

@@ -2,6 +2,10 @@
 
 part of 'pending_change_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
 class PendingChangeModelAdapter extends TypeAdapter<PendingChangeModel> {
   @override
   final int typeId = 4;
@@ -17,12 +21,12 @@ class PendingChangeModelAdapter extends TypeAdapter<PendingChangeModel> {
       entityTypeIndex: fields[1] as int,
       entityId: fields[2] as String,
       operationIndex: fields[3] as int,
-      payload: (fields[4] as Map?)?.cast<String, dynamic>(),
       queuedAt: fields[5] as DateTime,
       sourceUpdatedAt: fields[6] as DateTime,
-      attemptCount: fields[7] as int? ?? 0,
+      payload: (fields[4] as Map?)?.cast<String, dynamic>(),
+      attemptCount: (fields[7] as int?) ?? 0,
       lastAttemptAt: fields[8] as DateTime?,
-      statusIndex: fields[9] as int? ?? 0,
+      statusIndex: (fields[9] as int?) ?? 0,
       userId: fields[10] as String?,
       errorMessage: fields[11] as String?,
     );

@@ -58,43 +58,43 @@ class ErrorHandler {
   String getUserFriendlyMessage(Failure failure, BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    switch (failure.runtimeType) {
-      case MedicationNotFoundFailure:
+    switch (failure) {
+      case MedicationNotFoundFailure _:
         return l10n?.medicationNotFound ?? 'Medication not found';
 
-      case InvalidMedicationDataFailure:
+      case InvalidMedicationDataFailure _:
         return l10n?.invalidData ?? 'Invalid medication data';
 
-      case DoseIndexOutOfRangeFailure:
+      case DoseIndexOutOfRangeFailure _:
         return l10n?.invalidDoseIndex ?? 'Invalid dose selection';
 
-      case NotificationPermissionFailure:
+      case NotificationPermissionFailure _:
         return l10n?.notificationPermissionDenied ??
             'Notification permission denied';
 
-      case NotificationSchedulingFailure:
+      case NotificationSchedulingFailure _:
         return l10n?.notificationSchedulingFailed ??
             'Failed to schedule notification';
 
-      case DataMigrationFailure:
+      case DataMigrationFailure _:
         return l10n?.dataMigrationFailed ?? 'Data migration failed';
 
-      case StorageFailure:
+      case StorageFailure _:
         return l10n?.storageError ?? 'Storage error occurred';
 
-      case NetworkFailure:
+      case NetworkFailure _:
         return l10n?.networkError ?? 'Network connection failed';
 
-      case ValidationFailure:
+      case ValidationFailure _:
         return l10n?.validationError ?? 'Invalid data provided';
 
-      case PermissionFailure:
+      case PermissionFailure _:
         return l10n?.permissionDenied ?? 'Permission denied';
 
-      case NotFoundFailure:
+      case NotFoundFailure _:
         return l10n?.resourceNotFound ?? 'Resource not found';
 
-      case UnknownFailure:
+      case UnknownFailure _:
       default:
         return l10n?.unknownError ?? 'An unexpected error occurred';
     }
@@ -102,31 +102,31 @@ class ErrorHandler {
 
   /// Get appropriate icon for the failure type
   IconData getErrorIcon(Failure failure) {
-    switch (failure.runtimeType) {
-      case MedicationNotFoundFailure:
+    switch (failure) {
+      case MedicationNotFoundFailure _:
         return Icons.medication_outlined;
 
-      case NotificationPermissionFailure:
-      case NotificationSchedulingFailure:
+      case NotificationPermissionFailure _:
+      case NotificationSchedulingFailure _:
         return Icons.notifications_off;
 
-      case NetworkFailure:
+      case NetworkFailure _:
         return Icons.wifi_off;
 
-      case StorageFailure:
-      case DataMigrationFailure:
+      case StorageFailure _:
+      case DataMigrationFailure _:
         return Icons.storage;
 
-      case ValidationFailure:
+      case ValidationFailure _:
         return Icons.error_outline;
 
-      case PermissionFailure:
+      case PermissionFailure _:
         return Icons.block;
 
-      case NotFoundFailure:
+      case NotFoundFailure _:
         return Icons.search_off;
 
-      case UnknownFailure:
+      case UnknownFailure _:
       default:
         return Icons.error;
     }
@@ -134,26 +134,26 @@ class ErrorHandler {
 
   /// Get appropriate color for the failure type
   Color getErrorColor(Failure failure) {
-    switch (failure.runtimeType) {
-      case MedicationNotFoundFailure:
-      case NotFoundFailure:
+    switch (failure) {
+      case MedicationNotFoundFailure _:
+      case NotFoundFailure _:
         return Colors.orange;
 
-      case NotificationPermissionFailure:
-      case PermissionFailure:
+      case NotificationPermissionFailure _:
+      case PermissionFailure _:
         return Colors.red;
 
-      case NetworkFailure:
+      case NetworkFailure _:
         return Colors.blue;
 
-      case StorageFailure:
-      case DataMigrationFailure:
+      case StorageFailure _:
+      case DataMigrationFailure _:
         return Colors.purple;
 
-      case ValidationFailure:
+      case ValidationFailure _:
         return Colors.amber;
 
-      case UnknownFailure:
+      case UnknownFailure _:
       default:
         return Colors.grey;
     }
@@ -161,25 +161,25 @@ class ErrorHandler {
 
   /// Check if the failure is recoverable
   bool isRecoverable(Failure failure) {
-    switch (failure.runtimeType) {
-      case NetworkFailure:
-      case StorageFailure:
-      case NotificationSchedulingFailure:
+    switch (failure) {
+      case NetworkFailure _:
+      case StorageFailure _:
+      case NotificationSchedulingFailure _:
         return true;
 
-      case PermissionFailure:
-      case NotificationPermissionFailure:
+      case PermissionFailure _:
+      case NotificationPermissionFailure _:
         return false;
 
-      case ValidationFailure:
-      case InvalidMedicationDataFailure:
+      case ValidationFailure _:
+      case InvalidMedicationDataFailure _:
         return true;
 
-      case NotFoundFailure:
-      case MedicationNotFoundFailure:
+      case NotFoundFailure _:
+      case MedicationNotFoundFailure _:
         return false;
 
-      case UnknownFailure:
+      case UnknownFailure _:
       default:
         return false;
     }
@@ -193,38 +193,38 @@ class ErrorHandler {
 
     // Handle null context by providing default messages
     if (context == null) {
-      switch (failure.runtimeType) {
-        case NetworkFailure:
+      switch (failure) {
+        case NetworkFailure _:
           return 'Check your connection and try again';
-        
-        case StorageFailure:
+
+        case StorageFailure _:
           return 'Try again or restart the app';
-        
-        case NotificationSchedulingFailure:
+
+        case NotificationSchedulingFailure _:
           return 'Try again or check notification settings';
-        
-        case ValidationFailure:
+
+        case ValidationFailure _:
           return 'Please check your input and try again';
-        
+
         default:
           return 'Please try again';
       }
     }
 
     final l10n = AppLocalizations.of(context);
-    
-    switch (failure.runtimeType) {
-      case NetworkFailure:
+
+    switch (failure) {
+      case NetworkFailure _:
         return l10n?.retryNetwork ?? 'Check your connection and try again';
 
-      case StorageFailure:
+      case StorageFailure _:
         return l10n?.retryStorage ?? 'Try again or restart the app';
 
-      case NotificationSchedulingFailure:
+      case NotificationSchedulingFailure _:
         return l10n?.retryNotification ??
             'Try again or check notification settings';
 
-      case ValidationFailure:
+      case ValidationFailure _:
         return l10n?.checkInput ?? 'Please check your input and try again';
 
       default:

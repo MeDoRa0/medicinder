@@ -5,7 +5,8 @@ import '../../domain/entities/medication.dart';
 class MedicationTypeSelector extends StatelessWidget {
   final MedicationType medicationType;
   final ValueChanged<MedicationType> onChanged;
-  const MedicationTypeSelector({super.key, 
+  const MedicationTypeSelector({
+    super.key,
     required this.medicationType,
     required this.onChanged,
   });

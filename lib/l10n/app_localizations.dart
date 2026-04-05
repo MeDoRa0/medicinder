@@ -728,23 +728,53 @@ abstract class AppLocalizations {
   /// **'Cloud Sync'**
   String get syncStatusTitle;
 
-  /// Cloud sync status when the user is not signed in
+  /// Count label for pushed sync items
   ///
   /// In en, this message translates to:
-  /// **'Not signed in'**
-  String get syncNotSignedIn;
+  /// **'Pushed'**
+  String get pushed;
 
-  /// Cloud sync status when synchronization is in progress
+  /// Count label for pulled sync items
   ///
   /// In en, this message translates to:
-  /// **'Syncing'**
-  String get syncSyncing;
+  /// **'Pulled'**
+  String get pulled;
 
-  /// Cloud sync status when local and remote data are aligned
+  /// Count label for failed sync items
   ///
   /// In en, this message translates to:
-  /// **'Up to date'**
-  String get syncUpToDate;
+  /// **'Failed'**
+  String get failed;
+
+  /// Cloud sync status when the user is signed out
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out'**
+  String get syncSignedOut;
+
+  /// Cloud sync status while authentication is in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in'**
+  String get syncSigningIn;
+
+  /// Cloud sync status while the user workspace is being initialized
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your cloud workspace'**
+  String get syncWorkspaceInitializing;
+
+  /// Cloud sync status when the authenticated workspace is ready
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud workspace ready'**
+  String get syncReady;
+
+  /// Cloud sync status when backend access is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud workspace access denied'**
+  String get syncAccessDenied;
 
   /// Cloud sync status when the latest sync attempt failed
   ///
@@ -775,6 +805,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed in as {userId}'**
   String syncSignedInAs(String userId);
+
+  /// Message shown when the authenticated cloud workspace is ready
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud workspace ready for {userId}'**
+  String syncReadyAs(String userId);
+
+  /// Cloud sync status while sync is in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get syncRunning;
+
+  /// Cloud sync status when the latest sync attempt succeeded
+  ///
+  /// In en, this message translates to:
+  /// **'Sync complete'**
+  String get syncSucceeded;
+
+  /// Cloud sync status when sync completed but with partial failures
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed with some errors'**
+  String get syncPartialFailure;
+
+  /// Actionable failure message for retryable sync errors
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed. Tap to retry.'**
+  String get syncRetrySafeFailure;
+
+  /// Timestamp of the last successful sync
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync: {timestamp}'**
+  String syncLastSuccess(String timestamp);
+
+  /// Timestamp of the last failed sync
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed at {timestamp}'**
+  String syncLastFailure(String timestamp);
 }
 
 class _AppLocalizationsDelegate

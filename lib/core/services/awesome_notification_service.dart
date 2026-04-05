@@ -23,25 +23,21 @@ class AwesomeNotificationService {
   static Future<void> initialize() async {
     log('AwesomeNotificationService: Initializing notifications...');
     try {
-      await AwesomeNotifications().initialize(
-        androidSmallIconResource,
-        [
-          NotificationChannel(
-            channelKey: channelKey,
-            channelName: 'Medication alarms',
-            channelDescription:
-                'High-priority reminders with sound and vibration until you respond',
-            defaultColor: Colors.blue,
-            importance: NotificationImportance.Max,
-            channelShowBadge: true,
-            playSound: true,
-            enableVibration: true,
-            vibrationPattern: highVibrationPattern,
-            defaultRingtoneType: DefaultRingtoneType.Alarm,
-          ),
-        ],
-        debug: true,
-      );
+      await AwesomeNotifications().initialize(androidSmallIconResource, [
+        NotificationChannel(
+          channelKey: channelKey,
+          channelName: 'Medication alarms',
+          channelDescription:
+              'High-priority reminders with sound and vibration until you respond',
+          defaultColor: Colors.blue,
+          importance: NotificationImportance.Max,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+          vibrationPattern: highVibrationPattern,
+          defaultRingtoneType: DefaultRingtoneType.Alarm,
+        ),
+      ], debug: true);
 
       // Check notification permissions
       bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
@@ -119,9 +115,7 @@ class AwesomeNotificationService {
       // Cancel any existing notification with the same id to prevent duplicates
       await AwesomeNotifications().cancel(id);
 
-      final payload = <String, String?>{
-        'medicationName': medicationName,
-      };
+      final payload = <String, String?>{'medicationName': medicationName};
       if (medicationId != null) payload['medicationId'] = medicationId;
       if (doseIndex != null) {
         payload['doseIndex'] = doseIndex.toString();

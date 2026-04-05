@@ -2,6 +2,10 @@
 
 part of 'conflict_metadata_model.dart';
 
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
 class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
   @override
   final int typeId = 5;
@@ -12,9 +16,18 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+    final userIdField = fields[7];
+    if (userIdField == null || userIdField is! String || userIdField.isEmpty) {
+      throw StateError(
+        'ConflictMetadata migration failed: userId is missing or invalid. '
+        'This indicates corrupted legacy data that cannot be migrated. '
+        'Please clear sync conflict data and re-sync.',
+      );
+    }
     return ConflictMetadataModel(
       entityTypeIndex: fields[0] as int,
       entityId: fields[1] as String,
+      userId: userIdField,
       localUpdatedAt: fields[2] as DateTime,
       remoteUpdatedAt: fields[3] as DateTime,
       winningSource: fields[4] as String,
@@ -26,7 +39,7 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
   @override
   void write(BinaryWriter writer, ConflictMetadataModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.entityTypeIndex)
       ..writeByte(1)
@@ -40,7 +53,9 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
       ..writeByte(5)
       ..write(obj.resolutionStrategyIndex)
       ..writeByte(6)
-      ..write(obj.resolvedAt);
+      ..write(obj.resolvedAt)
+      ..writeByte(7)
+      ..write(obj.userId);
   }
 
   @override

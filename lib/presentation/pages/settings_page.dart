@@ -7,6 +7,12 @@ import '../widgets/settings_save_button.dart';
 import '../../l10n/app_localizations.dart';
 import '../cubit/medication_cubit.dart';
 import '../widgets/sync/sync_account_tile.dart';
+import '../widgets/sync/sync_summary_card.dart';
+import '../../core/di/injector.dart';
+import '../../core/services/sync/sync_diagnostics.dart';
+import '../../domain/entities/sync/user_sync_profile.dart';
+import '../cubit/sync/sync_status_cubit.dart';
+import '../cubit/sync/sync_status_state.dart';
 import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -29,6 +35,8 @@ class _SettingsPageState extends State<SettingsPage> {
   TimeOfDay? _lunchTime;
   TimeOfDay? _dinnerTime;
   String? _selectedLanguageCode;
+  Future<UserSyncProfile?>? _profileFuture;
+  String? _profileUserId;
 
   @override
   void initState() {
@@ -93,7 +101,9 @@ class _SettingsPageState extends State<SettingsPage> {
         (ModalRoute.of(context)?.settings.arguments == 'initialSetup');
     if (!isInitial) {
       try {
-        await context.read<MedicationCubit>().recomputeMealBasedDoseTimesAndReschedule(context);
+        await context
+            .read<MedicationCubit>()
+            .recomputeMealBasedDoseTimesAndReschedule(context);
       } catch (_) {
         // Non-fatal: meal times are saved; notifications may use old times until next open
       }
@@ -181,6 +191,29 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 24),
               const SyncAccountTile(),
+              BlocBuilder<SyncStatusCubit, SyncStatusState>(
+                buildWhen: (previous, current) =>
+                    previous.userId != current.userId,
+                builder: (context, state) {
+                  if (state.userId == null) return const SizedBox.shrink();
+                  if (_profileUserId != state.userId ||
+                      _profileFuture == null) {
+                    _profileUserId = state.userId;
+                    _profileFuture = sl<SyncDiagnostics>().getProfile(
+                      state.userId!,
+                    );
+                  }
+                  return FutureBuilder<UserSyncProfile?>(
+                    future: _profileFuture,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return SyncSummaryCard(profile: snapshot.data!);
+                    },
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               MealTimeSelector(
                 breakfastTime: _breakfastTime,

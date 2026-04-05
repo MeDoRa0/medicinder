@@ -5,6 +5,7 @@ import '../../../domain/entities/sync/sync_status_view_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../cubit/sync/sync_status_cubit.dart';
 import '../../cubit/sync/sync_status_state.dart';
+import 'failed_operations_dialog.dart';
 
 class SyncStatusBanner extends StatelessWidget {
   const SyncStatusBanner({super.key});
@@ -16,15 +17,22 @@ class SyncStatusBanner extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
         final theme = Theme.of(context);
         final bannerColor = switch (state.viewState) {
-          SyncStatusViewState.notSignedIn => Colors.orange.shade100,
+          SyncStatusViewState.signedOut => Colors.orange.shade100,
+          SyncStatusViewState.signingIn => Colors.blue.shade100,
+          SyncStatusViewState.workspaceInitializing => Colors.blue.shade50,
+          SyncStatusViewState.ready => Colors.green.shade100,
+          SyncStatusViewState.accessDenied => Colors.red.shade50,
           SyncStatusViewState.syncing => Colors.blue.shade100,
-          SyncStatusViewState.upToDate => Colors.green.shade100,
           SyncStatusViewState.syncFailed => Colors.red.shade100,
         };
         final label = switch (state.viewState) {
-          SyncStatusViewState.notSignedIn => l10n.syncNotSignedIn,
-          SyncStatusViewState.syncing => l10n.syncSyncing,
-          SyncStatusViewState.upToDate => l10n.syncUpToDate,
+          SyncStatusViewState.signedOut => l10n.syncSignedOut,
+          SyncStatusViewState.signingIn => l10n.syncSigningIn,
+          SyncStatusViewState.workspaceInitializing =>
+            l10n.syncWorkspaceInitializing,
+          SyncStatusViewState.ready => l10n.syncReady,
+          SyncStatusViewState.accessDenied => l10n.syncAccessDenied,
+          SyncStatusViewState.syncing => l10n.syncRunning,
           SyncStatusViewState.syncFailed => l10n.syncFailed,
         };
 
@@ -48,14 +56,17 @@ class SyncStatusBanner extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 else
-                  Icon(
-                    switch (state.viewState) {
-                      SyncStatusViewState.notSignedIn => Icons.cloud_off_outlined,
-                      SyncStatusViewState.syncing => Icons.sync,
-                      SyncStatusViewState.upToDate => Icons.cloud_done_outlined,
-                      SyncStatusViewState.syncFailed => Icons.cloud_off,
-                    },
-                  ),
+                  Icon(switch (state.viewState) {
+                    SyncStatusViewState.signedOut => Icons.cloud_off_outlined,
+                    SyncStatusViewState.signingIn => Icons.login,
+                    SyncStatusViewState.workspaceInitializing =>
+                      Icons.cloud_upload_outlined,
+                    SyncStatusViewState.ready => Icons.cloud_done_outlined,
+                    SyncStatusViewState.accessDenied =>
+                      Icons.no_accounts_outlined,
+                    SyncStatusViewState.syncing => Icons.sync,
+                    SyncStatusViewState.syncFailed => Icons.cloud_off,
+                  }),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -65,7 +76,30 @@ class SyncStatusBanner extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (state.viewState == SyncStatusViewState.syncFailed)
+                if (state.permanentlyFailedCount > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Tooltip(
+                      message: 'View Failed Sync Operations',
+                      child: InkWell(
+                        onTap: () => FailedOperationsDialog.show(context),
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            state.permanentlyFailedCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (state.viewState == SyncStatusViewState.accessDenied ||
+                    state.viewState == SyncStatusViewState.syncFailed)
                   TextButton(
                     onPressed: state.busy
                         ? null

@@ -2,12 +2,17 @@ import 'dart:developer';
 
 import '../../../data/datasources/medication_remote_data_source.dart';
 import '../../../data/datasources/sync_queue_local_data_source.dart';
-import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/sync/auth_session.dart';
 import '../../../domain/entities/sync_metadata.dart';
-import '../../../domain/entities/sync_operation.dart';
+import '../../../domain/entities/sync/sync_cycle_state.dart';
+import '../../../domain/entities/medication.dart';
 import '../../../domain/repositories/auth_repository.dart';
+import '../../../domain/entities/sync/pending_change.dart';
 import '../../../domain/entities/sync/sync_types.dart' as sync_types;
+import '../../../domain/entities/sync/user_sync_profile.dart';
+import '../../../domain/entities/sync/sync_status_view_state.dart';
+import '../../../data/datasources/sync_state_local_data_source.dart';
+import '../../../domain/entities/sync/conflict_metadata.dart';
 import '../../../domain/repositories/medication_repository.dart';
 import '../../../domain/repositories/sync_repository.dart';
 import 'conflict_resolver.dart';
@@ -18,6 +23,9 @@ class SyncService implements SyncRepository {
   final MedicationRemoteDataSource _remoteDataSource;
   final SyncQueueLocalDataSource _syncQueue;
   final MedicationConflictResolver _conflictResolver;
+  final SyncStateLocalDataSource _syncState;
+
+  bool _isSyncing = false;
 
   SyncService({
     required AuthRepository authRepository,
@@ -25,81 +33,178 @@ class SyncService implements SyncRepository {
     required MedicationRemoteDataSource remoteDataSource,
     required SyncQueueLocalDataSource syncQueue,
     required MedicationConflictResolver conflictResolver,
+    required SyncStateLocalDataSource syncState,
   }) : _authRepository = authRepository,
        _medicationRepository = medicationRepository,
        _remoteDataSource = remoteDataSource,
        _syncQueue = syncQueue,
-       _conflictResolver = conflictResolver;
+       _conflictResolver = conflictResolver,
+       _syncState = syncState;
 
   @override
-  Future<SyncResult> synchronize() => syncNow(sync_types.SyncTrigger.manualRetry);
+  Future<SyncResult> synchronize() =>
+      syncNow(sync_types.SyncTrigger.manualRetry);
 
   @override
   Future<SyncResult> syncNow(sync_types.SyncTrigger trigger) async {
-    final session = await _authRepository.getCurrentSession();
-    if (!session.isSignedIn || session.userId == null) {
+    if (_isSyncing) {
       return const SyncResult(
         success: false,
-        message: 'Cloud sync requires a signed-in account.',
+        message: 'A sync cycle is already in progress.',
       );
     }
 
-    final operations = await _syncQueue.getPendingOperations();
-    var processedOperations = 0;
-    var failedOperations = 0;
-    var pulledRecords = 0;
-    String? message;
+    _isSyncing = true;
+    try {
+      final session = await _authRepository.getCurrentSession();
+      if (!session.isSignedIn || session.userId == null) {
+        return const SyncResult(
+          success: false,
+          message: 'Cloud sync requires a signed-in account.',
+        );
+      }
 
-    for (final operation in operations) {
-      try {
-        await _pushOperation(operation, userId: session.userId!);
-        await _syncQueue.remove(operation.id);
-        processedOperations++;
-      } on CloudSyncDisabledException catch (error) {
-        failedOperations++;
-        message = error.toString();
-        await _syncQueue.replace(
-          operation.copyWith(
-            attemptCount: operation.attemptCount + 1,
-            lastAttemptAt: DateTime.now(),
-            errorMessage: error.toString(),
+      final userId = session.userId!;
+
+      final cycleId = DateTime.now().millisecondsSinceEpoch.toString();
+      var cycle = SyncCycleState(
+        cycleId: cycleId,
+        userId: userId,
+        trigger: trigger,
+        startedAt: DateTime.now(),
+        status: sync_types.SyncCycleStatus.running,
+      );
+
+      await _syncState.saveCycle(cycle);
+
+      final changes = await _syncQueue.getEffectivePendingChanges(
+        userId: userId,
+      );
+      var pushedCount = 0;
+      var failedCount = 0;
+      var pulledCount = 0;
+      String? message;
+
+      const batchSize = 20;
+      for (var i = 0; i < changes.length; i += batchSize) {
+        final batch = changes.sublist(
+          i,
+          i + batchSize > changes.length ? changes.length : i + batchSize,
+        );
+        for (final change in batch) {
+          try {
+            await _syncQueue.markPendingChangeInFlight(change.changeId);
+            await _pushChange(change, userId: userId);
+            await _syncQueue.markPendingChangeSucceeded(change.changeId);
+            pushedCount++;
+          } on CloudSyncDisabledException catch (error) {
+            failedCount++;
+            message = error.toString();
+            await _syncQueue.markPendingChangeFailed(
+              change.changeId,
+              errorMessage: error.toString(),
+            );
+            break;
+          } catch (error) {
+            failedCount++;
+            await _syncQueue.markPendingChangeFailed(
+              change.changeId,
+              errorMessage: error.toString(),
+            );
+            log('SyncService: failed to process ${change.changeId}: $error');
+          }
+        }
+        if (message != null) {
+          break;
+        }
+      }
+
+      if (message == null) {
+        try {
+          pulledCount = await _pullRemoteChanges(userId: userId);
+        } on CloudSyncDisabledException catch (error) {
+          message = error.toString();
+        } catch (error) {
+          message = error.toString();
+        }
+      }
+
+      final success = failedCount == 0 && message == null;
+      final completedAt = DateTime.now();
+
+      cycle = cycle.copyWith(
+        completedAt: completedAt,
+        status: success
+            ? sync_types.SyncCycleStatus.succeeded
+            : sync_types.SyncCycleStatus.failed,
+        pushedCount: pushedCount,
+        pulledCount: pulledCount,
+        failedCount: failedCount,
+        failureClass: message,
+      );
+
+      await _syncState.saveCycle(cycle);
+
+      // Update User Sync Profile
+      final profile = await _syncState.getProfile(userId);
+      if (profile != null) {
+        await _syncState.saveProfile(
+          profile.copyWith(
+            engineStatus: cycle.status,
+            lastTrigger: trigger,
+            lastStartedAt: cycle.startedAt,
+            lastCompletedAt: completedAt,
+            lastSuccessAt: success ? completedAt : null,
+            lastFailureAt: !success ? completedAt : null,
+            message: message,
+            lastPushedCount: pushedCount,
+            lastPulledCount: pulledCount,
+            lastFailedCount: failedCount,
+            updatedAt: completedAt,
           ),
         );
-        break;
-      } catch (error) {
-        failedOperations++;
-        await _syncQueue.replace(
-          operation.copyWith(
-            attemptCount: operation.attemptCount + 1,
-            lastAttemptAt: DateTime.now(),
-            errorMessage: error.toString(),
-          ),
+      } else {
+        log(
+          'SyncService: profile missing for user $userId, creating default profile.',
+          name: 'SyncService',
         );
-        log('SyncService: failed to process ${operation.id}: $error');
+        final newProfile = UserSyncProfile(
+          userId: userId,
+          providerIds: const <String>[],
+          syncEnabled: true,
+          workspaceReady: true,
+          createdAt: completedAt,
+          updatedAt: completedAt,
+          statusViewState: SyncStatusViewState.ready,
+          engineStatus: cycle.status,
+          lastTrigger: trigger,
+          lastStartedAt: cycle.startedAt,
+          lastCompletedAt: completedAt,
+          lastSuccessAt: success ? completedAt : null,
+          lastFailureAt: !success ? completedAt : null,
+          message: message,
+          lastPushedCount: pushedCount,
+          lastPulledCount: pulledCount,
+          lastFailedCount: failedCount,
+        );
+        await _syncState.saveProfile(newProfile);
       }
-    }
 
-    if (message == null) {
-      try {
-        pulledRecords = await _pullRemoteChanges(userId: session.userId!);
-      } on CloudSyncDisabledException catch (error) {
-        message = error.toString();
-      } catch (error) {
-        message = error.toString();
-      }
+      return SyncResult(
+        success: success,
+        pushedCount: pushedCount,
+        failedCount: failedCount,
+        pulledCount: pulledCount,
+        userId: userId,
+        message:
+            message ??
+            (failedCount == 0
+                ? null
+                : 'Some operations could not be synchronized.'),
+      );
+    } finally {
+      _isSyncing = false;
     }
-
-    return SyncResult(
-      success: failedOperations == 0 && message == null,
-      processedOperations: processedOperations,
-      failedOperations: failedOperations,
-      pulledRecords: pulledRecords,
-      userId: session.userId,
-      message: message ??
-          (failedOperations == 0
-              ? null
-              : 'Some operations could not be synchronized.'),
-    );
   }
 
   @override
@@ -115,27 +220,21 @@ class SyncService implements SyncRepository {
     await syncNow(sync_types.SyncTrigger.userSignIn);
   }
 
-  Future<void> _pushOperation(
-    SyncOperation operation, {
+  Future<void> _pushChange(
+    PendingChange change, {
     required String userId,
   }) async {
-    final medication = await _medicationRepository.getMedicationById(
-      operation.entityId,
-      includeDeleted: true,
-    );
-
-    if (operation.type == SyncOperationType.delete) {
-      await _remoteDataSource.deleteMedicationForUser(userId, operation.entityId);
-      if (medication != null) {
-        await _medicationRepository.purgeMedication(operation.entityId);
-      }
+    if (change.operation == sync_types.SyncOperationType.delete) {
+      await _remoteDataSource.deleteMedicationForUser(userId, change.entityId);
+      await _medicationRepository.purgeMedication(change.entityId);
       return;
     }
 
-    if (medication == null || medication.isDeleted) {
+    if (change.payload == null) {
       return;
     }
 
+    final medication = Medication.fromMap(change.payload!);
     final scopedMedication = medication.copyWith(userId: userId);
     await _remoteDataSource.upsertMedicationForUser(userId, scopedMedication);
     await _medicationRepository.saveSyncedMedication(
@@ -143,9 +242,7 @@ class SyncService implements SyncRepository {
     );
   }
 
-  Future<int> _pullRemoteChanges({
-    required String userId,
-  }) async {
+  Future<int> _pullRemoteChanges({required String userId}) async {
     final remoteMedications = await _remoteDataSource.pullMedications(userId);
     final localMedications = await _medicationRepository.getMedications(
       includeDeleted: true,
@@ -167,6 +264,26 @@ class SyncService implements SyncRepository {
         local: localMedication,
         remote: remoteMedication,
       );
+
+      // Log conflict metadata
+      final winningSource =
+          mergedMedication.syncMetadata.updatedAt ==
+              remoteMedication.syncMetadata.updatedAt
+          ? 'remote'
+          : 'local';
+
+      await _syncState.saveConflict(
+        ConflictMetadata(
+          entityType: sync_types.SyncEntityType.medication,
+          entityId: remoteMedication.id,
+          userId: userId,
+          localUpdatedAt: localMedication.syncMetadata.updatedAt,
+          remoteUpdatedAt: remoteMedication.syncMetadata.updatedAt,
+          winningSource: winningSource,
+          resolvedAt: DateTime.now(),
+        ),
+      );
+
       final resolvedMedication = mergedMedication.copyWith(
         userId: userId,
         syncMetadata: mergedMedication.syncMetadata.copyWith(

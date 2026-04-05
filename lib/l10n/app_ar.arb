@@ -430,6 +430,18 @@
   "@unknownError": {
     "description": "Error message for unknown errors"
   },
+  "pushed": "تم رفعها",
+  "@pushed": {
+    "description": "Label for number of pushed sync entities"
+  },
+  "pulled": "تم سحبها",
+  "@pulled": {
+    "description": "Label for number of pulled sync entities"
+  },
+  "failed": "فشلت",
+  "@failed": {
+    "description": "Label for number of failed sync entities"
+  },
   "retryNetwork": "تحقق من اتصالك وحاول مرة أخرى",
   "@retryNetwork": {
     "description": "Suggested action for network errors"
@@ -455,17 +467,25 @@
   "@syncStatusTitle": {
     "description": "Title for cloud sync status controls"
   },
-  "syncNotSignedIn": "Not signed in",
-  "@syncNotSignedIn": {
-    "description": "Cloud sync status when the user is not signed in"
+  "syncSignedOut": "تم تسجيل الخروج",
+  "@syncSignedOut": {
+    "description": "Cloud sync status when the user is signed out"
   },
-  "syncSyncing": "Syncing",
-  "@syncSyncing": {
-    "description": "Cloud sync status when synchronization is in progress"
+  "syncSigningIn": "جارٍ تسجيل الدخول",
+  "@syncSigningIn": {
+    "description": "Cloud sync status while authentication is in progress"
   },
-  "syncUpToDate": "Up to date",
-  "@syncUpToDate": {
-    "description": "Cloud sync status when local and remote data are aligned"
+  "syncWorkspaceInitializing": "جارٍ تجهيز مساحة السحابة الخاصة بك",
+  "@syncWorkspaceInitializing": {
+    "description": "Cloud sync status while the user workspace is being initialized"
+  },
+  "syncReady": "مساحة السحابة جاهزة",
+  "@syncReady": {
+    "description": "Cloud sync status when the authenticated workspace is ready"
+  },
+  "syncAccessDenied": "تم رفض الوصول إلى مساحة السحابة",
+  "@syncAccessDenied": {
+    "description": "Cloud sync status when backend access is denied"
   },
   "syncFailed": "Sync failed",
   "@syncFailed": {
@@ -492,5 +512,73 @@
         "example": "abc123"
       }
     }
+  },
+  "syncReadyAs": "مساحة السحابة جاهزة للمستخدم {userId}",
+  "@syncReadyAs": {
+    "description": "Message shown when the authenticated cloud workspace is ready",
+    "placeholders": {
+      "userId": {
+        "type": "String",
+        "example": "abc123"
+      }
+    }
+  },
+  "syncRunning": "جارٍ المزامنة...",
+  "@syncRunning": {
+    "description": "Cloud sync status while sync is in progress"
+  },
+  "syncSucceeded": "اكتملت المزامنة",
+  "@syncSucceeded": {
+    "description": "Cloud sync status when the latest sync attempt succeeded"
+  },
+  "syncPartialFailure": "اكتملت المزامنة مع وجود بعض الأخطاء",
+  "@syncPartialFailure": {
+    "description": "Cloud sync status when sync completed but with partial failures"
+  },
+  "syncRetrySafeFailure": "فشلت المزامنة. اضغط لإعادة المحاولة.",
+  "@syncRetrySafeFailure": {
+    "description": "Actionable failure message for retryable sync errors"
+  },
+  "syncLastSuccess": "آخر مزامنة: {timestamp}",
+  "@syncLastSuccess": {
+    "description": "Timestamp of the last successful sync",
+    "placeholders": {
+      "timestamp": {
+        "type": "String",
+        "example": "2026-04-03 10:00"
+      }
+    }
+  },
+  "syncLastFailure": "فشلت المزامنة في {timestamp}",
+  "@syncLastFailure": {
+    "description": "Timestamp of the last failed sync",
+    "placeholders": {
+      "timestamp": {
+        "type": "String",
+        "example": "2026-04-03 10:00"
+      }
+    }
+  },
+  "syncFailedOperationsBadge": "فشل {count} عملية/عمليات في المزامنة",
+  "@syncFailedOperationsBadge": {
+    "description": "Badge text showing count of permanently failed sync operations",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "syncFailedOperationsDetails": "اضغط لعرض العمليات الفاشلة",
+  "@syncFailedOperationsDetails": {
+    "description": "Hint text prompting user to tap for failed operation details"
+  },
+  "syncPermanentlyFailedTitle": "العمليات الفاشلة",
+  "@syncPermanentlyFailedTitle": {
+    "description": "Title for the permanently failed operations screen"
+  },
+  "syncNoFailedOperations": "لا توجد عمليات فاشلة بشكل دائم",
+  "@syncNoFailedOperations": {
+    "description": "Message shown when there are no permanently failed operations"
   }
 }

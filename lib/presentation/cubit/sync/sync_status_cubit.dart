@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/services/sync/connectivity_signal_service.dart';
 import '../../../core/services/sync/sync_diagnostics.dart';
 import '../../../domain/entities/sync/auth_session.dart';
 import '../../../domain/entities/sync/sync_status_view_state.dart';
@@ -12,13 +13,18 @@ import '../../../domain/usecases/sync/sign_out_from_sync.dart';
 import '../../../domain/usecases/sync/watch_auth_session.dart';
 import 'sync_status_state.dart';
 
+import '../../../data/datasources/sync_queue_local_data_source.dart';
+
 class SyncStatusCubit extends Cubit<SyncStatusState> {
   final SignInForSync _signInForSync;
   final SignOutFromSync _signOutFromSync;
   final WatchAuthSession _watchAuthSession;
   final SyncRepository _syncRepository;
   final SyncDiagnostics _syncDiagnostics;
+  final ConnectivitySignalService _connectivitySignal;
+  final SyncQueueLocalDataSource _syncQueue;
   StreamSubscription<AuthSession>? _sessionSubscription;
+  StreamSubscription<void>? _connectivitySubscription;
   bool _hasSeenSessionEvent = false;
   String? _ignoreNextSignedInUserId;
 
@@ -28,25 +34,40 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     required WatchAuthSession watchAuthSession,
     required SyncRepository syncRepository,
     required SyncDiagnostics syncDiagnostics,
+    required ConnectivitySignalService connectivitySignal,
+    required SyncQueueLocalDataSource syncQueue,
   }) : _signInForSync = signInForSync,
        _signOutFromSync = signOutFromSync,
        _watchAuthSession = watchAuthSession,
        _syncRepository = syncRepository,
        _syncDiagnostics = syncDiagnostics,
+       _connectivitySignal = connectivitySignal,
+       _syncQueue = syncQueue,
        super(const SyncStatusState.initial());
 
   void initialize() {
-    _sessionSubscription ??= _watchAuthSession().listen(
-      (session) {
-        unawaited(_handleStreamSessionChanged(session));
-      },
+    _sessionSubscription ??= _watchAuthSession().listen((session) {
+      unawaited(_handleStreamSessionChanged(session));
+    });
+    _connectivitySubscription ??= _connectivitySignal.onReconnect.listen((_) {
+      unawaited(handleConnectivityRestored());
+    });
+    unawaited(_refreshFailedCount());
+  }
+
+  Future<void> _refreshFailedCount() async {
+    final failedCount = _syncQueue.countPermanentlyFailedChanges(
+      userId: state.userId,
     );
+    if (failedCount != state.permanentlyFailedCount) {
+      emit(state.copyWith(permanentlyFailedCount: failedCount));
+    }
   }
 
   Future<void> signIn() async {
     emit(
       state.copyWith(
-        viewState: SyncStatusViewState.syncing,
+        viewState: SyncStatusViewState.signingIn,
         busy: true,
         clearMessage: true,
       ),
@@ -54,7 +75,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     try {
       final session = await _signInForSync();
       _ignoreNextSignedInUserId = session.userId;
-      await _syncForSession(session, trigger: SyncTrigger.userSignIn);
+      await _applySessionState(session, trigger: SyncTrigger.userSignIn);
     } catch (error) {
       emit(
         state.copyWith(
@@ -71,7 +92,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     _ignoreNextSignedInUserId = null;
     emit(
       state.copyWith(
-        viewState: SyncStatusViewState.notSignedIn,
+        viewState: SyncStatusViewState.signedOut,
         busy: false,
         clearUserId: true,
         clearMessage: true,
@@ -89,23 +110,77 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     );
     try {
       final result = await _syncRepository.synchronize();
+      final failedCount = _syncQueue.countPermanentlyFailedChanges(
+        userId: state.userId,
+      );
       emit(
         state.copyWith(
           viewState: result.success
-              ? SyncStatusViewState.upToDate
+              ? SyncStatusViewState.ready
+              : SyncStatusViewState.syncFailed,
+          busy: false,
+          message: result.message,
+          permanentlyFailedCount: failedCount,
+        ),
+      );
+      _syncDiagnostics.logSyncEvent(
+        trigger: SyncTrigger.manualRetry,
+        phase: 'completed',
+        pushedCount: result.pushedCount,
+        pulledCount: result.pulledCount,
+        retryCount: result.failedCount,
+        failureClass: result.success ? null : result.message,
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          viewState: SyncStatusViewState.syncFailed,
+          busy: false,
+          message: error.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> handleConnectivityRestored() async {
+    if (state.viewState == SyncStatusViewState.signedOut ||
+        state.viewState == SyncStatusViewState.signingIn ||
+        state.viewState == SyncStatusViewState.syncing) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        viewState: SyncStatusViewState.syncing,
+        busy: true,
+        clearMessage: true,
+      ),
+    );
+
+    try {
+      final result = await _syncRepository.syncNow(
+        SyncTrigger.connectivityRestored,
+      );
+      await _refreshFailedCount();
+      emit(
+        state.copyWith(
+          viewState: result.success
+              ? SyncStatusViewState.ready
               : SyncStatusViewState.syncFailed,
           busy: false,
           message: result.message,
         ),
       );
       _syncDiagnostics.logSyncEvent(
-        trigger: SyncTrigger.manualRetry,
+        trigger: SyncTrigger.connectivityRestored,
         phase: 'completed',
-        pushedCount: result.processedOperations,
-        retryCount: result.failedOperations,
+        pushedCount: result.pushedCount,
+        pulledCount: result.pulledCount,
+        retryCount: result.failedCount,
         failureClass: result.success ? null : result.message,
       );
     } catch (error) {
+      await _refreshFailedCount();
       emit(
         state.copyWith(
           viewState: SyncStatusViewState.syncFailed,
@@ -130,24 +205,67 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     final trigger = currentEventIsFirst
         ? SyncTrigger.appStartup
         : SyncTrigger.userSignIn;
-    await _syncForSession(session, trigger: trigger);
+    await _applySessionState(session, trigger: trigger);
   }
 
-  Future<void> _syncForSession(
+  Future<void> _applySessionState(
     AuthSession session, {
     required SyncTrigger trigger,
   }) async {
-    if (!session.isSignedIn) {
-      _ignoreNextSignedInUserId = null;
-      emit(
-        state.copyWith(
-          viewState: SyncStatusViewState.notSignedIn,
-          busy: false,
-          clearUserId: true,
-          clearMessage: true,
-        ),
-      );
-      return;
+    switch (session.status) {
+      case AuthSessionStatus.signedOut:
+        _ignoreNextSignedInUserId = null;
+        emit(
+          state.copyWith(
+            viewState: SyncStatusViewState.signedOut,
+            busy: false,
+            clearUserId: true,
+            clearMessage: true,
+          ),
+        );
+        return;
+      case AuthSessionStatus.signingIn:
+        emit(
+          state.copyWith(
+            viewState: SyncStatusViewState.signingIn,
+            busy: true,
+            clearMessage: true,
+          ),
+        );
+        return;
+      case AuthSessionStatus.signedIn:
+      case AuthSessionStatus.workspaceInitializing:
+        emit(
+          state.copyWith(
+            userId: session.userId,
+            viewState: SyncStatusViewState.workspaceInitializing,
+            busy: true,
+            clearMessage: true,
+          ),
+        );
+        return;
+      case AuthSessionStatus.accessDenied:
+        emit(
+          state.copyWith(
+            userId: session.userId,
+            viewState: SyncStatusViewState.accessDenied,
+            busy: false,
+            message: session.failureMessage,
+          ),
+        );
+        return;
+      case AuthSessionStatus.failed:
+        emit(
+          state.copyWith(
+            userId: session.userId,
+            viewState: SyncStatusViewState.syncFailed,
+            busy: false,
+            message: session.failureMessage,
+          ),
+        );
+        return;
+      case AuthSessionStatus.ready:
+        break;
     }
 
     emit(
@@ -161,11 +279,12 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
 
     try {
       final result = await _syncRepository.syncNow(trigger);
+      await _refreshFailedCount();
       emit(
         state.copyWith(
           userId: session.userId,
           viewState: result.success
-              ? SyncStatusViewState.upToDate
+              ? SyncStatusViewState.ready
               : SyncStatusViewState.syncFailed,
           busy: false,
           message: result.message,
@@ -174,12 +293,13 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
       _syncDiagnostics.logSyncEvent(
         trigger: trigger,
         phase: 'completed',
-        pushedCount: result.processedOperations,
-        pulledCount: result.pulledRecords,
-        retryCount: result.failedOperations,
+        pushedCount: result.pushedCount,
+        pulledCount: result.pulledCount,
+        retryCount: result.failedCount,
         failureClass: result.success ? null : result.message,
       );
     } catch (error) {
+      await _refreshFailedCount();
       emit(
         state.copyWith(
           userId: session.userId,
@@ -194,6 +314,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   @override
   Future<void> close() async {
     await _sessionSubscription?.cancel();
+    await _connectivitySubscription?.cancel();
     return super.close();
   }
 }

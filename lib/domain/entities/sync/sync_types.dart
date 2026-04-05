@@ -4,6 +4,8 @@ enum SyncOperationType { create, update, delete }
 
 enum SyncOperationStatus { pending, inFlight, failed }
 
+enum SyncCycleStatus { idle, running, succeeded, failed }
+
 enum SyncTrigger { appStartup, connectivityRestored, userSignIn, manualRetry }
 
 enum ConflictResolutionStrategy { lastWriteWins }

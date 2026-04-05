@@ -142,12 +142,8 @@ class _MainAppState extends State<MainApp> {
     final customColor = const Color(0xFF71C0B2);
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => sl<MedicationCubit>()..loadMedications(),
-        ),
-        BlocProvider(
-          create: (_) => sl<SyncStatusCubit>()..initialize(),
-        ),
+        BlocProvider(create: (_) => sl<MedicationCubit>()..loadMedications()),
+        BlocProvider(create: (_) => sl<SyncStatusCubit>()..initialize()),
       ],
       child: FutureBuilder<bool>(
         future: _areMealTimesSet(),
@@ -164,6 +160,7 @@ class _MainAppState extends State<MainApp> {
               foregroundColor: Colors.white,
               elevation: 0,
             ),
+
             floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: customColor,
               foregroundColor: Colors.white,

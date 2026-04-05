@@ -122,8 +122,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
               final mealTime =
                   _mealTimes[c] ?? const TimeOfDay(hour: 8, minute: 0);
               final mealMins = mealTime.hour * 60 + mealTime.minute;
-              final doseMins =
-                  dose.time!.hour * 60 + dose.time!.minute;
+              final doseMins = dose.time!.hour * 60 + dose.time!.minute;
               final offset = c.name.startsWith('before')
                   ? mealMins - doseMins
                   : doseMins - mealMins;
@@ -228,17 +227,20 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
             doseTime = baseTime.add(Duration(minutes: offset));
           }
 
-          doses.add(MedicationDose(
-            time: doseTime,
-            context: c,
-            offsetMinutes: _mealOffsets[c] ?? 15,
-            taken: false,
-          ));
+          doses.add(
+            MedicationDose(
+              time: doseTime,
+              context: c,
+              offsetMinutes: _mealOffsets[c] ?? 15,
+              taken: false,
+            ),
+          );
         }
       }
     }
 
-    final medication = widget.medication?.copyWith(
+    final medication =
+        widget.medication?.copyWith(
           name: _nameController.text.trim(),
           usage: _usageController.text.trim(),
           dosage: _dosageController.text.trim(),
@@ -252,19 +254,19 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
           repeatForever: _repeatForever,
         ) ??
         Medication.create(
-      id: widget.medication?.id ?? uuid.v4(),
-      name: _nameController.text.trim(),
-      usage: _usageController.text.trim(),
-      dosage: _dosageController.text.trim(),
-      type: _medicationType,
-      timingType: _timingType,
-      doses: doses,
-      totalDays: _repeatForever
-          ? 10000
-          : (int.tryParse(_daysController.text) ?? 7),
-      startDate: startDate,
-      repeatForever: _repeatForever,
-    );
+          id: widget.medication?.id ?? uuid.v4(),
+          name: _nameController.text.trim(),
+          usage: _usageController.text.trim(),
+          dosage: _dosageController.text.trim(),
+          type: _medicationType,
+          timingType: _timingType,
+          doses: doses,
+          totalDays: _repeatForever
+              ? 10000
+              : (int.tryParse(_daysController.text) ?? 7),
+          startDate: startDate,
+          repeatForever: _repeatForever,
+        );
     Navigator.pop(context, medication);
   }
 

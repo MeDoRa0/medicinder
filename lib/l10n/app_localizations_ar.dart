@@ -337,13 +337,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
-  String get syncNotSignedIn => 'Not signed in';
+  String get pushed => 'تم رفعها';
 
   @override
-  String get syncSyncing => 'Syncing';
+  String get pulled => 'تم سحبها';
 
   @override
-  String get syncUpToDate => 'Up to date';
+  String get failed => 'فشلت';
+
+  @override
+  String get syncSignedOut => 'تم تسجيل الخروج';
+
+  @override
+  String get syncSigningIn => 'جارٍ تسجيل الدخول';
+
+  @override
+  String get syncWorkspaceInitializing => 'جارٍ تجهيز مساحة السحابة الخاصة بك';
+
+  @override
+  String get syncReady => 'مساحة السحابة جاهزة';
+
+  @override
+  String get syncAccessDenied => 'تم رفض الوصول إلى مساحة السحابة';
 
   @override
   String get syncFailed => 'Sync failed';
@@ -361,5 +376,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String syncSignedInAs(String userId) {
     return 'Signed in as $userId';
+  }
+
+  @override
+  String syncReadyAs(String userId) {
+    return 'مساحة السحابة جاهزة للمستخدم $userId';
+  }
+
+  @override
+  String get syncRunning => 'جارٍ المزامنة...';
+
+  @override
+  String get syncSucceeded => 'اكتملت المزامنة';
+
+  @override
+  String get syncPartialFailure => 'اكتملت المزامنة مع وجود بعض الأخطاء';
+
+  @override
+  String get syncRetrySafeFailure => 'فشلت المزامنة. اضغط لإعادة المحاولة.';
+
+  @override
+  String syncLastSuccess(String timestamp) {
+    return 'آخر مزامنة: $timestamp';
+  }
+
+  @override
+  String syncLastFailure(String timestamp) {
+    return 'فشلت المزامنة في $timestamp';
   }
 }
