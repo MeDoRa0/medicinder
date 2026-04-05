@@ -5,6 +5,7 @@ import '../../../domain/entities/sync/sync_status_view_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../cubit/sync/sync_status_cubit.dart';
 import '../../cubit/sync/sync_status_state.dart';
+import 'failed_operations_dialog.dart';
 
 class SyncStatusBanner extends StatelessWidget {
   const SyncStatusBanner({super.key});
@@ -55,20 +56,17 @@ class SyncStatusBanner extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 else
-                  Icon(
-                    switch (state.viewState) {
-                      SyncStatusViewState.signedOut =>
-                        Icons.cloud_off_outlined,
-                      SyncStatusViewState.signingIn => Icons.login,
-                      SyncStatusViewState.workspaceInitializing =>
-                        Icons.cloud_upload_outlined,
-                      SyncStatusViewState.ready => Icons.cloud_done_outlined,
-                      SyncStatusViewState.accessDenied =>
-                        Icons.no_accounts_outlined,
-                      SyncStatusViewState.syncing => Icons.sync,
-                      SyncStatusViewState.syncFailed => Icons.cloud_off,
-                    },
-                  ),
+                  Icon(switch (state.viewState) {
+                    SyncStatusViewState.signedOut => Icons.cloud_off_outlined,
+                    SyncStatusViewState.signingIn => Icons.login,
+                    SyncStatusViewState.workspaceInitializing =>
+                      Icons.cloud_upload_outlined,
+                    SyncStatusViewState.ready => Icons.cloud_done_outlined,
+                    SyncStatusViewState.accessDenied =>
+                      Icons.no_accounts_outlined,
+                    SyncStatusViewState.syncing => Icons.sync,
+                    SyncStatusViewState.syncFailed => Icons.cloud_off,
+                  }),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -78,6 +76,28 @@ class SyncStatusBanner extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (state.permanentlyFailedCount > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Tooltip(
+                      message: 'View Failed Sync Operations',
+                      child: InkWell(
+                        onTap: () => FailedOperationsDialog.show(context),
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            state.permanentlyFailedCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (state.viewState == SyncStatusViewState.accessDenied ||
                     state.viewState == SyncStatusViewState.syncFailed)
                   TextButton(

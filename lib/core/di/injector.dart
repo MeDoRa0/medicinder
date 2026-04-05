@@ -18,7 +18,6 @@ import '../../data/models/sync/conflict_metadata_model.dart';
 import '../../data/models/sync/pending_change_model.dart';
 import '../../data/models/sync/sync_cycle_state_model.dart';
 import '../../data/models/sync/user_sync_profile_model.dart';
-import '../../data/models/sync_operation_model.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/repositories/medication_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -40,9 +39,7 @@ import '../services/notification_handler.dart';
 
 final sl = GetIt.instance;
 
-Future<void> initDependencies({
-  bool firebaseConfigured = false,
-}) async {
+Future<void> initDependencies({bool firebaseConfigured = false}) async {
   // Initialize Hive
   await Hive.initFlutter();
 
@@ -51,9 +48,6 @@ Future<void> initDependencies({
   }
   if (!Hive.isAdapterRegistered(1)) {
     Hive.registerAdapter(MedicationModelAdapter());
-  }
-  if (!Hive.isAdapterRegistered(2)) {
-    Hive.registerAdapter(SyncOperationModelAdapter());
   }
   if (!Hive.isAdapterRegistered(3)) {
     Hive.registerAdapter(UserSyncProfileModelAdapter());
@@ -70,7 +64,6 @@ Future<void> initDependencies({
 
   // Handle data migration for model structure changes
   Box<MedicationModel> medicationBox;
-  Box<SyncOperationModel> syncQueueBox;
   Box<UserSyncProfileModel> syncProfileBox;
   Box<PendingChangeModel> pendingChangeBox;
   Box<ConflictMetadataModel> conflictMetadataBox;
@@ -87,11 +80,19 @@ Future<void> initDependencies({
     }
     medicationBox = await Hive.openBox<MedicationModel>('medications');
   }
-  syncQueueBox = await Hive.openBox<SyncOperationModel>('sync_queue');
+
+  // Clean up legacy sync_queue box (no longer needed after PendingChange migration)
+  try {
+    await Hive.deleteBoxFromDisk('sync_queue');
+  } catch (_) {
+    // Box might not exist, which is fine
+  }
+
   syncProfileBox = await Hive.openBox<UserSyncProfileModel>('sync_profiles');
   pendingChangeBox = await Hive.openBox<PendingChangeModel>('pending_changes');
-  conflictMetadataBox =
-      await Hive.openBox<ConflictMetadataModel>('sync_conflicts');
+  conflictMetadataBox = await Hive.openBox<ConflictMetadataModel>(
+    'sync_conflicts',
+  );
   syncCycleBox = await Hive.openBox<SyncCycleStateModel>('sync_cycles');
 
   // Data sources
@@ -99,7 +100,7 @@ Future<void> initDependencies({
     () => MedicationLocalDataSource(medicationBox),
   );
   sl.registerLazySingleton<SyncQueueLocalDataSource>(
-    () => SyncQueueLocalDataSource(syncQueueBox, pendingChangeBox),
+    () => SyncQueueLocalDataSource(pendingChangeBox),
   );
   sl.registerLazySingleton<SyncStateLocalDataSource>(
     () => SyncStateLocalDataSource(
@@ -182,6 +183,7 @@ Future<void> initDependencies({
       syncRepository: sl(),
       syncDiagnostics: sl(),
       connectivitySignal: sl(),
+      syncQueue: sl(),
     ),
   );
 }

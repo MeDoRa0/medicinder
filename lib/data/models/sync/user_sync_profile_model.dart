@@ -119,17 +119,18 @@ class UserSyncProfileModel extends HiveObject {
   UserSyncProfile toEntity() {
     final statusViewState =
         statusViewStateIndex >= 0 &&
-                statusViewStateIndex < SyncStatusViewState.values.length
-            ? SyncStatusViewState.values[statusViewStateIndex]
-            : SyncStatusViewState.values.first;
+            statusViewStateIndex < SyncStatusViewState.values.length
+        ? SyncStatusViewState.values[statusViewStateIndex]
+        : SyncStatusViewState.values.first;
 
     final engineStatus =
         engineStatusIndex >= 0 &&
-                engineStatusIndex < SyncCycleStatus.values.length
-            ? SyncCycleStatus.values[engineStatusIndex]
-            : SyncCycleStatus.idle;
+            engineStatusIndex < SyncCycleStatus.values.length
+        ? SyncCycleStatus.values[engineStatusIndex]
+        : SyncCycleStatus.idle;
 
-    final lastTrigger = lastTriggerIndex != null &&
+    final lastTrigger =
+        lastTriggerIndex != null &&
             lastTriggerIndex! >= 0 &&
             lastTriggerIndex! < SyncTrigger.values.length
         ? SyncTrigger.values[lastTriggerIndex!]

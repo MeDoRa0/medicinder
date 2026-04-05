@@ -29,17 +29,17 @@ class SyncCycleState extends Equatable {
 
   @override
   List<Object?> get props => [
-        cycleId,
-        userId,
-        trigger,
-        startedAt,
-        completedAt,
-        status,
-        pushedCount,
-        pulledCount,
-        failedCount,
-        failureClass,
-      ];
+    cycleId,
+    userId,
+    trigger,
+    startedAt,
+    completedAt,
+    status,
+    pushedCount,
+    pulledCount,
+    failedCount,
+    failureClass,
+  ];
 
   SyncCycleState copyWith({
     String? cycleId,

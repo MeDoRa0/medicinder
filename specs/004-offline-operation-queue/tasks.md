@@ -49,73 +49,17 @@ description: "Task list for Offline Operation Queue"
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T016 [P] [US1] Unit test verifying `_enqueueOperation` correctly formats and stores JSON payload in `test/data/repositories/medication_repository_impl_test.dart`.
-
-### Implementation for User Story 1
-
-- [ ] T003 [US1] Update `_enqueueOperation` logic in `lib/data/repositories/medication_repository_impl.dart` to accept and enqueue a `PendingChange` object containing the `medication.toMap()` (or equivalent JSON map) payload.
-- [ ] T004 [US1] Refactor `addMedication` and `updateMedication` in `lib/data/repositories/medication_repository_impl.dart` to use the new `_enqueueOperation` with the full snapshot payload.
-- [ ] T005 [US1] Refactor `deleteMedication` in `lib/data/repositories/medication_repository_impl.dart` to enqueue the `delete` operation via `PendingChange` without a payload.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Queued items are correctly formatted as `PendingChange` elements.
-
----
-
-## Phase 4: User Story 2 - Replay Queued Operations on Reconnection (Priority: P2)
-
-**Goal**: Queued offline operations are automatically replayed and synchronized when connectivity returns.
-
-**Independent Test**: Add changes while offline, restore connectivity, verify operations push successfully to the cloud and are removed from the queue.
-
-### Tests for User Story 2 ⚠️
-
-- [ ] T017 [P] [US2] Unit test for extracting `PendingChange`s and batching correctly to 20 ops in `test/core/services/sync/sync_service_test.dart`.
-
-### Implementation for User Story 2
-
-- [ ] T006 [P] [US2] Update `SyncQueueLocalDataSource.getEffectivePendingChanges` in `lib/data/datasources/sync_queue_local_data_source.dart` to return ONLY natively stored `PendingChange`s instead of computing legacy operations.
-- [ ] T007 [US2] Update `SyncService._pushChange` in `lib/core/services/sync/sync_service.dart` to reconstruct the `Medication` object from the `change.payload` (for create/update) to push to the cloud context.
-- [ ] T008 [US2] Refactor `SyncService.syncNow` in `lib/core/services/sync/sync_service.dart` to partition `changes` into batches of 20 and handle incremental state updates.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
-
----
-
-## Phase 5: User Story 4 - Preserve Operation Order and Consistency (Priority: P2)
-
-**Goal**: Offline operations are replayed in the exact order performed, but coalesce consecutive updates to the same record.
-
-**Independent Test**: Make multiple updates to the same record while offline. Sync, and verify only one consolidated update hits the cloud.
-
-### Tests for User Story 4 ⚠️
-
-- [ ] T018 [P] [US4] Unit test verifying sequence coalescing correctly drops overriden updates in `test/data/datasources/sync_queue_local_data_source_test.dart`.
-
-### Implementation for User Story 4
-
-- [ ] T009 [US4] Implement a `_coalescePendingChanges` method in `lib/data/datasources/sync_queue_local_data_source.dart` which merges consecutive `update` operations on the same `entityId`.
-- [ ] T010 [US4] Wire `_coalescePendingChanges` into `SyncQueueLocalDataSource.getEffectivePendingChanges` so `SyncService` receives optimized payloads.
-
-**Checkpoint**: Ordering and coalescing apply to User Story 2 replay loop correctly.
-
----
-
-## Phase 6: User Story 3 - Retry Failed Operations Automatically (Priority: P3)
-
-**Goal**: Operations that fail during replay are retried automatically using exponential backoff up to a permanent failure state.
-
-**Independent Test**: Simulate a cloud write failure. Confirm the item's `attemptCount` increments and is skipped on immediate subsequent syncs until the backoff timeout expires.
-
-### Tests for User Story 3 ⚠️
-
-- [ ] T019 [P] [US3] Unit test verifying arithmetic for exponential backoff filter drops unready entries in `test/data/datasources/sync_queue_local_data_source_test.dart`.
+- [X] T016 [P] [US1] Unit test verifying `_enqueueOperation` correctly formats and stores JSON payload in `test/data/repositories/medication_repository_impl_test.dart`.
+- [X] T017 [P] [US2] Unit test for extracting `PendingChange`s and batching correctly to 20 ops in `test/core/services/sync/sync_service_test.dart`.
+- [X] T018 [P] [US4] Unit test verifying sequence coalescing correctly drops overriden updates in `test/data/datasources/sync_queue_local_data_source_test.dart`.
+- [X] T019 [P] [US3] Unit test verifying arithmetic for exponential backoff filter drops unready entries in `test/data/datasources/sync_queue_local_data_source_test.dart`.
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Add exponential backoff filtering in `SyncQueueLocalDataSource.getEffectivePendingChanges` in `lib/data/datasources/sync_queue_local_data_source.dart`. (e.g. Reject changes where `now < lastAttemptAt + (2^attemptCount) seconds`, max limit 5 attempts).
-- [ ] T012 [US3] Add exposing logic for permanently failed operations (where `attemptCount >= 5`) in `lib/data/datasources/sync_queue_local_data_source.dart` and `lib/data/datasources/sync_state_local_data_source.dart`.
-- [ ] T013 [US3] Update `SyncStatusCubit` in `lib/presentation/cubit/sync/sync_status_cubit.dart` to query and expose the count of failed operations for UI badge rendering.
-- [ ] T020 [US3] Add English/Arabic localization strings for sync failure definitions in `lib/l10n/app_en.arb` and `lib/l10n/app_ar.arb`.
+- [X] T011 [US3] Add exponential backoff filtering in `SyncQueueLocalDataSource.getEffectivePendingChanges` in `lib/data/datasources/sync_queue_local_data_source.dart`. (e.g. Reject changes where `now < lastAttemptAt + (2^attemptCount) seconds`, max limit 5 attempts).
+- [X] T012 [US3] Add exposing logic for permanently failed operations (where `attemptCount >= 5`) in `lib/data/datasources/sync_queue_local_data_source.dart` and `lib/data/datasources/sync_state_local_data_source.dart`.
+- [X] T013 [US3] Update `SyncStatusCubit` in `lib/presentation/cubit/sync/sync_status_cubit.dart` to query and expose the count of failed operations for UI badge rendering.
+- [X] T020 [US3] Add English/Arabic localization strings for sync failure definitions in `lib/l10n/app_en.arb` and `lib/l10n/app_ar.arb`.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -125,8 +69,8 @@ description: "Task list for Offline Operation Queue"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T014 Remove deprecated `SyncOperation` and `SyncOperationModel` files and references across the codebase to finalize the queue migration.
-- [ ] T015 Run validation and ensure Hive box schema updates don't break existing data if legacy mapping is removed.
+- [X] T014 Remove deprecated `SyncOperation` and `SyncOperationModel` files and references across the codebase to finalize the queue migration.
+- [X] T015 Run validation and ensure Hive box schema updates don't break existing data if legacy mapping is removed.
 
 ---
 

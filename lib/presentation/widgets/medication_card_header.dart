@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 /// Header section for MedicationCard showing name, type, and days left.
 class MedicationCardHeader extends StatelessWidget {
   final Medication medication;
+
   /// When true, show "Forever"; otherwise use [daysLeft] (null or 0 = course finished).
   final bool isForever;
   final int? daysLeft;
@@ -63,15 +64,13 @@ class MedicationCardHeader extends StatelessWidget {
                       isForever
                           ? l10n.forever
                           : (hasDaysLeft
-                              ? l10n.daysLeft(days)
-                              : l10n.courseFinished),
+                                ? l10n.daysLeft(days)
+                                : l10n.courseFinished),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: isForever
                             ? Colors.teal
-                            : (hasDaysLeft
-                                ? Colors.blueGrey
-                                : Colors.red),
+                            : (hasDaysLeft ? Colors.blueGrey : Colors.red),
                       ),
                     );
                   },

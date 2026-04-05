@@ -64,7 +64,10 @@ class AppErrorWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               suggestedAction,
-              style: TextStyle(color: color.withValues(alpha: 0.8), fontSize: 14),
+              style: TextStyle(
+                color: color.withValues(alpha: 0.8),
+                fontSize: 14,
+              ),
             ),
           ],
           if (isRecoverable && onRetry != null) ...[
@@ -135,7 +138,7 @@ class FullScreenErrorWidget extends StatelessWidget {
                     suggestedAction,
                     style: TextStyle(
                       fontSize: 16,
-                      color: color.withValues(alpha:  0.8),
+                      color: color.withValues(alpha: 0.8),
                     ),
                     textAlign: TextAlign.center,
                   ),

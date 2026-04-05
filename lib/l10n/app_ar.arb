@@ -558,5 +558,27 @@
         "example": "2026-04-03 10:00"
       }
     }
+  },
+  "syncFailedOperationsBadge": "فشل {count} عملية/عمليات في المزامنة",
+  "@syncFailedOperationsBadge": {
+    "description": "Badge text showing count of permanently failed sync operations",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "syncFailedOperationsDetails": "اضغط لعرض العمليات الفاشلة",
+  "@syncFailedOperationsDetails": {
+    "description": "Hint text prompting user to tap for failed operation details"
+  },
+  "syncPermanentlyFailedTitle": "العمليات الفاشلة",
+  "@syncPermanentlyFailedTitle": {
+    "description": "Title for the permanently failed operations screen"
+  },
+  "syncNoFailedOperations": "لا توجد عمليات فاشلة بشكل دائم",
+  "@syncNoFailedOperations": {
+    "description": "Message shown when there are no permanently failed operations"
   }
 }

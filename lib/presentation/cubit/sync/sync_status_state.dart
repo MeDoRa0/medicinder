@@ -5,12 +5,14 @@ class SyncStatusState {
   final String? userId;
   final String? message;
   final bool busy;
+  final int permanentlyFailedCount;
 
   const SyncStatusState({
     required this.viewState,
     this.userId,
     this.message,
     this.busy = false,
+    this.permanentlyFailedCount = 0,
   });
 
   const SyncStatusState.initial()
@@ -23,12 +25,15 @@ class SyncStatusState {
     String? message,
     bool clearMessage = false,
     bool? busy,
+    int? permanentlyFailedCount,
   }) {
     return SyncStatusState(
       viewState: viewState ?? this.viewState,
       userId: clearUserId ? null : (userId ?? this.userId),
       message: clearMessage ? null : (message ?? this.message),
       busy: busy ?? this.busy,
+      permanentlyFailedCount:
+          permanentlyFailedCount ?? this.permanentlyFailedCount,
     );
   }
 }

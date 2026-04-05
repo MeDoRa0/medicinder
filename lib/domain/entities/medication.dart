@@ -16,7 +16,8 @@ enum MealContext {
 class MedicationDose {
   final DateTime? time; // For specific time
   final MealContext? context; // For context-based
-  final int? offsetMinutes; // Minutes before/after meal (only when context != null)
+  final int?
+  offsetMinutes; // Minutes before/after meal (only when context != null)
   final bool taken;
   final DateTime? takenDate; // Date when the dose was taken
 
@@ -46,6 +47,32 @@ class MedicationDose {
       offsetMinutes.hashCode ^
       taken.hashCode ^
       takenDate.hashCode;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'time': time?.toIso8601String(),
+      'context': context?.name,
+      'offsetMinutes': offsetMinutes,
+      'taken': taken,
+      'takenDate': takenDate?.toIso8601String(),
+    };
+  }
+
+  factory MedicationDose.fromMap(Map<String, dynamic> map) {
+    return MedicationDose(
+      time: map['time'] != null
+          ? DateTime.tryParse(map['time'] as String)
+          : null,
+      context: map['context'] != null
+          ? MealContext.values.byName(map['context'] as String)
+          : null,
+      offsetMinutes: map['offsetMinutes'] as int?,
+      taken: map['taken'] as bool? ?? false,
+      takenDate: map['takenDate'] != null
+          ? DateTime.tryParse(map['takenDate'] as String)
+          : null,
+    );
+  }
 }
 
 class Medication {
@@ -195,7 +222,6 @@ class Medication {
     return totalDays - daysElapsed;
   }
 
-
   /// Check if a dose was taken today
   bool isDoseTakenToday(int doseIndex) {
     if (doseIndex < 0 || doseIndex >= doses.length) return false;
@@ -317,6 +343,59 @@ class Medication {
       isDeleted: isDeleted ?? this.isDeleted,
       deletedAt: clearDeletedAt ? null : (deletedAt ?? this.deletedAt),
       syncMetadata: syncMetadata ?? this.syncMetadata,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'name': name,
+      'usage': usage,
+      'dosage': dosage,
+      'type': type.name,
+      'timingType': timingType.name,
+      'doses': doses.map((d) => d.toMap()).toList(growable: false),
+      'totalDays': totalDays,
+      'startDate': startDate.toIso8601String(),
+      'repeatForever': repeatForever,
+      'isDeleted': isDeleted,
+      'deletedAt': deletedAt?.toIso8601String(),
+      'syncMetadata': syncMetadata.toJson(),
+    };
+  }
+
+  factory Medication.fromMap(Map<String, dynamic> map) {
+    return Medication(
+      id: map['id'] as String,
+      userId: map['userId'] as String?,
+      name: map['name'] as String? ?? '',
+      usage: map['usage'] as String? ?? '',
+      dosage: map['dosage'] as String? ?? '',
+      type: MedicationType.values.byName(
+        map['type'] as String? ?? MedicationType.pill.name,
+      ),
+      timingType: MedicationTimingType.values.byName(
+        map['timingType'] as String? ?? MedicationTimingType.specificTime.name,
+      ),
+      doses: (map['doses'] as List<dynamic>? ?? const [])
+          .map(
+            (item) =>
+                MedicationDose.fromMap(Map<String, dynamic>.from(item as Map)),
+          )
+          .toList(growable: false),
+      totalDays: map['totalDays'] as int? ?? 0,
+      startDate:
+          DateTime.tryParse(map['startDate'] as String? ?? '') ??
+          DateTime.now(),
+      repeatForever: map['repeatForever'] as bool? ?? false,
+      isDeleted: map['isDeleted'] as bool? ?? false,
+      deletedAt: map['deletedAt'] != null
+          ? DateTime.tryParse(map['deletedAt'] as String)
+          : null,
+      syncMetadata: SyncMetadata.fromJson(
+        Map<String, dynamic>.from(map['syncMetadata'] as Map? ?? const {}),
+      ),
     );
   }
 

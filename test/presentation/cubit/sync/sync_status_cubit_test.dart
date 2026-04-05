@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
+import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
+import 'package:medicinder/domain/entities/sync/pending_change.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart';
 import 'package:medicinder/domain/repositories/auth_repository.dart';
@@ -23,6 +25,7 @@ void main() {
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
       );
 
       cubit.initialize();
@@ -41,6 +44,7 @@ void main() {
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
       );
 
       await cubit.signIn();
@@ -59,6 +63,7 @@ void main() {
         syncRepository: _FakeSyncRepository(success: false),
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
       );
 
       await cubit.retry();
@@ -76,6 +81,7 @@ void main() {
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
       );
 
       await cubit.signIn();
@@ -100,6 +106,7 @@ void main() {
         syncRepository: _FakeSyncRepository(),
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
       );
 
       cubit.initialize();
@@ -128,6 +135,7 @@ void main() {
             syncRepository: syncRepository,
             syncDiagnostics: const SyncDiagnostics(),
             connectivitySignal: _FakeConnectivitySignalService(),
+            syncQueue: _FakeSyncQueue(),
           );
 
           cubit.initialize();
@@ -153,6 +161,7 @@ void main() {
           syncRepository: syncRepository,
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: connectivitySignal,
+          syncQueue: _FakeSyncQueue(),
         );
 
         cubit.initialize();
@@ -227,6 +236,46 @@ class _FakeAuthRepository implements AuthRepository {
   Stream<AuthSession> watchSession() async* {
     yield watchedSession;
   }
+}
+
+class _FakeSyncQueue implements SyncQueueLocalDataSource {
+  final List<PendingChange> pendingChanges = [];
+
+  @override
+  Future<void> enqueuePendingChange(PendingChange change) async {
+    pendingChanges.add(change);
+  }
+
+  @override
+  Future<List<PendingChange>> listPendingChanges({String? userId}) async =>
+      List.of(pendingChanges);
+
+  @override
+  Future<List<PendingChange>> getEffectivePendingChanges({
+    String? userId,
+  }) async => List.of(pendingChanges);
+
+  @override
+  Future<void> markPendingChangeInFlight(String changeId) async {}
+
+  @override
+  Future<void> markPendingChangeFailed(
+    String changeId, {
+    required String errorMessage,
+  }) async {}
+
+  @override
+  Future<void> markPendingChangeSucceeded(String changeId) async {
+    pendingChanges.removeWhere((c) => c.changeId == changeId);
+  }
+
+  @override
+  int countPermanentlyFailedChanges({String? userId}) => 0;
+
+  @override
+  Future<List<PendingChange>> getPermanentlyFailedChanges({
+    String? userId,
+  }) async => const [];
 }
 
 class _FakeConnectivitySignalService implements ConnectivitySignalService {

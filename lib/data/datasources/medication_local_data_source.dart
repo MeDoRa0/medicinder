@@ -9,7 +9,9 @@ class MedicationLocalDataSource {
   MedicationLocalDataSource(this._box);
 
   // CRUD Operations
-  Future<List<Medication>> getAllMedications({bool includeDeleted = false}) async {
+  Future<List<Medication>> getAllMedications({
+    bool includeDeleted = false,
+  }) async {
     try {
       final models = _box.values.toList();
       final medications = models.map((model) => model.toEntity()).toList();
