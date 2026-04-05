@@ -51,8 +51,9 @@ Future<void> onActionReceivedMethod(ReceivedAction action) async {
       await AwesomeNotificationService.scheduleMedicationReminder(
         id: medicationId.hashCode + doseIndex,
         medicationName: medicationName,
-        scheduledTime:
-            DateTime.now().add(AwesomeNotificationService.snoozeDuration),
+        scheduledTime: DateTime.now().add(
+          AwesomeNotificationService.snoozeDuration,
+        ),
         medicationId: medicationId,
         doseIndex: doseIndex,
         title: title,

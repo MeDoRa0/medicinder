@@ -52,11 +52,7 @@ class TakenMedicationList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.medication_liquid,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.medication_liquid, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No medications taken today',
@@ -69,10 +65,7 @@ class TakenMedicationList extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Medications you take will appear here',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -105,4 +98,3 @@ class _TakenMedicationEntry {
     required this.takenTime,
   });
 }
-

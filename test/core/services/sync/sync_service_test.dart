@@ -14,8 +14,6 @@ import 'package:medicinder/domain/entities/sync/sync_cycle_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/user_sync_profile.dart';
 import 'package:medicinder/domain/entities/sync_metadata.dart';
-import 'package:medicinder/domain/entities/sync_operation.dart'
-    hide SyncEntityType, SyncOperationType;
 import 'package:medicinder/domain/entities/sync/sync_types.dart' as sync_types;
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
@@ -31,7 +29,7 @@ void main() {
           updatedAt: DateTime(2026, 4, 1, 8),
         );
         final repository = _FakeMedicationRepository([medication]);
-        final queue = _FakeSyncQueue([]);
+        final queue = _FakeSyncQueue();
         final remote = _FakeMedicationRemoteDataSource();
         final syncState = _FakeSyncStateLocalDataSource();
         final service = SyncService(
@@ -49,6 +47,7 @@ void main() {
             entityType: sync_types.SyncEntityType.medication,
             entityId: medication.id,
             operation: sync_types.SyncOperationType.create,
+            payload: medication.toMap(),
             queuedAt: DateTime(2026, 4, 1, 8),
             sourceUpdatedAt: DateTime(2026, 4, 1, 8),
             userId: 'user-123',
@@ -77,7 +76,7 @@ void main() {
         updatedAt: DateTime(2026, 4, 1, 8),
       );
       final repository = _FakeMedicationRepository([medication]);
-      final queue = _FakeSyncQueue([]);
+      final queue = _FakeSyncQueue();
       final remote = _DisabledFakeMedicationRemoteDataSource();
       final syncState = _FakeSyncStateLocalDataSource();
       final service = SyncService(
@@ -95,6 +94,7 @@ void main() {
           entityType: sync_types.SyncEntityType.medication,
           entityId: medication.id,
           operation: sync_types.SyncOperationType.create,
+          payload: medication.toMap(),
           queuedAt: DateTime(2026, 4, 1, 8),
           sourceUpdatedAt: DateTime(2026, 4, 1, 8),
           userId: 'user-123',
@@ -116,7 +116,7 @@ void main() {
           authRepository: _FakeAuthRepository(),
           medicationRepository: _FakeMedicationRepository([]),
           remoteDataSource: _FakeMedicationRemoteDataSource(),
-          syncQueue: _FakeSyncQueue([]),
+          syncQueue: _FakeSyncQueue(),
           conflictResolver: const MedicationConflictResolver(),
           syncState: _FakeSyncStateLocalDataSource(),
         );
@@ -129,7 +129,7 @@ void main() {
       test(
         'handleConnectivityRestored() triggers syncNow(connectivityRestored)',
         () async {
-          final queue = _FakeSyncQueue([]);
+          final queue = _FakeSyncQueue();
           final service = SyncService(
             authRepository: _FakeAuthRepository(),
             medicationRepository: _FakeMedicationRepository([]),
@@ -151,7 +151,7 @@ void main() {
           remoteDataSource: _FakeMedicationRemoteDataSource(
             pullDelayer: completer.future,
           ),
-          syncQueue: _FakeSyncQueue([]),
+          syncQueue: _FakeSyncQueue(),
           conflictResolver: const MedicationConflictResolver(),
           syncState: _FakeSyncStateLocalDataSource(),
         );
@@ -365,20 +365,9 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
-  final List<SyncOperation> legacyOperations;
   final List<PendingChange> pendingChanges = [];
 
-  _FakeSyncQueue(this.legacyOperations);
-
-  @override
-  Future<void> enqueue(SyncOperation operation) async {
-    legacyOperations.removeWhere((item) => item.id == operation.id);
-    legacyOperations.add(operation);
-  }
-
-  @override
-  Future<List<SyncOperation>> getPendingOperations() async =>
-      List.of(legacyOperations);
+  _FakeSyncQueue();
 
   @override
   Future<void> enqueuePendingChange(PendingChange change) async {
@@ -422,20 +411,23 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
   }
 
   @override
-  Future<void> remove(String operationId) async {
-    legacyOperations.removeWhere((item) => item.id == operationId);
+  int countPermanentlyFailedChanges({String? userId}) {
+    return pendingChanges.where((c) {
+      if (userId != null && c.userId != userId) return false;
+      return c.status == sync_types.SyncOperationStatus.failed ||
+          c.attemptCount >= 5;
+    }).length;
   }
 
   @override
-  Future<void> replace(SyncOperation operation) async {
-    final index = legacyOperations.indexWhere(
-      (item) => item.id == operation.id,
-    );
-    if (index == -1) {
-      legacyOperations.add(operation);
-      return;
-    }
-    legacyOperations[index] = operation;
+  Future<List<PendingChange>> getPermanentlyFailedChanges({
+    String? userId,
+  }) async {
+    return pendingChanges.where((c) {
+      if (userId != null && c.userId != userId) return false;
+      return c.status == sync_types.SyncOperationStatus.failed ||
+          c.attemptCount >= 5;
+    }).toList();
   }
 }
 

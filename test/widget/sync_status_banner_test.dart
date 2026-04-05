@@ -12,6 +12,8 @@ import 'package:medicinder/domain/repositories/sync_repository.dart';
 import 'package:medicinder/domain/usecases/sync/sign_in_for_sync.dart';
 import 'package:medicinder/domain/usecases/sync/sign_out_from_sync.dart';
 import 'package:medicinder/domain/usecases/sync/watch_auth_session.dart';
+import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
+import 'package:medicinder/domain/entities/sync/pending_change.dart';
 import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_cubit.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_state.dart';
@@ -29,6 +31,7 @@ void main() {
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
+          syncQueue: _FakeSyncQueue(),
         ),
       ),
     );
@@ -47,6 +50,7 @@ void main() {
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
+          syncQueue: _FakeSyncQueue(),
         )..seed(
           const SyncStatusState(
             viewState: SyncStatusViewState.ready,
@@ -69,6 +73,7 @@ void main() {
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
+          syncQueue: _FakeSyncQueue(),
         )..seed(
           const SyncStatusState(
             viewState: SyncStatusViewState.syncing,
@@ -146,9 +151,44 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
     required super.syncRepository,
     required super.syncDiagnostics,
     required super.connectivitySignal,
+    required super.syncQueue,
   });
 
   void seed(SyncStatusState state) => emit(state);
+}
+
+class _FakeSyncQueue implements SyncQueueLocalDataSource {
+  @override
+  Future<void> enqueuePendingChange(PendingChange change) async {}
+
+  @override
+  Future<List<PendingChange>> listPendingChanges({String? userId}) async =>
+      const [];
+
+  @override
+  Future<List<PendingChange>> getEffectivePendingChanges({
+    String? userId,
+  }) async => const [];
+
+  @override
+  Future<void> markPendingChangeInFlight(String changeId) async {}
+
+  @override
+  Future<void> markPendingChangeFailed(
+    String changeId, {
+    required String errorMessage,
+  }) async {}
+
+  @override
+  Future<void> markPendingChangeSucceeded(String changeId) async {}
+
+  @override
+  int countPermanentlyFailedChanges({String? userId}) => 0;
+
+  @override
+  Future<List<PendingChange>> getPermanentlyFailedChanges({
+    String? userId,
+  }) async => const [];
 }
 
 class _FakeConnectivitySignalService implements ConnectivitySignalService {

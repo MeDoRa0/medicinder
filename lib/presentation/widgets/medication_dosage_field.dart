@@ -20,13 +20,15 @@ class MedicationDosageField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.dosage,
         hintText: getDosageHint(),
-        suffixText: medicationType == MedicationType.pill 
-            ? AppLocalizations.of(context)!.pillUnit 
+        suffixText: medicationType == MedicationType.pill
+            ? AppLocalizations.of(context)!.pillUnit
             : AppLocalizations.of(context)!.mlUnit,
       ),
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
-      validator: (v) => v == null || v.isEmpty ? AppLocalizations.of(context)!.required : null,
+      validator: (v) => v == null || v.isEmpty
+          ? AppLocalizations.of(context)!.required
+          : null,
     );
   }
 }

@@ -3,10 +3,7 @@ import '../../../domain/entities/medication.dart';
 class MedicationConflictResolver {
   const MedicationConflictResolver();
 
-  Medication resolve({
-    required Medication local,
-    required Medication remote,
-  }) {
+  Medication resolve({required Medication local, required Medication remote}) {
     final localUpdatedAt = local.syncMetadata.updatedAt;
     final remoteUpdatedAt = remote.syncMetadata.updatedAt;
 
@@ -22,10 +19,9 @@ class MedicationConflictResolver {
         final loserDose = loser.doses[i];
 
         if (!winnerDose.taken && loserDose.taken) {
-          mergedDoses.add(winnerDose.copyWith(
-            taken: true,
-            takenDate: loserDose.takenDate,
-          ));
+          mergedDoses.add(
+            winnerDose.copyWith(taken: true, takenDate: loserDose.takenDate),
+          );
         } else {
           mergedDoses.add(winnerDose);
         }

@@ -28,7 +28,9 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
           if (state is MedicationLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is MedicationError) {
-            return Center(child: Text(AppLocalizations.of(context)!.error(state.message)));
+            return Center(
+              child: Text(AppLocalizations.of(context)!.error(state.message)),
+            );
           } else if (state is MedicationLoaded) {
             return _buildStatisticsContent(context, state.medications);
           }
@@ -39,29 +41,23 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
   }
 
   Widget _buildStatisticsContent(
-      BuildContext context, List<Medication> medications) {
+    BuildContext context,
+    List<Medication> medications,
+  ) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final startDate = today.subtract(Duration(days: _selectedPeriod));
     final endDate = today;
 
     // Calculate statistics
-    final statistics = _calculateStatistics(
-      medications,
-      startDate,
-      endDate,
-    );
+    final statistics = _calculateStatistics(medications, startDate, endDate);
 
     if (statistics.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.bar_chart,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.bar_chart, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.noMedicationData,
@@ -74,10 +70,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.takeMedicationsForStats,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -85,16 +78,18 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
     }
 
     // Find most taken medication
-    final mostTaken = statistics.entries
-        .reduce((a, b) => a.value > b.value ? a : b);
+    final mostTaken = statistics.entries.reduce(
+      (a, b) => a.value > b.value ? a : b,
+    );
 
     // Calculate percentages
-    final totalDoses = statistics.values.fold<int>(0, (sum, count) => sum + count);
+    final totalDoses = statistics.values.fold<int>(
+      0,
+      (sum, count) => sum + count,
+    );
     final percentages = statistics.map(
-      (key, value) => MapEntry(
-        key,
-        totalDoses > 0 ? (value / totalDoses * 100) : 0.0,
-      ),
+      (key, value) =>
+          MapEntry(key, totalDoses > 0 ? (value / totalDoses * 100) : 0.0),
     );
 
     // Sort by count (descending)
@@ -134,10 +129,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
           children: [
             Text(
               AppLocalizations.of(context)!.timePeriod,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Row(
@@ -175,8 +167,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
     );
   }
 
-  Widget _buildMostTakenCard(
-      MapEntry<String, int> mostTaken, int totalDoses) {
+  Widget _buildMostTakenCard(MapEntry<String, int> mostTaken, int totalDoses) {
     final percentage = totalDoses > 0
         ? (mostTaken.value / totalDoses * 100).toStringAsFixed(1)
         : '0.0';
@@ -215,11 +206,10 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.dosesTaken(mostTaken.value, percentage),
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[700],
-              ),
+              AppLocalizations.of(
+                context,
+              )!.dosesTaken(mostTaken.value, percentage),
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
             ),
           ],
         ),
@@ -227,7 +217,10 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
     );
   }
 
-  Widget _buildChartCard(BuildContext context, Map<String, double> percentages) {
+  Widget _buildChartCard(
+    BuildContext context,
+    Map<String, double> percentages,
+  ) {
     if (percentages.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -243,7 +236,9 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
         .fold<double>(0.0, (sum, entry) => sum + entry.value);
 
     if (otherPercentage > 0) {
-      displayData.add(MapEntry(AppLocalizations.of(context)!.other, otherPercentage));
+      displayData.add(
+        MapEntry(AppLocalizations.of(context)!.other, otherPercentage),
+      );
     }
 
     return Card(
@@ -254,10 +249,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
           children: [
             Text(
               AppLocalizations.of(context)!.medicationDistribution,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -279,7 +271,8 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
   }
 
   List<PieChartSectionData> _buildPieChartSections(
-      List<MapEntry<String, double>> data) {
+    List<MapEntry<String, double>> data,
+  ) {
     final colors = [
       const Color(0xFF71C0B2),
       const Color(0xFF4A90E2),
@@ -338,10 +331,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
             Container(
               width: 16,
               height: 16,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             const SizedBox(width: 8),
             Text(
@@ -355,7 +345,9 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
   }
 
   Widget _buildStatisticsList(
-      List<MapEntry<String, int>> statistics, Map<String, double> percentages) {
+    List<MapEntry<String, int>> statistics,
+    Map<String, double> percentages,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -364,15 +356,16 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
           children: [
             Text(
               AppLocalizations.of(context)!.allMedications,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ...statistics.map((entry) {
               final percentage = percentages[entry.key] ?? 0.0;
-              return _buildMedicationStatItem(entry.key, entry.value, percentage);
+              return _buildMedicationStatItem(
+                entry.key,
+                entry.value,
+                percentage,
+              );
             }),
           ],
         ),
@@ -381,7 +374,10 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
   }
 
   Widget _buildMedicationStatItem(
-      String medicationName, int count, double percentage) {
+    String medicationName,
+    int count,
+    double percentage,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -400,10 +396,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
                 const SizedBox(height: 4),
                 Text(
                   '$count ${AppLocalizations.of(context)!.doses} • ${percentage.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),

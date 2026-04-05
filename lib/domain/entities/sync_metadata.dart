@@ -43,7 +43,9 @@ class SyncMetadata {
     return SyncMetadata(
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      lastSyncedAt: clearLastSyncedAt ? null : (lastSyncedAt ?? this.lastSyncedAt),
+      lastSyncedAt: clearLastSyncedAt
+          ? null
+          : (lastSyncedAt ?? this.lastSyncedAt),
       deletedAt: clearDeletedAt ? null : (deletedAt ?? this.deletedAt),
       status: status ?? this.status,
       syncVersion: syncVersion ?? this.syncVersion,

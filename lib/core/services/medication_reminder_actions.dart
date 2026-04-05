@@ -12,10 +12,7 @@ import 'awesome_notification_service.dart';
 class MedicationReminderActions {
   MedicationReminderActions._();
 
-  static Future<void> applyDoseTaken(
-    String medicationId,
-    int doseIndex,
-  ) async {
+  static Future<void> applyDoseTaken(String medicationId, int doseIndex) async {
     if (!sl.isRegistered<UpdateDoseStatus>()) {
       log('MedicationReminderActions: GetIt not initialized');
       return;

@@ -56,10 +56,14 @@ class PendingChange {
       queuedAt: queuedAt ?? this.queuedAt,
       sourceUpdatedAt: sourceUpdatedAt ?? this.sourceUpdatedAt,
       attemptCount: attemptCount ?? this.attemptCount,
-      lastAttemptAt: clearLastAttemptAt ? null : (lastAttemptAt ?? this.lastAttemptAt),
+      lastAttemptAt: clearLastAttemptAt
+          ? null
+          : (lastAttemptAt ?? this.lastAttemptAt),
       status: status ?? this.status,
       userId: clearUserId ? null : (userId ?? this.userId),
-      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

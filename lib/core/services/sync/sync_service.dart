@@ -5,7 +5,7 @@ import '../../../data/datasources/sync_queue_local_data_source.dart';
 import '../../../domain/entities/sync/auth_session.dart';
 import '../../../domain/entities/sync_metadata.dart';
 import '../../../domain/entities/sync/sync_cycle_state.dart';
-import '../../../domain/entities/sync_operation.dart';
+import '../../../domain/entities/medication.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/entities/sync/pending_change.dart';
 import '../../../domain/entities/sync/sync_types.dart' as sync_types;
@@ -85,26 +85,37 @@ class SyncService implements SyncRepository {
       var pulledCount = 0;
       String? message;
 
-      for (final change in changes) {
-        try {
-          await _pushChange(change, userId: userId);
-          await _syncQueue.markPendingChangeSucceeded(change.changeId);
-          pushedCount++;
-        } on CloudSyncDisabledException catch (error) {
-          failedCount++;
-          message = error.toString();
-          await _syncQueue.markPendingChangeFailed(
-            change.changeId,
-            errorMessage: error.toString(),
-          );
+      const batchSize = 20;
+      for (var i = 0; i < changes.length; i += batchSize) {
+        final batch = changes.sublist(
+          i,
+          i + batchSize > changes.length ? changes.length : i + batchSize,
+        );
+        for (final change in batch) {
+          try {
+            await _syncQueue.markPendingChangeInFlight(change.changeId);
+            await _pushChange(change, userId: userId);
+            await _syncQueue.markPendingChangeSucceeded(change.changeId);
+            pushedCount++;
+          } on CloudSyncDisabledException catch (error) {
+            failedCount++;
+            message = error.toString();
+            await _syncQueue.markPendingChangeFailed(
+              change.changeId,
+              errorMessage: error.toString(),
+            );
+            break;
+          } catch (error) {
+            failedCount++;
+            await _syncQueue.markPendingChangeFailed(
+              change.changeId,
+              errorMessage: error.toString(),
+            );
+            log('SyncService: failed to process ${change.changeId}: $error');
+          }
+        }
+        if (message != null) {
           break;
-        } catch (error) {
-          failedCount++;
-          await _syncQueue.markPendingChangeFailed(
-            change.changeId,
-            errorMessage: error.toString(),
-          );
-          log('SyncService: failed to process ${change.changeId}: $error');
         }
       }
 
@@ -213,23 +224,17 @@ class SyncService implements SyncRepository {
     PendingChange change, {
     required String userId,
   }) async {
-    final medication = await _medicationRepository.getMedicationById(
-      change.entityId,
-      includeDeleted: true,
-    );
-
-    if (change.operation == SyncOperationType.delete) {
+    if (change.operation == sync_types.SyncOperationType.delete) {
       await _remoteDataSource.deleteMedicationForUser(userId, change.entityId);
-      if (medication != null) {
-        await _medicationRepository.purgeMedication(change.entityId);
-      }
+      await _medicationRepository.purgeMedication(change.entityId);
       return;
     }
 
-    if (medication == null || medication.isDeleted) {
+    if (change.payload == null) {
       return;
     }
 
+    final medication = Medication.fromMap(change.payload!);
     final scopedMedication = medication.copyWith(userId: userId);
     await _remoteDataSource.upsertMedicationForUser(userId, scopedMedication);
     await _medicationRepository.saveSyncedMedication(

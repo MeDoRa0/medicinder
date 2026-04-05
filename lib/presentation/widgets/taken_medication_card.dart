@@ -82,10 +82,7 @@ class TakenMedicationCard extends StatelessWidget {
                   if (medication.usage.isNotEmpty)
                     Text(
                       medication.usage,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -112,11 +109,7 @@ class TakenMedicationCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
-                          Icons.schedule,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
+                        Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text(
                           'Scheduled: ${timeFormat.format(dose.time!)}',
@@ -137,4 +130,3 @@ class TakenMedicationCard extends StatelessWidget {
     );
   }
 }
-

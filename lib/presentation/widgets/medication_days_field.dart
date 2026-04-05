@@ -6,7 +6,8 @@ class MedicationDaysField extends StatelessWidget {
   final TextEditingController controller;
   final bool enabled;
   final bool repeatForever;
-  const MedicationDaysField({super.key, 
+  const MedicationDaysField({
+    super.key,
     required this.controller,
     required this.enabled,
     required this.repeatForever,
@@ -23,9 +24,11 @@ class MedicationDaysField extends StatelessWidget {
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       validator: (v) {
         if (repeatForever) return null;
-        if (v == null || v.isEmpty) return AppLocalizations.of(context)!.required;
+        if (v == null || v.isEmpty)
+          return AppLocalizations.of(context)!.required;
         final n = int.tryParse(v);
-        if (n == null || n < 1) return AppLocalizations.of(context)!.enterValidDays;
+        if (n == null || n < 1)
+          return AppLocalizations.of(context)!.enterValidDays;
         return null;
       },
       enabled: enabled,

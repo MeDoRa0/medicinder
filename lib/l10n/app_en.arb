@@ -557,5 +557,27 @@
         "example": "2026-04-03 10:00"
       }
     }
+  },
+  "syncFailedOperationsBadge": "{count} operation(s) failed to sync",
+  "@syncFailedOperationsBadge": {
+    "description": "Badge text showing count of permanently failed sync operations",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "syncFailedOperationsDetails": "Tap to view failed operations",
+  "@syncFailedOperationsDetails": {
+    "description": "Hint text prompting user to tap for failed operation details"
+  },
+  "syncPermanentlyFailedTitle": "Failed Operations",
+  "@syncPermanentlyFailedTitle": {
+    "description": "Title for the permanently failed operations screen"
+  },
+  "syncNoFailedOperations": "No permanently failed operations",
+  "@syncNoFailedOperations": {
+    "description": "Message shown when there are no permanently failed operations"
   }
 }

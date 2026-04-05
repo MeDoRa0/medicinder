@@ -35,7 +35,9 @@ class SyncAccountTile extends StatelessWidget {
           child: Card(
             child: ListTile(
               leading: Icon(
-                isSignedIn ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
+                isSignedIn
+                    ? Icons.cloud_done_outlined
+                    : Icons.cloud_off_outlined,
               ),
               title: Text(l10n.syncStatusTitle),
               subtitle: Text(subtitle),
