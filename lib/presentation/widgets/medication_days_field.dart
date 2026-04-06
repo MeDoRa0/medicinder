@@ -24,11 +24,13 @@ class MedicationDaysField extends StatelessWidget {
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       validator: (v) {
         if (repeatForever) return null;
-        if (v == null || v.isEmpty)
+        if (v == null || v.isEmpty) {
           return AppLocalizations.of(context)!.required;
+        }
         final n = int.tryParse(v);
-        if (n == null || n < 1)
+        if (n == null || n < 1) {
           return AppLocalizations.of(context)!.enterValidDays;
+        }
         return null;
       },
       enabled: enabled,

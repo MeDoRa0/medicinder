@@ -150,6 +150,26 @@ class MedicationCubit extends Cubit<MedicationState> {
     }
   }
 
+  Future<void> updateMedication(Medication medication) async {
+    try {
+      log('MedicationCubit: Updating medication: ${medication.id}');
+      await _updateMedication(medication);
+
+      // T012: Reschedule notifications immediately for offline edit support
+      await NotificationOptimizer().cancelMedicationNotifications(medication.id);
+      await NotificationOptimizer().scheduleNextDoseNotification(
+        medication, 
+        context: navigatorKey.currentContext,
+      );
+
+      await loadMedications();
+      log('MedicationCubit: Medication updated successfully');
+    } catch (e) {
+      log('MedicationCubit: Error updating medication: $e');
+      emit(MedicationError(e.toString()));
+    }
+  }
+
   Future<void> markDoseTaken(
     String medicationId,
     int doseIndex,

@@ -1,0 +1,20 @@
+00:00 +0: loading C:/Users/medo2/Desktop/programming/medicinder/test/core/services/sync/notification_sync_service_test.dart
+00:00 +0: NotificationSync सर्विस returns early if changedMedicationIds is empty
+00:00 +0 -1: NotificationSync सर्विस returns early if changedMedicationIds is empty [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                                                    expect
+  package:flutter_test/src/widget_tester.dart 473:18                 expect
+  test\core\services\sync\notification_sync_service_test.dart 105:7  main.<fn>.<fn>
+  
+00:00 +0 -1: NotificationSync सर्विस ignores changed IDs if not found in repository
+00:00 +1 -1: NotificationSync सर्विस regenerates notifications for existing medications
+00:00 +1 -2: NotificationSync सर्विस regenerates notifications for existing medications [E]
+  Bad state: No element
+  dart:core                                                           List.first
+  test\core\services\sync\notification_sync_service_test.dart 137:52  main.<fn>.<fn>
+  
+00:00 +1 -2: NotificationSync सर्विस returns permissionDenied if user denies notification permission
+00:00 +2 -2: NotificationSync सर्विस cancelAllMedicationNotifications delegates to optimizer
+00:00 +3 -2: Some tests failed.

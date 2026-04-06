@@ -72,7 +72,9 @@ class _FakeBox<E> implements Box<E> {
 
   @override
   Future<void> deleteAll(Iterable<dynamic> keys) async {
-    for (final k in keys) _store.remove(k);
+    for (final k in keys) {
+      _store.remove(k);
+    }
   }
 
   @override
@@ -111,7 +113,9 @@ class _FakeBox<E> implements Box<E> {
   @override
   Future<Iterable<int>> addAll(Iterable<E> values) async {
     final keys = <int>[];
-    for (final v in values) keys.add(await add(v));
+    for (final v in values) {
+      keys.add(await add(v));
+    }
     return keys;
   }
 

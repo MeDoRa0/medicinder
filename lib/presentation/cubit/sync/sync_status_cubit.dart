@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/services/sync/connectivity_signal_service.dart';
 import '../../../core/services/sync/sync_diagnostics.dart';
+import '../../../core/services/sync/notification_sync_service.dart';
 import '../../../domain/entities/sync/auth_session.dart';
 import '../../../domain/entities/sync/sync_status_view_state.dart';
 import '../../../domain/entities/sync/sync_types.dart';
@@ -23,6 +24,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   final SyncDiagnostics _syncDiagnostics;
   final ConnectivitySignalService _connectivitySignal;
   final SyncQueueLocalDataSource _syncQueue;
+  final NotificationSyncService _notificationSyncService;
   StreamSubscription<AuthSession>? _sessionSubscription;
   StreamSubscription<void>? _connectivitySubscription;
   bool _hasSeenSessionEvent = false;
@@ -36,6 +38,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     required SyncDiagnostics syncDiagnostics,
     required ConnectivitySignalService connectivitySignal,
     required SyncQueueLocalDataSource syncQueue,
+    required NotificationSyncService notificationSyncService,
   }) : _signInForSync = signInForSync,
        _signOutFromSync = signOutFromSync,
        _watchAuthSession = watchAuthSession,
@@ -43,6 +46,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
        _syncDiagnostics = syncDiagnostics,
        _connectivitySignal = connectivitySignal,
        _syncQueue = syncQueue,
+       _notificationSyncService = notificationSyncService,
        super(const SyncStatusState.initial());
 
   void initialize() {
@@ -90,6 +94,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   Future<void> signOut() async {
     await _signOutFromSync();
     _ignoreNextSignedInUserId = null;
+    await _notificationSyncService.cancelAllMedicationNotifications();
     emit(
       state.copyWith(
         viewState: SyncStatusViewState.signedOut,
@@ -110,6 +115,11 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     );
     try {
       final result = await _syncRepository.synchronize();
+      if (result.success && result.changedMedicationIds.isNotEmpty) {
+        await _notificationSyncService.regenerateNotifications(
+          changedMedicationIds: result.changedMedicationIds,
+        );
+      }
       final failedCount = _syncQueue.countPermanentlyFailedChanges(
         userId: state.userId,
       );
@@ -161,6 +171,11 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
       final result = await _syncRepository.syncNow(
         SyncTrigger.connectivityRestored,
       );
+      if (result.success && result.changedMedicationIds.isNotEmpty) {
+        await _notificationSyncService.regenerateNotifications(
+          changedMedicationIds: result.changedMedicationIds,
+        );
+      }
       await _refreshFailedCount();
       emit(
         state.copyWith(
@@ -279,6 +294,11 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
 
     try {
       final result = await _syncRepository.syncNow(trigger);
+      if (result.success && result.changedMedicationIds.isNotEmpty) {
+        await _notificationSyncService.regenerateNotifications(
+          changedMedicationIds: result.changedMedicationIds,
+        );
+      }
       await _refreshFailedCount();
       emit(
         state.copyWith(

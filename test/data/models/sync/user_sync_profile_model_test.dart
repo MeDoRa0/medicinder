@@ -10,7 +10,7 @@ void main() {
   final lastSuccessAt = DateTime(2026, 4, 1, 10);
   final lastFailureAt = DateTime(2026, 4, 1, 11);
 
-  UserSyncProfile _buildProfile({
+  UserSyncProfile buildProfile({
     String userId = 'user-1',
     List<String> providerIds = const ['anonymous'],
     bool syncEnabled = true,
@@ -46,7 +46,7 @@ void main() {
   group('UserSyncProfileModel', () {
     group('fromEntity', () {
       test('maps all core fields correctly', () {
-        final profile = _buildProfile(
+        final profile = buildProfile(
           lastPushedCount: 5,
           lastPulledCount: 3,
           lastFailedCount: 1,
@@ -69,7 +69,7 @@ void main() {
       });
 
       test('maps null lastTrigger as null index', () {
-        final profile = _buildProfile(lastTrigger: null);
+        final profile = buildProfile(lastTrigger: null);
 
         final model = UserSyncProfileModel.fromEntity(profile);
 
@@ -77,7 +77,7 @@ void main() {
       });
 
       test('maps optional datetime fields', () {
-        final profile = _buildProfile().copyWith(
+        final profile = buildProfile().copyWith(
           lastSuccessAt: lastSuccessAt,
           lastFailureAt: lastFailureAt,
           message: 'All good',
@@ -232,7 +232,7 @@ void main() {
 
     group('roundtrip', () {
       test('fromEntity then toEntity preserves all fields', () {
-        final original = _buildProfile(
+        final original = buildProfile(
           lastPushedCount: 7,
           lastPulledCount: 4,
           lastFailedCount: 2,
