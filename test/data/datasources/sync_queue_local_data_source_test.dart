@@ -5,8 +5,7 @@ import 'package:medicinder/data/models/sync/pending_change_model.dart';
 import 'package:medicinder/data/models/sync_operation_model.dart';
 import 'package:medicinder/domain/entities/sync/pending_change.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart';
-import 'package:medicinder/domain/entities/sync_operation.dart'
-    hide SyncEntityType, SyncOperationType;
+import 'package:medicinder/domain/entities/sync_operation.dart';
 
 // Minimal in-memory Box fake for testing without Hive initialization.
 class _FakeBox<E> implements Box<E> {
@@ -56,13 +55,20 @@ class _FakeBox<E> implements Box<E> {
   bool containsKey(dynamic key) => _store.containsKey(key);
 
   @override
-  Future<void> clear() async => _store.clear();
-
-  @override
-  Future<void> close() async {}
+  Future<int> clear() async {
+    final count = _store.length;
+    _store.clear();
+    return count;
+  }
 
   @override
   Future<void> compact() async {}
+
+  @override
+  Future<void> flush() async {}
+
+  @override
+  Future<void> close() async {}
 
   @override
   Future<void> deleteAll(Iterable<dynamic> keys) async {
@@ -171,37 +177,47 @@ void main() {
         expect(result.first.changeId, 'c-1');
       });
 
-      test('returns empty list when no pending changes and no legacy operations', () async {
-        final queue = _buildQueue();
+      test(
+        'returns empty list when no pending changes and no legacy operations',
+        () async {
+          final queue = _buildQueue();
 
-        final result = await queue.getEffectivePendingChanges(userId: 'user-1');
+          final result = await queue.getEffectivePendingChanges(
+            userId: 'user-1',
+          );
 
-        expect(result, isEmpty);
-      });
+          expect(result, isEmpty);
+        },
+      );
 
-      test('falls back to legacy operations when no pending changes exist', () async {
-        final legacyBox = _FakeBox<SyncOperationModel>();
-        final queue = _buildQueue(legacyBox: legacyBox);
+      test(
+        'falls back to legacy operations when no pending changes exist',
+        () async {
+          final legacyBox = _FakeBox<SyncOperationModel>();
+          final queue = _buildQueue(legacyBox: legacyBox);
 
-        // Add a legacy SyncOperation
-        final legacyOp = SyncOperation(
-          id: 'legacy-op-1',
-          entityType: SyncEntityType.medication,
-          entityId: 'med-legacy',
-          type: SyncOperationType.update,
-          createdAt: DateTime(2026, 4, 1, 8),
-        );
-        await queue.enqueue(legacyOp);
+          // Add a legacy SyncOperation
+          final legacyOp = SyncOperation(
+            id: 'legacy-op-1',
+            entityType: SyncEntityType.medication,
+            entityId: 'med-legacy',
+            type: SyncOperationType.update,
+            createdAt: DateTime(2026, 4, 1, 8),
+          );
+          await queue.enqueue(legacyOp);
 
-        final result = await queue.getEffectivePendingChanges(userId: 'user-1');
+          final result = await queue.getEffectivePendingChanges(
+            userId: 'user-1',
+          );
 
-        expect(result, hasLength(1));
-        expect(result.first.changeId, 'legacy-op-1');
-        expect(result.first.entityId, 'med-legacy');
-        expect(result.first.operation, SyncOperationType.update);
-        expect(result.first.userId, 'user-1');
-        expect(result.first.status, SyncOperationStatus.pending);
-      });
+          expect(result, hasLength(1));
+          expect(result.first.changeId, 'legacy-op-1');
+          expect(result.first.entityId, 'med-legacy');
+          expect(result.first.operation, SyncOperationType.update);
+          expect(result.first.userId, 'user-1');
+          expect(result.first.status, SyncOperationStatus.pending);
+        },
+      );
 
       test('legacy fallback maps delete operation correctly', () async {
         final queue = _buildQueue();
@@ -235,29 +251,34 @@ void main() {
         expect(result.first.operation, SyncOperationType.create);
       });
 
-      test('prefers pending changes over legacy operations when both exist', () async {
-        final queue = _buildQueue();
-        // Add a pending change
-        await queue.enqueuePendingChange(
-          _buildPendingChange(changeId: 'new-c-1', userId: 'user-1'),
-        );
-        // Also add a legacy operation
-        await queue.enqueue(
-          SyncOperation(
-            id: 'legacy-op-old',
-            entityType: SyncEntityType.medication,
-            entityId: 'med-old',
-            type: SyncOperationType.update,
-            createdAt: DateTime(2026, 4, 1, 8),
-          ),
-        );
+      test(
+        'prefers pending changes over legacy operations when both exist',
+        () async {
+          final queue = _buildQueue();
+          // Add a pending change
+          await queue.enqueuePendingChange(
+            _buildPendingChange(changeId: 'new-c-1', userId: 'user-1'),
+          );
+          // Also add a legacy operation
+          await queue.enqueue(
+            SyncOperation(
+              id: 'legacy-op-old',
+              entityType: SyncEntityType.medication,
+              entityId: 'med-old',
+              type: SyncOperationType.update,
+              createdAt: DateTime(2026, 4, 1, 8),
+            ),
+          );
 
-        final result = await queue.getEffectivePendingChanges(userId: 'user-1');
+          final result = await queue.getEffectivePendingChanges(
+            userId: 'user-1',
+          );
 
-        // Should only return the pending change, not the legacy operation
-        expect(result, hasLength(1));
-        expect(result.first.changeId, 'new-c-1');
-      });
+          // Should only return the pending change, not the legacy operation
+          expect(result, hasLength(1));
+          expect(result.first.changeId, 'new-c-1');
+        },
+      );
     });
 
     group('enqueuePendingChange and listPendingChanges', () {

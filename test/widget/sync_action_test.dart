@@ -9,6 +9,7 @@ import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart';
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/repositories/sync_repository.dart';
+import 'package:medicinder/domain/entities/sync_operation.dart';
 import 'package:medicinder/domain/usecases/sync/sign_in_for_sync.dart';
 import 'package:medicinder/domain/usecases/sync/sign_out_from_sync.dart';
 import 'package:medicinder/domain/usecases/sync/watch_auth_session.dart';
@@ -89,6 +90,9 @@ class _MockSyncStatusCubit extends SyncStatusCubit {
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
   @override
   Future<void> enqueuePendingChange(PendingChange change) async {}
+
+  @override
+  Future<void> enqueue(SyncOperation operation) async {}
 
   @override
   Future<List<PendingChange>> listPendingChanges({String? userId}) async =>

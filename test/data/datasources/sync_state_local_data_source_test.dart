@@ -61,7 +61,14 @@ class _FakeBox<E> implements Box<E> {
   bool containsKey(dynamic key) => _store.containsKey(key);
 
   @override
-  Future<void> clear() async => _store.clear();
+  Future<int> clear() async {
+    final count = _store.length;
+    _store.clear();
+    return count;
+  }
+
+  @override
+  Future<void> flush() async {}
 
   @override
   Future<void> close() async {}
@@ -201,18 +208,24 @@ void main() {
         expect(status, SyncStatusViewState.signedOut);
       });
 
-      test('returns signedOut when no profiles exist for given userId', () async {
-        final ds = _buildDataSource();
+      test(
+        'returns signedOut when no profiles exist for given userId',
+        () async {
+          final ds = _buildDataSource();
 
-        final status = await ds.getStatus('user-1');
+          final status = await ds.getStatus('user-1');
 
-        expect(status, SyncStatusViewState.signedOut);
-      });
+          expect(status, SyncStatusViewState.signedOut);
+        },
+      );
 
       test('returns profile status when profile exists for userId', () async {
         final ds = _buildDataSource();
         await ds.saveProfile(
-          _buildProfile(userId: 'user-1', statusViewState: SyncStatusViewState.syncFailed),
+          _buildProfile(
+            userId: 'user-1',
+            statusViewState: SyncStatusViewState.syncFailed,
+          ),
         );
 
         final status = await ds.getStatus('user-1');
@@ -223,7 +236,10 @@ void main() {
       test('returns first profile status when no userId given', () async {
         final ds = _buildDataSource();
         await ds.saveProfile(
-          _buildProfile(userId: 'user-1', statusViewState: SyncStatusViewState.syncing),
+          _buildProfile(
+            userId: 'user-1',
+            statusViewState: SyncStatusViewState.syncing,
+          ),
         );
 
         final status = await ds.getStatus();
@@ -314,7 +330,9 @@ void main() {
 
       test('filters by userId when provided', () async {
         final ds = _buildDataSource();
-        await ds.saveConflict(_buildConflict(entityId: 'med-1', userId: 'user-A'));
+        await ds.saveConflict(
+          _buildConflict(entityId: 'med-1', userId: 'user-A'),
+        );
         // Force a different key by using a different resolvedAt
         final conflictB = ConflictMetadata(
           entityType: SyncEntityType.medication,
@@ -327,8 +345,14 @@ void main() {
         );
         await ds.saveConflict(conflictB);
 
-        final resultsA = await ds.getConflictsForEntity('med-1', userId: 'user-A');
-        final resultsB = await ds.getConflictsForEntity('med-1', userId: 'user-B');
+        final resultsA = await ds.getConflictsForEntity(
+          'med-1',
+          userId: 'user-A',
+        );
+        final resultsB = await ds.getConflictsForEntity(
+          'med-1',
+          userId: 'user-B',
+        );
 
         expect(resultsA, hasLength(1));
         expect(resultsA.first.userId, 'user-A');
@@ -338,7 +362,9 @@ void main() {
 
       test('returns all conflicts for entity when userId is null', () async {
         final ds = _buildDataSource();
-        await ds.saveConflict(_buildConflict(entityId: 'med-1', userId: 'user-A'));
+        await ds.saveConflict(
+          _buildConflict(entityId: 'med-1', userId: 'user-A'),
+        );
         final conflictB = ConflictMetadata(
           entityType: SyncEntityType.medication,
           entityId: 'med-1',
@@ -362,7 +388,10 @@ void main() {
         await ds.saveConflict(conflict1);
         await ds.saveConflict(conflict1);
 
-        final results = await ds.getConflictsForEntity('med-1', userId: 'user-1');
+        final results = await ds.getConflictsForEntity(
+          'med-1',
+          userId: 'user-1',
+        );
 
         // Duplicate key results in one entry (overwrite)
         expect(results, hasLength(1));

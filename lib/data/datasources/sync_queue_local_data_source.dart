@@ -1,46 +1,79 @@
 import 'package:hive/hive.dart';
 
 import '../../domain/entities/sync/pending_change.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../domain/entities/sync/sync_types.dart';
 import '../models/sync/pending_change_model.dart';
+import '../models/sync_operation_model.dart';
 
 class SyncQueueLocalDataSource {
+  final Box<SyncOperationModel> _legacyOperationBox;
   final Box<PendingChangeModel> _pendingChangeBox;
 
-  SyncQueueLocalDataSource(this._pendingChangeBox);
+  SyncQueueLocalDataSource(this._legacyOperationBox, this._pendingChangeBox);
 
   Future<List<PendingChange>> getEffectivePendingChanges({
     String? userId,
   }) async {
-    final changes = await listPendingChanges(userId: userId);
-    final eligible = changes.where((change) {
-      final status = change.status;
-      if (status != SyncOperationStatus.pending &&
-          status != SyncOperationStatus.inFlight) {
-        return false;
-      }
-      if (change.attemptCount >= 9) {
-        return false;
-      }
-      if (change.lastAttemptAt != null) {
-        final backoffSeconds = 1 << change.attemptCount;
-        final cappedBackoffSeconds = backoffSeconds > 300
-            ? 300
-            : backoffSeconds;
-        final nextRetryAt = change.lastAttemptAt!.add(
-          Duration(seconds: cappedBackoffSeconds),
-        );
-        if (DateTime.now().isBefore(nextRetryAt)) {
-          return false;
-        }
-      }
-      return true;
-    }).toList();
+    final pendingChanges = await listPendingChanges(userId: userId);
+    if (pendingChanges.isNotEmpty) {
+      return await _coalescePendingChanges(pendingChanges);
+    }
 
-    return await _coalescePendingChanges(eligible);
+    final legacyChanges = _legacyOperationBox.values
+        .map((model) => model.toEntity())
+        .map((operation) => _convertLegacyOperation(operation, userId))
+        .where((change) {
+          final status = change.status;
+          if (status != SyncOperationStatus.pending &&
+              status != SyncOperationStatus.inFlight) {
+            return false;
+          }
+          if (change.attemptCount >= 9) {
+            return false;
+          }
+          if (change.lastAttemptAt != null) {
+            final backoffSeconds = 1 << change.attemptCount;
+            final cappedBackoffSeconds = backoffSeconds > 300
+                ? 300
+                : backoffSeconds;
+            final nextRetryAt = change.lastAttemptAt!.add(
+              Duration(seconds: cappedBackoffSeconds),
+            );
+            if (DateTime.now().isBefore(nextRetryAt)) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .toList();
+
+    legacyChanges.sort((a, b) => a.queuedAt.compareTo(b.queuedAt));
+    return legacyChanges;
   }
 
-  Future<List<PendingChange>> _coalescePendingChanges(List<PendingChange> changes) async {
+  PendingChange _convertLegacyOperation(
+    SyncOperation operation,
+    String? userId,
+  ) {
+    return PendingChange(
+      changeId: operation.id,
+      entityType: operation.entityType,
+      entityId: operation.entityId,
+      operation: operation.type,
+      queuedAt: operation.createdAt,
+      sourceUpdatedAt: operation.createdAt,
+      attemptCount: operation.attemptCount,
+      lastAttemptAt: operation.lastAttemptAt,
+      status: SyncOperationStatus.pending,
+      userId: userId,
+      errorMessage: operation.errorMessage,
+    );
+  }
+
+  Future<List<PendingChange>> _coalescePendingChanges(
+    List<PendingChange> changes,
+  ) async {
     if (changes.isEmpty) return changes;
 
     final List<PendingChange> coalesced = [];
@@ -48,7 +81,9 @@ class SyncQueueLocalDataSource {
 
     for (final change in changes) {
       final entityId = change.entityId;
-      final previousIndex = coalesced.lastIndexWhere((c) => c.entityId == entityId);
+      final previousIndex = coalesced.lastIndexWhere(
+        (c) => c.entityId == entityId,
+      );
 
       if (previousIndex == -1) {
         coalesced.add(change);
@@ -85,6 +120,13 @@ class SyncQueueLocalDataSource {
     }
 
     return coalesced;
+  }
+
+  Future<void> enqueue(SyncOperation operation) async {
+    await _legacyOperationBox.put(
+      operation.id,
+      SyncOperationModel.fromEntity(operation),
+    );
   }
 
   Future<void> enqueuePendingChange(PendingChange change) async {
@@ -127,7 +169,7 @@ class SyncQueueLocalDataSource {
     if (current == null) {
       return;
     }
-    final newAttemptCount = current.attemptCount; // Already incremented by markPendingChangeInFlight
+    final newAttemptCount = current.attemptCount + 1;
     await enqueuePendingChange(
       current.copyWith(
         status: newAttemptCount >= 9

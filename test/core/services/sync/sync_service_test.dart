@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/core/services/sync/conflict_resolver.dart';
 import 'package:medicinder/core/services/sync/sync_service.dart';
@@ -10,6 +9,7 @@ import 'package:medicinder/domain/entities/medication.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/conflict_metadata.dart';
 import 'package:medicinder/domain/entities/sync/pending_change.dart';
+import 'package:medicinder/domain/entities/sync_operation.dart';
 import 'package:medicinder/domain/entities/sync/sync_cycle_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/user_sync_profile.dart';
@@ -17,7 +17,6 @@ import 'package:medicinder/domain/entities/sync_metadata.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart' as sync_types;
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
-import 'package:medicinder/domain/repositories/sync_repository.dart';
 
 void main() {
   group('SyncService', () {
@@ -408,6 +407,11 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
   @override
   Future<void> markPendingChangeSucceeded(String changeId) async {
     pendingChanges.removeWhere((c) => c.changeId == changeId);
+  }
+
+  @override
+  Future<void> enqueue(SyncOperation operation) async {
+    // no-op for tests that use the new PendingChange API
   }
 
   @override

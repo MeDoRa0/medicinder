@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
+import 'package:medicinder/domain/entities/sync_operation.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/pending_change.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
@@ -245,6 +246,9 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
   Future<void> enqueuePendingChange(PendingChange change) async {
     pendingChanges.add(change);
   }
+
+  @override
+  Future<void> enqueue(SyncOperation operation) async {}
 
   @override
   Future<List<PendingChange>> listPendingChanges({String? userId}) async =>

@@ -55,13 +55,20 @@ class _FakeBox<E> implements Box<E> {
   bool containsKey(dynamic key) => _store.containsKey(key);
 
   @override
-  Future<void> clear() async => _store.clear();
+  Future<int> clear() async {
+    final count = _store.length;
+    _store.clear();
+    return count;
+  }
 
   @override
-  Future<void> close() async {}
+  Future<void> flush() async {}
 
   @override
   Future<void> compact() async {}
+
+  @override
+  Future<void> close() async {}
 
   @override
   Future<void> deleteAll(Iterable<dynamic> keys) async {
@@ -112,7 +119,8 @@ class _FakeBox<E> implements Box<E> {
   Stream<BoxEvent> watch({dynamic key}) => const Stream.empty();
 
   @override
-  Iterable<E> valuesBetween({dynamic startKey, dynamic endKey}) => _store.values;
+  Iterable<E> valuesBetween({dynamic startKey, dynamic endKey}) =>
+      _store.values;
 
   @override
   dynamic keyAt(int index) => _store.keys.elementAt(index);
@@ -145,33 +153,39 @@ void main() {
       expect(profile, isNull);
     });
 
-    test('getProfile delegates to syncState and returns the stored profile', () async {
-      final syncState = _buildSyncState();
-      final storedProfile = UserSyncProfile(
-        userId: 'user-1',
-        syncEnabled: true,
-        createdAt: DateTime(2026, 4, 1),
-        updatedAt: DateTime(2026, 4, 1),
-        statusViewState: SyncStatusViewState.ready,
-      );
-      await syncState.saveProfile(storedProfile);
+    test(
+      'getProfile delegates to syncState and returns the stored profile',
+      () async {
+        final syncState = _buildSyncState();
+        final storedProfile = UserSyncProfile(
+          userId: 'user-1',
+          syncEnabled: true,
+          createdAt: DateTime(2026, 4, 1),
+          updatedAt: DateTime(2026, 4, 1),
+          statusViewState: SyncStatusViewState.ready,
+        );
+        await syncState.saveProfile(storedProfile);
 
-      final diagnostics = SyncDiagnostics(syncState);
-      final profile = await diagnostics.getProfile('user-1');
+        final diagnostics = SyncDiagnostics(syncState);
+        final profile = await diagnostics.getProfile('user-1');
 
-      expect(profile, isNotNull);
-      expect(profile!.userId, 'user-1');
-      expect(profile.statusViewState, SyncStatusViewState.ready);
-    });
+        expect(profile, isNotNull);
+        expect(profile!.userId, 'user-1');
+        expect(profile.statusViewState, SyncStatusViewState.ready);
+      },
+    );
 
-    test('getProfile returns null when syncState has no profile for userId', () async {
-      final syncState = _buildSyncState();
-      final diagnostics = SyncDiagnostics(syncState);
+    test(
+      'getProfile returns null when syncState has no profile for userId',
+      () async {
+        final syncState = _buildSyncState();
+        final diagnostics = SyncDiagnostics(syncState);
 
-      final profile = await diagnostics.getProfile('nonexistent-user');
+        final profile = await diagnostics.getProfile('nonexistent-user');
 
-      expect(profile, isNull);
-    });
+        expect(profile, isNull);
+      },
+    );
 
     test('logSyncEvent with all optional parameters does not throw', () {
       const diagnostics = SyncDiagnostics();

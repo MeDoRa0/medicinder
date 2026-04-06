@@ -18,6 +18,7 @@ import '../../data/models/sync/conflict_metadata_model.dart';
 import '../../data/models/sync/pending_change_model.dart';
 import '../../data/models/sync/sync_cycle_state_model.dart';
 import '../../data/models/sync/user_sync_profile_model.dart';
+import '../../data/models/sync_operation_model.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/repositories/medication_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -88,6 +89,10 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   );
   syncCycleBox = await Hive.openBox<SyncCycleStateModel>('sync_cycles');
 
+  final legacySyncOperationBox = await Hive.openBox<SyncOperationModel>(
+    'sync_operations_legacy',
+  );
+
   // Migrate legacy sync_queue box (no longer needed after PendingChange migration)
   try {
     if (await Hive.boxExists('sync_queue')) {
@@ -95,23 +100,27 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
         Hive.registerAdapter(_LegacySyncOperationAdapter());
       }
       final legacyBox = await Hive.openBox<Map<dynamic, dynamic>>('sync_queue');
-      
+
       for (final key in legacyBox.keys) {
         final legacyMap = legacyBox.get(key);
         if (legacyMap == null) continue;
-        
+
         final changeId = legacyMap['id'] as String?;
         final operationIndex = legacyMap['typeIndex'] as int?;
         final entityId = legacyMap['entityId'] as String?;
         final entityTypeIndex = legacyMap['entityTypeIndex'] as int?;
         final queuedAt = legacyMap['createdAt'] as DateTime?;
-        
-        if (changeId == null || operationIndex == null || entityId == null || entityTypeIndex == null || queuedAt == null) {
+
+        if (changeId == null ||
+            operationIndex == null ||
+            entityId == null ||
+            entityTypeIndex == null ||
+            queuedAt == null) {
           continue;
         }
 
         Map<String, dynamic>? payload;
-        
+
         // operationIndex: 0 = create, 1 = update, 2 = delete
         if (operationIndex == 0 || operationIndex == 1) {
           try {
@@ -123,7 +132,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
             continue;
           }
         }
-        
+
         final changeModel = PendingChangeModel(
           changeId: changeId,
           entityTypeIndex: entityTypeIndex,
@@ -137,7 +146,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
           errorMessage: legacyMap['errorMessage'] as String?,
           statusIndex: 0,
         );
-        
+
         await pendingChangeBox.put(changeModel.changeId, changeModel);
       }
       await legacyBox.clear();
@@ -155,7 +164,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
     () => MedicationLocalDataSource(medicationBox),
   );
   sl.registerLazySingleton<SyncQueueLocalDataSource>(
-    () => SyncQueueLocalDataSource(pendingChangeBox),
+    () => SyncQueueLocalDataSource(legacySyncOperationBox, pendingChangeBox),
   );
   sl.registerLazySingleton<SyncStateLocalDataSource>(
     () => SyncStateLocalDataSource(
