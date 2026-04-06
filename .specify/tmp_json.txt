@@ -1,0 +1,1 @@
+﻿{"FEATURE_SPEC":"C:\\Users\\medo2\\Desktop\\programming\\medicinder\\specs\\007-notification-sync\\spec.md","IMPL_PLAN":"C:\\Users\\medo2\\Desktop\\programming\\medicinder\\specs\\007-notification-sync\\plan.md","SPECS_DIR":"C:\\Users\\medo2\\Desktop\\programming\\medicinder\\specs\\007-notification-sync","BRANCH":"007-notification-sync","HAS_GIT":true}
