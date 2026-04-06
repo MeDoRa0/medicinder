@@ -19,6 +19,7 @@ import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_cubit.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_state.dart';
 import 'package:medicinder/presentation/widgets/sync/sync_status_banner.dart';
+import '../helpers/fake_notification_sync_service.dart';
 
 void main() {
   testWidgets('renders signed out sync status', (tester) async {
@@ -33,6 +34,7 @@ void main() {
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
           syncQueue: _FakeSyncQueue(),
+          notificationSyncService: FakeNotificationSyncService(),
         ),
       ),
     );
@@ -52,6 +54,7 @@ void main() {
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
           syncQueue: _FakeSyncQueue(),
+          notificationSyncService: FakeNotificationSyncService(),
         )..seed(
           const SyncStatusState(
             viewState: SyncStatusViewState.ready,
@@ -75,6 +78,7 @@ void main() {
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
           syncQueue: _FakeSyncQueue(),
+          notificationSyncService: FakeNotificationSyncService(),
         )..seed(
           const SyncStatusState(
             viewState: SyncStatusViewState.syncing,
@@ -153,6 +157,7 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
     required super.syncDiagnostics,
     required super.connectivitySignal,
     required super.syncQueue,
+    required super.notificationSyncService,
   });
 
   void seed(SyncStatusState state) => emit(state);

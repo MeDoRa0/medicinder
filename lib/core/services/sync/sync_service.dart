@@ -83,6 +83,7 @@ class SyncService implements SyncRepository {
       var pushedCount = 0;
       var failedCount = 0;
       var pulledCount = 0;
+      List<String> changedMedicationIds = [];
       String? message;
 
       const batchSize = 20;
@@ -121,7 +122,8 @@ class SyncService implements SyncRepository {
 
       if (message == null) {
         try {
-          pulledCount = await _pullRemoteChanges(userId: userId);
+          changedMedicationIds = await _pullRemoteChanges(userId: userId);
+          pulledCount = changedMedicationIds.length;
         } on CloudSyncDisabledException catch (error) {
           message = error.toString();
         } catch (error) {
@@ -196,6 +198,7 @@ class SyncService implements SyncRepository {
         failedCount: failedCount,
         pulledCount: pulledCount,
         userId: userId,
+        changedMedicationIds: changedMedicationIds,
         message:
             message ??
             (failedCount == 0
@@ -242,7 +245,7 @@ class SyncService implements SyncRepository {
     );
   }
 
-  Future<int> _pullRemoteChanges({required String userId}) async {
+  Future<List<String>> _pullRemoteChanges({required String userId}) async {
     final remoteMedications = await _remoteDataSource.pullMedications(userId);
     final localMedications = await _medicationRepository.getMedications(
       includeDeleted: true,
@@ -251,12 +254,15 @@ class SyncService implements SyncRepository {
       for (final medication in localMedications) medication.id: medication,
     };
 
+    final List<String> changedIds = [];
+
     for (final remoteMedication in remoteMedications) {
       final localMedication = localById[remoteMedication.id];
       if (localMedication == null) {
         await _medicationRepository.saveSyncedMedication(
           remoteMedication.copyWith(userId: userId).markSynced(DateTime.now()),
         );
+        changedIds.add(remoteMedication.id);
         continue;
       }
 
@@ -293,7 +299,8 @@ class SyncService implements SyncRepository {
       );
 
       await _medicationRepository.saveSyncedMedication(resolvedMedication);
+      changedIds.add(remoteMedication.id);
     }
-    return remoteMedications.length;
+    return changedIds;
   }
 }

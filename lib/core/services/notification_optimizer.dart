@@ -263,4 +263,9 @@ class NotificationOptimizer {
           : null,
     };
   }
+
+  /// Check if notifications are allowed
+  Future<bool> isNotificationAllowed() async {
+    return await AwesomeNotifications().isNotificationAllowed();
+  }
 }

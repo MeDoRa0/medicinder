@@ -8,6 +8,8 @@ import '../../core/services/sync/conflict_resolver.dart';
 import '../../core/services/sync/sync_diagnostics.dart';
 import '../../core/services/sync/sync_service.dart';
 import '../../core/services/sync/connectivity_signal_service.dart';
+import '../../core/services/sync/notification_sync_service.dart';
+import '../../core/services/notification_optimizer.dart';
 import '../../data/datasources/auth/auth_remote_data_source.dart';
 import '../../data/datasources/medication_remote_data_source.dart';
 import '../../data/datasources/medication_local_data_source.dart';
@@ -224,6 +226,13 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   // sl.registerLazySingleton<NotificationService>(() => NotificationService());
   sl.registerLazySingleton<NotificationHandler>(() => NotificationHandler());
   sl.registerLazySingleton<SyncDiagnostics>(() => SyncDiagnostics(sl()));
+  sl.registerLazySingleton<NotificationSyncService>(
+    () => NotificationSyncService(
+      medicationRepository: sl(),
+      notificationOptimizer: NotificationOptimizer(),
+      syncDiagnostics: sl(),
+    ),
+  );
   sl.registerLazySingleton<MedicationConflictResolver>(
     () => const MedicationConflictResolver(),
   );
@@ -248,6 +257,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
       syncDiagnostics: sl(),
       connectivitySignal: sl(),
       syncQueue: sl(),
+      notificationSyncService: sl(),
     ),
   );
 }

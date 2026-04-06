@@ -15,6 +15,8 @@ import 'package:medicinder/domain/usecases/sync/sign_out_from_sync.dart';
 import 'package:medicinder/domain/usecases/sync/watch_auth_session.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_cubit.dart';
 
+import '../../../helpers/fake_notification_sync_service.dart';
+
 void main() {
   group('SyncStatusCubit', () {
     test('initializes as signed out when no session exists', () async {
@@ -27,6 +29,7 @@ void main() {
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
         syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
       );
 
       cubit.initialize();
@@ -46,6 +49,7 @@ void main() {
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
         syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
       );
 
       await cubit.signIn();
@@ -65,6 +69,7 @@ void main() {
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
         syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
       );
 
       await cubit.retry();
@@ -83,6 +88,7 @@ void main() {
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
         syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
       );
 
       await cubit.signIn();
@@ -108,6 +114,7 @@ void main() {
         syncDiagnostics: const SyncDiagnostics(),
         connectivitySignal: _FakeConnectivitySignalService(),
         syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
       );
 
       cubit.initialize();
@@ -137,6 +144,7 @@ void main() {
             syncDiagnostics: const SyncDiagnostics(),
             connectivitySignal: _FakeConnectivitySignalService(),
             syncQueue: _FakeSyncQueue(),
+            notificationSyncService: FakeNotificationSyncService(),
           );
 
           cubit.initialize();
@@ -163,6 +171,7 @@ void main() {
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: connectivitySignal,
           syncQueue: _FakeSyncQueue(),
+          notificationSyncService: FakeNotificationSyncService(),
         );
 
         cubit.initialize();

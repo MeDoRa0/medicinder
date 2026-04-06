@@ -23,7 +23,7 @@
 
 **Purpose**: No new dependencies or Hive boxes needed. This phase creates the new entity, extends existing data structures, and verifies a prerequisite method. ALL user stories depend on these.
 
-- [ ] T001 [P] Create `NotificationRegenerationSummary` entity in `lib/domain/entities/sync/notification_regen_summary.dart`
+- [x] T001 [P] Create `NotificationRegenerationSummary` entity in `lib/domain/entities/sync/notification_regen_summary.dart`
 
 > **T001 — Full context for implementation**:
 >
@@ -71,9 +71,9 @@
 > }
 > ```
 
-- [ ] T002 [P] Add `changedMedicationIds` field to `SyncResult` in `lib/domain/repositories/sync_repository.dart`
+- [x] T002 [P] Add `changedMedicationIds` field to `SyncResult` in `lib/domain/repositories/sync_repository.dart`
 
-- [ ] T003 [P] Verify `getMedicationById` exists in `MedicationRepository` (CONFIRMED: no-op — method already exists) in `lib/domain/repositories/medication_repository.dart`
+- [x] T003 [P] Verify `getMedicationById` exists in `MedicationRepository` (CONFIRMED: no-op — method already exists) in `lib/domain/repositories/medication_repository.dart`
 
 > **T003 — Full context for implementation**:
 >
@@ -133,7 +133,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Add `logNotificationRegenEvent()` method to `SyncDiagnostics` in `lib/core/services/sync/sync_diagnostics.dart`
+- [x] T004 Add `logNotificationRegenEvent()` method to `SyncDiagnostics` in `lib/core/services/sync/sync_diagnostics.dart`
 
 > **T004 — Full context for implementation**:
 >
@@ -162,7 +162,7 @@
 >
 > **DO NOT** change any existing methods or the constructor.
 
-- [ ] T005 Create `NotificationSyncService` in `lib/core/services/sync/notification_sync_service.dart`
+- [x] T005 Create `NotificationSyncService` in `lib/core/services/sync/notification_sync_service.dart`
 
 > **T005 — Full context for implementation**:
 >
@@ -261,7 +261,7 @@
 > }
 > ```
 
-- [ ] T006 Extend `_pullRemoteChanges` in `SyncService` to track changed medication IDs in `lib/core/services/sync/sync_service.dart`
+- [x] T006 Extend `_pullRemoteChanges` in `SyncService` to track changed medication IDs in `lib/core/services/sync/sync_service.dart`
 
 > **T006 — Full context for implementation**:
 >
@@ -365,7 +365,7 @@
 >
 > **Summary of changes**: 4 targeted edits in one file. No new imports needed. No other methods modified.
 
-- [ ] T007 Register `NotificationSyncService` in dependency injection in `lib/core/di/injector.dart`
+- [x] T007 Register `NotificationSyncService` in dependency injection in `lib/core/di/injector.dart`
 
 > **T007 — Full context for implementation**:
 >
@@ -417,7 +417,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Add `NotificationSyncService` dependency to `SyncStatusCubit` and invoke `regenerateNotifications` after every successful sync in `lib/presentation/cubit/sync/sync_status_cubit.dart`
+- [x] T008 [US1] Add `NotificationSyncService` dependency to `SyncStatusCubit` and invoke `regenerateNotifications` after every successful sync in `lib/presentation/cubit/sync/sync_status_cubit.dart`
 
 > **T008 — Full context for implementation**:
 >
@@ -489,7 +489,7 @@
 
 **Purpose**: Automated tests for `NotificationSyncService` core logic. Constitution mandates tests for non-trivial features.
 
-- [ ] T009 [P] Create unit tests for `NotificationSyncService.regenerateNotifications()` in `test/core/services/sync/notification_sync_service_test.dart`
+- [x] T009 [P] Create unit tests for `NotificationSyncService.regenerateNotifications()` in `test/core/services/sync/notification_sync_service_test.dart`
 
 > **T009 — Full context for implementation**:
 >
@@ -595,7 +595,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Verify that `_pullRemoteChanges` correctly detects schedule-changed medications (no code change expected — validation only) in `lib/core/services/sync/sync_service.dart`
+- [x] T010 [US2] Verify that `_pullRemoteChanges` correctly detects schedule-changed medications (no code change expected — validation only) in `lib/core/services/sync/sync_service.dart`
 
 > **T010 — Full context for implementation**:
 >
@@ -626,7 +626,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Verify that `NotificationSyncService.regenerateNotifications` handles deleted medications (no code change expected — validation only) in `lib/core/services/sync/notification_sync_service.dart`
+- [x] T011 [US3] Verify that `NotificationSyncService.regenerateNotifications` handles deleted medications (no code change expected — validation only) in `lib/core/services/sync/notification_sync_service.dart`
 
 > **T011 — Full context for implementation**:
 >
@@ -653,7 +653,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T012 [US4] Verify that offline schedule edits already trigger local notification updates (no code change expected — validation only) in `lib/presentation/` screens
+- [x] T012 [US4] Verify that offline schedule edits already trigger local notification updates (no code change expected — validation only) in `lib/presentation/` screens
 
 > **T012 — Full context for implementation**:
 >
@@ -688,7 +688,7 @@
 
 ### Implementation for User Story 5
 
-- [ ] T013 [US5] Verify that conflict-resolved medications trigger notification regeneration (no code change expected — validation only) in `lib/core/services/sync/sync_service.dart`
+- [x] T013 [US5] Verify that conflict-resolved medications trigger notification regeneration (no code change expected — validation only) in `lib/core/services/sync/sync_service.dart`
 
 > **T013 — Full context for implementation**:
 >
@@ -711,7 +711,7 @@
 
 **Purpose**: Cancel all scheduled medication notifications on sign-out to prevent stale reminders (FR-014).
 
-- [ ] T014 Add sign-out notification cleanup to `SyncStatusCubit.signOut()` in `lib/presentation/cubit/sync/sync_status_cubit.dart`
+- [x] T014 Add sign-out notification cleanup to `SyncStatusCubit.signOut()` in `lib/presentation/cubit/sync/sync_status_cubit.dart`
 
 > **T014 — Full context for implementation**:
 >
@@ -744,7 +744,7 @@
 
 **Purpose**: Final validation and verification.
 
-- [ ] T015 [P] Verify `flutter analyze` passes with zero errors after all changes
+- [x] T015 [P] Verify `flutter analyze` passes with zero errors after all changes
 
 > **T015 — Full context for implementation**:
 >
@@ -756,7 +756,7 @@
 > - Type mismatches if `_pullRemoteChanges` return type change (T006) wasn't propagated correctly
 > - Constructor parameter mismatch between `SyncStatusCubit` and its factory in `injector.dart`
 
-- [ ] T016 Run quickstart.md validation commands to verify the feature works end-to-end
+- [x] T016 Run quickstart.md validation commands to verify the feature works end-to-end
 
 > **T016 — Full context for implementation**:
 >

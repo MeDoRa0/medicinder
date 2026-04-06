@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
-import 'package:medicinder/domain/entities/sync/sync_types.dart';
 import 'package:medicinder/domain/entities/sync/user_sync_profile.dart';
 import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/widgets/sync/sync_summary_card.dart';

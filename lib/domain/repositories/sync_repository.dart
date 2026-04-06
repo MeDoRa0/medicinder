@@ -9,6 +9,7 @@ class SyncResult {
   final String? failureClass;
   final String? message;
   final String? userId;
+  final List<String> changedMedicationIds;
 
   const SyncResult({
     required this.success,
@@ -18,6 +19,7 @@ class SyncResult {
     this.failureClass,
     this.message,
     this.userId,
+    this.changedMedicationIds = const [],
   });
 
   // Backward compatibility with legacy fields
