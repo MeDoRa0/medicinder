@@ -13,6 +13,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-08
 - Hive (local medications via `MedicationLocalDataSource`); Firestore (cloud medication records via `MedicationRemoteDataSource`). Notification state is ephemeral and device-local — never persisted to cloud. (007-notification-sync)
 - Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `shared_preferences`, `firebase_auth`, `cloud_firestore`, `hive`, `hive_flutter`, `intl`, `flutter_localizations` (008-auth-entry-gate)
 - `SharedPreferences` for minimal entry-resolution state; Hive remains the local medication source of truth; Firebase auth and Firestore remain untouched for disabled provider placeholders in this phase (008-auth-entry-gate)
+- Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `firebase_core`, `firebase_auth`, `cloud_firestore`, `google_sign_in`, `shared_preferences`, `intl`, `flutter_localizations` (009-google-sign-in)
+- `SharedPreferences` keeps the guest-only resolved mode marker; Firebase Authentication manages authenticated session restoration; Firestore stores user-scoped workspace/profile metadata under `users/{userId}`; Hive medication and sync state remain unchanged (009-google-sign-in)
 
 - Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `hive`, `hive_flutter`, `awesome_notifications`, `intl`, `firebase_auth`, `cloud_firestore`, connectivity monitoring (001-phase-0-sync-architecture)
 
@@ -32,9 +34,9 @@ tests/
 Dart `^3.8.1` with Flutter stable: Follow standard conventions
 
 ## Recent Changes
+- 009-google-sign-in: Added Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `firebase_core`, `firebase_auth`, `cloud_firestore`, `google_sign_in`, `shared_preferences`, `intl`, `flutter_localizations`
 - 008-auth-entry-gate: Added Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `shared_preferences`, `firebase_auth`, `cloud_firestore`, `hive`, `hive_flutter`, `intl`, `flutter_localizations`
 - 007-notification-sync: Added Dart ^3.8.1 + Flutter stable, `flutter_bloc`, `get_it`, `hive`, `hive_flutter`, `awesome_notifications`, `firebase_auth`, `cloud_firestore`, `equatable`, `connectivity_plus`
-- 004-offline-operation-queue: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
 
 <!-- MANUAL ADDITIONS START -->

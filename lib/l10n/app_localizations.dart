@@ -881,7 +881,7 @@ abstract class AppLocalizations {
   /// Subtitle for the authentication entry gate
   ///
   /// In en, this message translates to:
-  /// **'Start locally as a guest now, or come back later when cloud sign-in is available.'**
+  /// **'Choose local-only guest access now or sign in with Google to restore your cloud-backed medication workspace.'**
   String get authEntrySubtitle;
 
   /// Label for the Google auth entry option
@@ -889,6 +889,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue with Google'**
   String get authEntryGoogleTitle;
+
+  /// Description for the live Google auth entry option
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to restore your cloud-backed medications and sync session.'**
+  String get authEntryGoogleDescription;
+
+  /// Loading label shown while a Google sign-in attempt is active
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in with Google...'**
+  String get authEntryGoogleLoading;
+
+  /// Semantics hint for the enabled Google auth button
+  ///
+  /// In en, this message translates to:
+  /// **'Starts Google sign-in.'**
+  String get authEntryGoogleEnabledSemanticsHint;
 
   /// Label for the Apple auth entry option
   ///
@@ -925,6 +943,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Google sign-in is not available in this phase yet.'**
   String get authEntryGoogleUnavailableFeedback;
+
+  /// Feedback shown when the Google flow is cancelled
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in was cancelled. You can try again or continue as a guest.'**
+  String get authEntryGoogleCancelledFeedback;
+
+  /// Feedback shown when the Google flow fails
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in could not be completed. Please try again.'**
+  String get authEntryGoogleFailedFeedback;
+
+  /// Feedback shown when Google sign-in is attempted on an unsupported runner
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in is not available on this runner. You can continue locally as a guest.'**
+  String get authEntryGoogleUnsupportedRunnerFeedback;
 
   /// Feedback shown after tapping the disabled Apple option
   ///

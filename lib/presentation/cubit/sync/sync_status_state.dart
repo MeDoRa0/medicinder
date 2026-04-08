@@ -18,6 +18,9 @@ class SyncStatusState {
   const SyncStatusState.initial()
     : this(viewState: SyncStatusViewState.signedOut);
 
+  bool get isAuthenticated =>
+      viewState != SyncStatusViewState.signedOut && userId != null;
+
   SyncStatusState copyWith({
     SyncStatusViewState? viewState,
     String? userId,

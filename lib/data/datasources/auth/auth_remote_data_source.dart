@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../domain/entities/sync/auth_session.dart';
 import '../../../domain/entities/sync/sync_status_view_state.dart';
 import '../../../domain/entities/sync/user_sync_profile.dart';
+import 'google_auth_provider_data_source.dart';
 import '../sync_state_local_data_source.dart';
 
 abstract class AuthRemoteDataSource {
@@ -17,11 +18,13 @@ abstract class AuthRemoteDataSource {
 class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore Function() _firestoreProvider;
+  final GoogleAuthProviderDataSource _googleAuthProviderDataSource;
   final SyncStateLocalDataSource _syncStateLocalDataSource;
 
   FirebaseAuthRemoteDataSource(
     this._firebaseAuth,
     this._firestoreProvider,
+    this._googleAuthProviderDataSource,
     this._syncStateLocalDataSource,
   );
 
@@ -36,6 +39,10 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) async {
+    if (providerId == 'google.com') {
+      return _signInWithGoogle();
+    }
+
     try {
       final credential = await _firebaseAuth.signInAnonymously();
       final user = credential.user;
@@ -66,7 +73,10 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> signOut() => _firebaseAuth.signOut();
+  Future<void> signOut() async {
+    await _googleAuthProviderDataSource.signOut();
+    await _firebaseAuth.signOut();
+  }
 
   @override
   Stream<AuthSession> watchSession() {
@@ -122,6 +132,76 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
         failureCode: error.code,
         failureMessage:
             error.message ?? 'Cloud workspace initialization failed.',
+      );
+    }
+  }
+
+  Future<AuthSession> _signInWithGoogle() async {
+    log('Google sign-in started.', name: 'FirebaseAuthRemoteDataSource');
+    final providerResult = await _googleAuthProviderDataSource.signIn();
+    switch (providerResult.status) {
+      case GoogleAuthProviderStatus.cancelled:
+        log('Google sign-in cancelled.', name: 'FirebaseAuthRemoteDataSource');
+        return const AuthSession.failed(
+          failureCode: 'GOOGLE_SIGN_IN_CANCELLED',
+          failureMessage: 'Google sign-in was cancelled.',
+        );
+      case GoogleAuthProviderStatus.unsupported:
+        log(
+          'Google sign-in blocked on unsupported runner.',
+          name: 'FirebaseAuthRemoteDataSource',
+        );
+        return const AuthSession.failed(
+          failureCode: 'GOOGLE_SIGN_IN_UNSUPPORTED',
+          failureMessage: 'Google sign-in is unavailable on this runner.',
+        );
+      case GoogleAuthProviderStatus.failure:
+        log(
+          'Google sign-in provider failure code=${providerResult.failureCode}',
+          name: 'FirebaseAuthRemoteDataSource',
+        );
+        return AuthSession.failed(
+          failureCode: providerResult.failureCode ?? 'GOOGLE_SIGN_IN_FAILED',
+          failureMessage:
+              providerResult.failureMessage ?? 'Google sign-in failed.',
+        );
+      case GoogleAuthProviderStatus.success:
+        break;
+    }
+
+    try {
+      final credential = GoogleAuthProvider.credential(
+        idToken: providerResult.idToken,
+        accessToken: providerResult.accessToken,
+      );
+      final result = await _firebaseAuth.signInWithCredential(credential);
+      final user = result.user;
+      if (user == null) {
+        return const AuthSession.failed(
+          failureCode: 'AUTH_USER_MISSING',
+          failureMessage: 'Authentication succeeded without a user session.',
+        );
+      }
+      return _resolveWorkspaceSession(user);
+    } on FirebaseAuthException catch (error) {
+      log(
+        'Google credential exchange failed code=${error.code}',
+        name: 'FirebaseAuthRemoteDataSource',
+      );
+      return AuthSession.failed(
+        failureCode: error.code,
+        failureMessage: 'Google sign-in failed.',
+      );
+    } catch (error, stackTrace) {
+      log(
+        'Google sign-in unexpected failure.',
+        name: 'FirebaseAuthRemoteDataSource',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return AuthSession.failed(
+        failureCode: 'GOOGLE_SIGN_IN_FAILED',
+        failureMessage: 'Google sign-in failed.',
       );
     }
   }

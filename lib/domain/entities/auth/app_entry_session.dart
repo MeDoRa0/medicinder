@@ -46,17 +46,15 @@ class AppEntrySession extends Equatable {
       );
 
   const AppEntrySession.authenticated({
-    required AppEntryMode entryMode,
-    bool restoredFromStorage = false,
-  }) : assert(
+    required this.entryMode,
+    this.restoredFromStorage = false,
+  }) : status = AppEntrySessionStatus.authenticated,
+       isResolved = true,
+       failureCode = null,
+       failureMessage = null,
+       assert(
          entryMode == AppEntryMode.google || entryMode == AppEntryMode.apple,
          'authenticated session must use google or apple entry mode',
-       ),
-       this._(
-         status: AppEntrySessionStatus.authenticated,
-         entryMode: entryMode,
-         isResolved: true,
-         restoredFromStorage: restoredFromStorage,
        );
 
   const AppEntrySession.failure({

@@ -427,10 +427,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authEntrySubtitle =>
-      'Start locally as a guest now, or come back later when cloud sign-in is available.';
+      'Choose local-only guest access now or sign in with Google to restore your cloud-backed medication workspace.';
 
   @override
   String get authEntryGoogleTitle => 'Continue with Google';
+
+  @override
+  String get authEntryGoogleDescription =>
+      'Sign in to restore your cloud-backed medications and sync session.';
+
+  @override
+  String get authEntryGoogleLoading => 'Signing in with Google...';
+
+  @override
+  String get authEntryGoogleEnabledSemanticsHint => 'Starts Google sign-in.';
 
   @override
   String get authEntryAppleTitle => 'Continue with Apple';
@@ -451,6 +461,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authEntryGoogleUnavailableFeedback =>
       'Google sign-in is not available in this phase yet.';
+
+  @override
+  String get authEntryGoogleCancelledFeedback =>
+      'Google sign-in was cancelled. You can try again or continue as a guest.';
+
+  @override
+  String get authEntryGoogleFailedFeedback =>
+      'Google sign-in could not be completed. Please try again.';
+
+  @override
+  String get authEntryGoogleUnsupportedRunnerFeedback =>
+      'Google sign-in is not available on this runner. You can continue locally as a guest.';
 
   @override
   String get authEntryAppleUnavailableFeedback =>

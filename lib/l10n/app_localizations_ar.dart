@@ -418,15 +418,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get syncNoFailedOperations => 'لا توجد عمليات فاشلة بشكل دائم';
+
   @override
   String get authEntryTitle => 'اختر طريقة الدخول';
 
   @override
   String get authEntrySubtitle =>
-      'ابدأ محلياً كضيف الآن، أو عد لاحقاً عندما يتوفر تسجيل الدخول السحابي.';
+      'اختر المتابعة محلياً كضيف الآن أو سجّل الدخول باستخدام Google لاستعادة مساحة العمل السحابية الخاصة بأدويتك.';
 
   @override
   String get authEntryGoogleTitle => 'المتابعة باستخدام Google';
+
+  @override
+  String get authEntryGoogleDescription =>
+      'سجّل الدخول لاستعادة الأدوية المخزنة سحابياً وحالة المزامنة.';
+
+  @override
+  String get authEntryGoogleLoading => 'جارٍ تسجيل الدخول باستخدام Google...';
+
+  @override
+  String get authEntryGoogleEnabledSemanticsHint =>
+      'يبدأ تسجيل الدخول باستخدام Google.';
 
   @override
   String get authEntryAppleTitle => 'المتابعة باستخدام Apple';
@@ -447,6 +459,18 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get authEntryGoogleUnavailableFeedback =>
       'تسجيل الدخول باستخدام Google غير متاح في هذه المرحلة بعد.';
+
+  @override
+  String get authEntryGoogleCancelledFeedback =>
+      'تم إلغاء تسجيل الدخول باستخدام Google. يمكنك المحاولة مرة أخرى أو المتابعة كضيف.';
+
+  @override
+  String get authEntryGoogleFailedFeedback =>
+      'تعذر إكمال تسجيل الدخول باستخدام Google. حاول مرة أخرى.';
+
+  @override
+  String get authEntryGoogleUnsupportedRunnerFeedback =>
+      'تسجيل الدخول باستخدام Google غير متاح على هذا المشغّل. يمكنك المتابعة محلياً كضيف.';
 
   @override
   String get authEntryAppleUnavailableFeedback =>

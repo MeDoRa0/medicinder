@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/domain/entities/auth/app_entry_session.dart';
+import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/repositories/app_entry_repository.dart';
+import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/usecases/auth/clear_app_entry_state.dart';
 import 'package:medicinder/domain/usecases/auth/continue_as_guest.dart';
 import 'package:medicinder/domain/usecases/auth/restore_app_entry_session.dart';
@@ -16,8 +18,34 @@ void main() {
       expect(repository.storedMode, 'guest');
     });
 
-    test('restore returns unresolved when no stored mode exists', () async {
-      final session = await RestoreAppEntrySession(_FakeAppEntryRepository())();
+    test('restore returns authenticated Google session before guest marker', () async {
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.ready(
+          'user-123',
+          providerId: 'google.com',
+        ),
+      );
+      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+
+      final session = await RestoreAppEntrySession(
+        authRepository,
+        appEntryRepository,
+      )();
+
+      expect(
+        session,
+        const AppEntrySession.authenticated(
+          entryMode: AppEntryMode.google,
+          restoredFromStorage: true,
+        ),
+      );
+    });
+
+    test('restore returns unresolved when no auth session or guest marker exists', () async {
+      final session = await RestoreAppEntrySession(
+        _FakeAuthRepository(),
+        _FakeAppEntryRepository(),
+      )();
 
       expect(
         session,
@@ -25,18 +53,24 @@ void main() {
       );
     });
 
-    test('restore returns guest when stored mode is guest', () async {
-      final repository = _FakeAppEntryRepository()..storedMode = 'guest';
+    test('restore returns guest when stored mode is guest and auth is signed out', () async {
+      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
 
-      final session = await RestoreAppEntrySession(repository)();
+      final session = await RestoreAppEntrySession(
+        _FakeAuthRepository(),
+        appEntryRepository,
+      )();
 
       expect(session, const AppEntrySession.guest(restoredFromStorage: true));
     });
 
     test('restore falls back to failure for unsupported stored mode', () async {
-      final repository = _FakeAppEntryRepository()..storedMode = 'google';
+      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'google';
 
-      final session = await RestoreAppEntrySession(repository)();
+      final session = await RestoreAppEntrySession(
+        _FakeAuthRepository(),
+        appEntryRepository,
+      )();
 
       expect(session.status, AppEntrySessionStatus.failure);
       expect(session.failureCode, 'UNSUPPORTED_ENTRY_MODE');
@@ -71,4 +105,24 @@ class _FakeAppEntryRepository implements AppEntryRepository {
 
   @override
   Future<String?> readResolvedEntryMode() async => storedMode;
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  final AuthSession currentSession;
+
+  _FakeAuthRepository({this.currentSession = const AuthSession.signedOut()});
+
+  @override
+  Future<AuthSession> getCurrentSession() async => currentSession;
+
+  @override
+  Future<AuthSession> signInForSync({String? providerId}) async => currentSession;
+
+  @override
+  Future<void> signOutFromSync() async {}
+
+  @override
+  Stream<AuthSession> watchSession() async* {
+    yield currentSession;
+  }
 }
