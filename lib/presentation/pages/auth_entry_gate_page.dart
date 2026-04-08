@@ -61,7 +61,7 @@ class AuthEntryGatePage extends StatelessWidget {
                         description: l10n.authEntryComingSoon,
                         enabled: false,
                         onPressed: state.busy
-                            ? () {}
+                            ? null
                             : () => cubit.onDisabledProviderTap(AppEntryMode.google),
                         icon: Icons.g_mobiledata_rounded,
                         semanticsLabel:
@@ -75,7 +75,7 @@ class AuthEntryGatePage extends StatelessWidget {
                           description: l10n.authEntryComingSoon,
                           enabled: false,
                           onPressed: state.busy
-                              ? () {}
+                              ? null
                               : () => cubit.onDisabledProviderTap(AppEntryMode.apple),
                           icon: Icons.apple,
                           semanticsLabel:
@@ -88,7 +88,7 @@ class AuthEntryGatePage extends StatelessWidget {
                         title: l10n.authEntryGuestTitle,
                         description: l10n.authEntryGuestDescription,
                         enabled: true,
-                        onPressed: state.busy ? () {} : cubit.continueAsGuest,
+                        onPressed: state.busy ? null : cubit.continueAsGuest,
                         icon: Icons.person_outline,
                         semanticsLabel: l10n.authEntryGuestSemanticsLabel,
                       ),

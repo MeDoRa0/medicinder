@@ -4,7 +4,7 @@ class AuthEntryOptionButton extends StatelessWidget {
   final String title;
   final String description;
   final bool enabled;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData icon;
   final String semanticsLabel;
   final String? semanticsHint;
@@ -36,7 +36,7 @@ class AuthEntryOptionButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: FilledButton(
-          onPressed: onPressed,
+          onPressed: enabled ? onPressed : null,
           style: FilledButton.styleFrom(
             backgroundColor: backgroundColor,
             foregroundColor: foregroundColor,
