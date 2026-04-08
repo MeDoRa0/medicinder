@@ -74,6 +74,11 @@
 
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
+- If the feature touches authentication or cloud sync, how does the app behave when
+  Firebase is unavailable, the user cancels sign-in, the session expires, or the
+  user continues as guest?
+- If the feature touches platform-specific providers, what happens on unsupported
+  platforms and after the app restores a previous session?
 
 ## Requirements *(mandatory)*
 
@@ -89,6 +94,15 @@
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+
+If the feature touches authentication, sync, or cloud-backed data, requirements MUST
+also specify:
+
+- guest or local-only behavior,
+- session restoration and sign-out behavior,
+- provider and platform constraints,
+- user-scoped data ownership and access boundaries, and
+- observable error states that do not expose secrets or sensitive payloads.
 
 *Example of marking unclear requirements:*
 
@@ -126,3 +140,5 @@
 - [Assumption about scope boundaries, e.g., "Mobile support is out of scope for v1"]
 - [Assumption about data/environment, e.g., "Existing authentication system will be reused"]
 - [Dependency on existing system/service, e.g., "Requires access to the existing user profile API"]
+- [If auth/cloud is involved, assumption about guest mode, Firebase availability,
+  and whether account upgrade or data merge is in scope]

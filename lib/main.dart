@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'core/di/injector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,10 +15,10 @@ import 'core/services/awesome_notification_service.dart';
 import 'core/services/medication_reminder_actions.dart';
 import 'core/services/notification_action_handler.dart';
 import 'core/services/sync/sync_diagnostics.dart';
-import 'presentation/pages/home_page.dart';
+import 'presentation/pages/app_launch_router_page.dart';
+import 'presentation/cubit/auth/auth_entry_cubit.dart';
 import 'presentation/cubit/medication_cubit.dart';
 import 'presentation/cubit/sync/sync_status_cubit.dart';
-import 'presentation/pages/settings_page.dart';
 
 /// Global navigator key for accessing context outside the widget tree.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -32,7 +33,9 @@ void main() async {
 
   var firebaseConfigured = false;
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     firebaseConfigured = true;
     log('Firebase initialized for cloud sync foundation.');
   } catch (error) {
@@ -75,13 +78,6 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   Locale? _locale;
-
-  Future<bool> _areMealTimesSet() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey('breakfastTime') &&
-        prefs.containsKey('lunchTime') &&
-        prefs.containsKey('dinnerTime');
-  }
 
   Future<void> _loadLocale() async {
     final prefs = await SharedPreferences.getInstance();
@@ -143,11 +139,11 @@ class _MainAppState extends State<MainApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => sl<MedicationCubit>()..loadMedications()),
+        BlocProvider(create: (_) => sl<AuthEntryCubit>()..restoreSession()),
         BlocProvider(create: (_) => sl<SyncStatusCubit>()..initialize()),
       ],
-      child: FutureBuilder<bool>(
-        future: _areMealTimesSet(),
-        builder: (context, snapshot) {
+      child: Builder(
+        builder: (context) {
           final theme = ThemeData(
             primaryColor: customColor,
             colorScheme: ColorScheme.fromSeed(
@@ -160,7 +156,6 @@ class _MainAppState extends State<MainApp> {
               foregroundColor: Colors.white,
               elevation: 0,
             ),
-
             floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: customColor,
               foregroundColor: Colors.white,
@@ -175,43 +170,6 @@ class _MainAppState extends State<MainApp> {
             ),
             scaffoldBackgroundColor: Colors.white,
           );
-          if (!snapshot.hasData) {
-            return MaterialApp(
-              theme: theme,
-              locale: _locale,
-              localizationsDelegates: [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('en'), Locale('ar')],
-              home: const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              ),
-              debugShowCheckedModeBanner: false,
-            );
-          }
-          if (snapshot.data == false) {
-            return MaterialApp(
-              theme: theme,
-              locale: _locale,
-              localizationsDelegates: [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('en'), Locale('ar')],
-              home: SettingsPage(
-                key: const ValueKey('initialSettings'),
-                isInitialSetup: true,
-                onLocaleChanged: setLocale,
-                onRestartApp: restartApp,
-              ),
-              debugShowCheckedModeBanner: false,
-            );
-          }
           return MaterialApp(
             theme: theme,
             locale: _locale,
@@ -222,7 +180,7 @@ class _MainAppState extends State<MainApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [Locale('en'), Locale('ar')],
-            home: HomePage(
+            home: AppLaunchRouterPage(
               onLocaleChanged: setLocale,
               onRestartApp: restartApp,
             ),

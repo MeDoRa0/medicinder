@@ -196,6 +196,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownError => 'An unexpected error occurred';
 
   @override
+  String get pushed => 'Pushed';
+
+  @override
+  String get pulled => 'Pulled';
+
+  @override
+  String get failed => 'Failed';
+
+  @override
   String get retryNetwork => 'Check your connection and try again';
 
   @override
@@ -340,15 +349,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
-  String get pushed => 'Pushed';
-
-  @override
-  String get pulled => 'Pulled';
-
-  @override
-  String get failed => 'Failed';
-
-  @override
   String get syncSignedOut => 'Signed out';
 
   @override
@@ -407,4 +407,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String syncLastFailure(String timestamp) {
     return 'Sync failed at $timestamp';
   }
+
+  @override
+  String syncFailedOperationsBadge(int count) {
+    return '$count operation(s) failed to sync';
+  }
+
+  @override
+  String get syncFailedOperationsDetails => 'Tap to view failed operations';
+
+  @override
+  String get syncPermanentlyFailedTitle => 'Failed Operations';
+
+  @override
+  String get syncNoFailedOperations => 'No permanently failed operations';
+
+  @override
+  String get authEntryTitle => 'Choose how to enter';
+
+  @override
+  String get authEntrySubtitle =>
+      'Start locally as a guest now, or come back later when cloud sign-in is available.';
+
+  @override
+  String get authEntryGoogleTitle => 'Continue with Google';
+
+  @override
+  String get authEntryAppleTitle => 'Continue with Apple';
+
+  @override
+  String get authEntryGuestTitle => 'Continue as Guest';
+
+  @override
+  String get authEntryGuestDescription =>
+      'Keep your medication reminders on this device only for now.';
+
+  @override
+  String get authEntryComingSoon => 'Coming soon';
+
+  @override
+  String get authEntryDisabledSemanticsHint => 'Unavailable in this release.';
+
+  @override
+  String get authEntryGoogleUnavailableFeedback =>
+      'Google sign-in is not available in this phase yet.';
+
+  @override
+  String get authEntryAppleUnavailableFeedback =>
+      'Apple sign-in is not available in this phase yet.';
+
+  @override
+  String get authEntryUnsupportedRestoreFeedback =>
+      'The previous sign-in mode is not supported yet. Please choose an option again.';
+
+  @override
+  String get authEntryGuestSemanticsLabel =>
+      'Continue as guest. Available now.';
+
+  @override
+  String get authEntryRestoring => 'Restoring launch state';
 }
