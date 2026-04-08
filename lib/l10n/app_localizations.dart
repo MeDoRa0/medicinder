@@ -458,6 +458,24 @@ abstract class AppLocalizations {
   /// **'An unexpected error occurred'**
   String get unknownError;
 
+  /// Label for number of pushed sync entities
+  ///
+  /// In en, this message translates to:
+  /// **'Pushed'**
+  String get pushed;
+
+  /// Label for number of pulled sync entities
+  ///
+  /// In en, this message translates to:
+  /// **'Pulled'**
+  String get pulled;
+
+  /// Label for number of failed sync entities
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get failed;
+
   /// Suggested action for network errors
   ///
   /// In en, this message translates to:
@@ -728,24 +746,6 @@ abstract class AppLocalizations {
   /// **'Cloud Sync'**
   String get syncStatusTitle;
 
-  /// Count label for pushed sync items
-  ///
-  /// In en, this message translates to:
-  /// **'Pushed'**
-  String get pushed;
-
-  /// Count label for pulled sync items
-  ///
-  /// In en, this message translates to:
-  /// **'Pulled'**
-  String get pulled;
-
-  /// Count label for failed sync items
-  ///
-  /// In en, this message translates to:
-  /// **'Failed'**
-  String get failed;
-
   /// Cloud sync status when the user is signed out
   ///
   /// In en, this message translates to:
@@ -847,6 +847,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync failed at {timestamp}'**
   String syncLastFailure(String timestamp);
+
+  /// Badge text showing count of permanently failed sync operations
+  ///
+  /// In en, this message translates to:
+  /// **'{count} operation(s) failed to sync'**
+  String syncFailedOperationsBadge(int count);
+
+  /// Hint text prompting user to tap for failed operation details
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to view failed operations'**
+  String get syncFailedOperationsDetails;
+
+  /// Title for the permanently failed operations screen
+  ///
+  /// In en, this message translates to:
+  /// **'Failed Operations'**
+  String get syncPermanentlyFailedTitle;
+
+  /// Message shown when there are no permanently failed operations
+  ///
+  /// In en, this message translates to:
+  /// **'No permanently failed operations'**
+  String get syncNoFailedOperations;
+
+  /// Title for the authentication entry gate
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to enter'**
+  String get authEntryTitle;
+
+  /// Subtitle for the authentication entry gate
+  ///
+  /// In en, this message translates to:
+  /// **'Start locally as a guest now, or come back later when cloud sign-in is available.'**
+  String get authEntrySubtitle;
+
+  /// Label for the Google auth entry option
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authEntryGoogleTitle;
+
+  /// Label for the Apple auth entry option
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get authEntryAppleTitle;
+
+  /// Label for the guest auth entry option
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get authEntryGuestTitle;
+
+  /// Description for the guest auth entry option
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your medication reminders on this device only for now.'**
+  String get authEntryGuestDescription;
+
+  /// Availability label for disabled provider auth options
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get authEntryComingSoon;
+
+  /// Accessibility hint for disabled auth entry options
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable in this release.'**
+  String get authEntryDisabledSemanticsHint;
+
+  /// Feedback shown after tapping the disabled Google option
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in is not available in this phase yet.'**
+  String get authEntryGoogleUnavailableFeedback;
+
+  /// Feedback shown after tapping the disabled Apple option
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign-in is not available in this phase yet.'**
+  String get authEntryAppleUnavailableFeedback;
+
+  /// Feedback shown when an unsupported stored entry mode is restored
+  ///
+  /// In en, this message translates to:
+  /// **'The previous sign-in mode is not supported yet. Please choose an option again.'**
+  String get authEntryUnsupportedRestoreFeedback;
+
+  /// Accessibility label for the guest entry option
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as guest. Available now.'**
+  String get authEntryGuestSemanticsLabel;
+
+  /// Accessibility label for launch restoration progress
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring launch state'**
+  String get authEntryRestoring;
 }
 
 class _AppLocalizationsDelegate

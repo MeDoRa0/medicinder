@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/services/sync/conflict_resolver.dart';
 import '../../core/services/sync/sync_diagnostics.dart';
@@ -11,6 +12,7 @@ import '../../core/services/sync/connectivity_signal_service.dart';
 import '../../core/services/sync/notification_sync_service.dart';
 import '../../core/services/notification_optimizer.dart';
 import '../../data/datasources/auth/auth_remote_data_source.dart';
+import '../../data/datasources/auth/app_entry_local_data_source.dart';
 import '../../data/datasources/medication_remote_data_source.dart';
 import '../../data/datasources/medication_local_data_source.dart';
 import '../../data/datasources/sync_state_local_data_source.dart';
@@ -22,11 +24,16 @@ import '../../data/models/sync/sync_cycle_state_model.dart';
 import '../../data/models/sync/user_sync_profile_model.dart';
 import '../../data/models/sync_operation_model.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/repositories/app_entry_repository_impl.dart';
 import '../../data/repositories/medication_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/app_entry_repository.dart';
 import '../../domain/repositories/medication_repository.dart';
 import '../../domain/repositories/sync_repository.dart';
 import '../../domain/usecases/add_medication.dart';
+import '../../domain/usecases/auth/clear_app_entry_state.dart';
+import '../../domain/usecases/auth/continue_as_guest.dart';
+import '../../domain/usecases/auth/restore_app_entry_session.dart';
 import '../../domain/usecases/sync/sign_in_for_sync.dart';
 import '../../domain/usecases/sync/sign_out_from_sync.dart';
 import '../../domain/usecases/sync/watch_auth_session.dart';
@@ -35,6 +42,7 @@ import '../../domain/usecases/update_medication.dart';
 import '../../domain/usecases/update_dose_status.dart';
 import '../../domain/usecases/delete_medication.dart';
 import '../../domain/usecases/reset_daily_doses.dart';
+import '../../presentation/cubit/auth/auth_entry_cubit.dart';
 import '../../presentation/cubit/medication_cubit.dart';
 import '../../presentation/cubit/sync/sync_status_cubit.dart';
 
@@ -43,6 +51,13 @@ import '../services/notification_handler.dart';
 final sl = GetIt.instance;
 
 Future<void> initDependencies({bool firebaseConfigured = false}) async {
+  if (sl.isRegistered<SharedPreferences>()) {
+    sl.unregister<SharedPreferences>();
+  }
+  sl.registerSingleton<SharedPreferences>(
+    await SharedPreferences.getInstance(),
+  );
+
   // Initialize Hive
   await Hive.initFlutter();
 
@@ -189,6 +204,9 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
         ? FirestoreMedicationRemoteDataSource(() => FirebaseFirestore.instance)
         : const DisabledMedicationRemoteDataSource(),
   );
+  sl.registerLazySingleton<AppEntryLocalDataSource>(
+    () => AppEntryLocalDataSource(sl()),
+  );
 
   sl.registerLazySingleton<Connectivity>(() => Connectivity());
   sl.registerLazySingleton<ConnectivitySignalService>(
@@ -197,6 +215,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AppEntryRepository>(() => AppEntryRepositoryImpl(sl()));
   sl.registerLazySingleton<MedicationRepository>(
     () => MedicationRepositoryImpl(sl(), sl(), sl()),
   );
@@ -218,6 +237,9 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   sl.registerLazySingleton(() => UpdateDoseStatus(sl()));
   sl.registerLazySingleton(() => DeleteMedication(sl()));
   sl.registerLazySingleton(() => ResetDailyDoses(sl()));
+  sl.registerLazySingleton(() => RestoreAppEntrySession(sl()));
+  sl.registerLazySingleton(() => ContinueAsGuest(sl()));
+  sl.registerLazySingleton(() => ClearAppEntryState(sl()));
   sl.registerLazySingleton(() => SignInForSync(sl()));
   sl.registerLazySingleton(() => SignOutFromSync(sl()));
   sl.registerLazySingleton(() => WatchAuthSession(sl()));
@@ -239,6 +261,13 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
 
   // Cubit
   sl.registerFactory(
+    () => AuthEntryCubit(
+      restoreAppEntrySession: sl(),
+      continueAsGuest: sl(),
+      clearAppEntryState: sl(),
+    ),
+  );
+  sl.registerFactory(
     () => MedicationCubit(
       addMedication: sl(),
       getMedications: sl(),
@@ -253,6 +282,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
       signInForSync: sl(),
       signOutFromSync: sl(),
       watchAuthSession: sl(),
+      clearAppEntryState: sl(),
       syncRepository: sl(),
       syncDiagnostics: sl(),
       connectivitySignal: sl(),

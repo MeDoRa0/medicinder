@@ -155,6 +155,31 @@ committed to this repository.
 If those files are missing, the app should continue local-only medication
 tracking and keep cloud sync disabled.
 
+### Authentication Integration Rules
+
+- Keep a guest or local-only path available when Firebase is unavailable or the
+  user does not want to sign in.
+- Restore the previous auth or guest session before deciding whether to show an
+  auth gate or the main app.
+- Keep Firestore data scoped under `users/{userId}` and never allow guest mode to
+  read or write cloud-backed medication data.
+- Render Apple Sign-In only on supported Apple platforms; Google Sign-In and other
+  providers should stay behind a provider-extensible auth abstraction.
+- Persist only the minimum local session metadata needed for restore. Do not store
+  raw provider tokens outside the platform SDK or Firebase-managed session.
+
+### Phase 1 Auth Entry Gate
+
+- On first launch, the app restores a minimal local entry marker before routing.
+- If no resolved entry marker exists, the app shows an auth entry gate before
+  the existing meal-time setup or home flow.
+- In Phase 1, `Continue as Guest` is the only enabled option. Google remains
+  visible but disabled on supported platforms, and Apple is visible but disabled
+  on iOS only.
+- Guest mode remains device-local in this phase: no provider-auth completion,
+  no guest-to-account merge, and no cloud attachment of guest-local medication
+  data.
+
 #### Development Dependencies
 - `build_runner: ^2.5.3` - Code generation
 - `hive_generator: ^2.0.1` - Hive model generation

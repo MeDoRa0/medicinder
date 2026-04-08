@@ -579,5 +579,57 @@
   "syncNoFailedOperations": "No permanently failed operations",
   "@syncNoFailedOperations": {
     "description": "Message shown when there are no permanently failed operations"
+  },
+  "authEntryTitle": "Choose how to enter",
+  "@authEntryTitle": {
+    "description": "Title for the authentication entry gate"
+  },
+  "authEntrySubtitle": "Start locally as a guest now, or come back later when cloud sign-in is available.",
+  "@authEntrySubtitle": {
+    "description": "Subtitle for the authentication entry gate"
+  },
+  "authEntryGoogleTitle": "Continue with Google",
+  "@authEntryGoogleTitle": {
+    "description": "Label for the Google auth entry option"
+  },
+  "authEntryAppleTitle": "Continue with Apple",
+  "@authEntryAppleTitle": {
+    "description": "Label for the Apple auth entry option"
+  },
+  "authEntryGuestTitle": "Continue as Guest",
+  "@authEntryGuestTitle": {
+    "description": "Label for the guest auth entry option"
+  },
+  "authEntryGuestDescription": "Keep your medication reminders on this device only for now.",
+  "@authEntryGuestDescription": {
+    "description": "Description for the guest auth entry option"
+  },
+  "authEntryComingSoon": "Coming soon",
+  "@authEntryComingSoon": {
+    "description": "Availability label for disabled provider auth options"
+  },
+  "authEntryDisabledSemanticsHint": "Unavailable in this release.",
+  "@authEntryDisabledSemanticsHint": {
+    "description": "Accessibility hint for disabled auth entry options"
+  },
+  "authEntryGoogleUnavailableFeedback": "Google sign-in is not available in this phase yet.",
+  "@authEntryGoogleUnavailableFeedback": {
+    "description": "Feedback shown after tapping the disabled Google option"
+  },
+  "authEntryAppleUnavailableFeedback": "Apple sign-in is not available in this phase yet.",
+  "@authEntryAppleUnavailableFeedback": {
+    "description": "Feedback shown after tapping the disabled Apple option"
+  },
+  "authEntryUnsupportedRestoreFeedback": "The previous sign-in mode is not supported yet. Please choose an option again.",
+  "@authEntryUnsupportedRestoreFeedback": {
+    "description": "Feedback shown when an unsupported stored entry mode is restored"
+  },
+  "authEntryGuestSemanticsLabel": "Continue as guest. Available now.",
+  "@authEntryGuestSemanticsLabel": {
+    "description": "Accessibility label for the guest entry option"
+  },
+  "authEntryRestoring": "Restoring launch state",
+  "@authEntryRestoring": {
+    "description": "Accessibility label for launch restoration progress"
   }
 }

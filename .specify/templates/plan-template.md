@@ -31,7 +31,25 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **I. Plan-Driven Delivery**: Confirm the feature scope, dependencies, auth flow,
+  and rollout remain aligned with the approved `spec.md`, `plan.md`, and `tasks.md`
+  artifacts. Record any deviation before implementation starts.
+- **II. Flutter Clean Architecture Boundaries**: Confirm `presentation`, `domain`,
+  `data`, and `core` responsibilities stay separated; provider SDKs, Firebase, Hive,
+  and platform APIs remain outside the domain layer.
+- **III. Testable by Default**: Identify the automated test coverage required for
+  domain rules, Cubits, auth/session transitions, failure paths, and critical UI
+  flows.
+- **IV. Offline-First Reliability**: Confirm the app remains functional without
+  network access, with explicit behavior for queued operations, recovery, conflicts,
+  and guest-to-account transitions where applicable.
+- **V. Authentication and Cloud Data Boundaries**: If the feature touches auth or
+  cloud sync, document supported providers, guest/local-only behavior, session
+  restoration, platform gating, minimal persisted session state, and Firestore
+  partitioning under `users/{userId}`.
+- **VI. Localization, Accessibility, and Observability**: Confirm new strings,
+  English/Arabic localization, RTL behavior, accessible states, and non-sensitive
+  diagnostics are covered.
 
 ## Project Structure
 

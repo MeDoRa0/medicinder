@@ -194,6 +194,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unknownError => 'حدث خطأ غير متوقع';
 
   @override
+  String get pushed => 'تم رفعها';
+
+  @override
+  String get pulled => 'تم سحبها';
+
+  @override
+  String get failed => 'فشلت';
+
+  @override
   String get retryNetwork => 'تحقق من اتصالك وحاول مرة أخرى';
 
   @override
@@ -337,15 +346,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncStatusTitle => 'Cloud Sync';
 
   @override
-  String get pushed => 'تم رفعها';
-
-  @override
-  String get pulled => 'تم سحبها';
-
-  @override
-  String get failed => 'فشلت';
-
-  @override
   String get syncSignedOut => 'تم تسجيل الخروج';
 
   @override
@@ -404,4 +404,61 @@ class AppLocalizationsAr extends AppLocalizations {
   String syncLastFailure(String timestamp) {
     return 'فشلت المزامنة في $timestamp';
   }
+
+  @override
+  String syncFailedOperationsBadge(int count) {
+    return 'فشل $count عملية/عمليات في المزامنة';
+  }
+
+  @override
+  String get syncFailedOperationsDetails => 'اضغط لعرض العمليات الفاشلة';
+
+  @override
+  String get syncPermanentlyFailedTitle => 'العمليات الفاشلة';
+
+  @override
+  String get syncNoFailedOperations => 'لا توجد عمليات فاشلة بشكل دائم';
+  @override
+  String get authEntryTitle => 'اختر طريقة الدخول';
+
+  @override
+  String get authEntrySubtitle =>
+      'ابدأ محلياً كضيف الآن، أو عد لاحقاً عندما يتوفر تسجيل الدخول السحابي.';
+
+  @override
+  String get authEntryGoogleTitle => 'المتابعة باستخدام Google';
+
+  @override
+  String get authEntryAppleTitle => 'المتابعة باستخدام Apple';
+
+  @override
+  String get authEntryGuestTitle => 'المتابعة كضيف';
+
+  @override
+  String get authEntryGuestDescription =>
+      'ستبقى تذكيرات الدواء على هذا الجهاز فقط في الوقت الحالي.';
+
+  @override
+  String get authEntryComingSoon => 'قريباً';
+
+  @override
+  String get authEntryDisabledSemanticsHint => 'غير متاح في هذا الإصدار.';
+
+  @override
+  String get authEntryGoogleUnavailableFeedback =>
+      'تسجيل الدخول باستخدام Google غير متاح في هذه المرحلة بعد.';
+
+  @override
+  String get authEntryAppleUnavailableFeedback =>
+      'تسجيل الدخول باستخدام Apple غير متاح في هذه المرحلة بعد.';
+
+  @override
+  String get authEntryUnsupportedRestoreFeedback =>
+      'طريقة الدخول السابقة غير مدعومة بعد. اختر طريقة أخرى من جديد.';
+
+  @override
+  String get authEntryGuestSemanticsLabel => 'المتابعة كضيف. متاح الآن.';
+
+  @override
+  String get authEntryRestoring => 'جارٍ استعادة حالة التشغيل';
 }

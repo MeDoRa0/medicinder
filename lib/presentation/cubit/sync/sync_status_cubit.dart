@@ -9,6 +9,7 @@ import '../../../domain/entities/sync/auth_session.dart';
 import '../../../domain/entities/sync/sync_status_view_state.dart';
 import '../../../domain/entities/sync/sync_types.dart';
 import '../../../domain/repositories/sync_repository.dart';
+import '../../../domain/usecases/auth/clear_app_entry_state.dart';
 import '../../../domain/usecases/sync/sign_in_for_sync.dart';
 import '../../../domain/usecases/sync/sign_out_from_sync.dart';
 import '../../../domain/usecases/sync/watch_auth_session.dart';
@@ -20,6 +21,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   final SignInForSync _signInForSync;
   final SignOutFromSync _signOutFromSync;
   final WatchAuthSession _watchAuthSession;
+  final ClearAppEntryState _clearAppEntryState;
   final SyncRepository _syncRepository;
   final SyncDiagnostics _syncDiagnostics;
   final ConnectivitySignalService _connectivitySignal;
@@ -34,6 +36,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     required SignInForSync signInForSync,
     required SignOutFromSync signOutFromSync,
     required WatchAuthSession watchAuthSession,
+    required ClearAppEntryState clearAppEntryState,
     required SyncRepository syncRepository,
     required SyncDiagnostics syncDiagnostics,
     required ConnectivitySignalService connectivitySignal,
@@ -42,6 +45,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   }) : _signInForSync = signInForSync,
        _signOutFromSync = signOutFromSync,
        _watchAuthSession = watchAuthSession,
+       _clearAppEntryState = clearAppEntryState,
        _syncRepository = syncRepository,
        _syncDiagnostics = syncDiagnostics,
        _connectivitySignal = connectivitySignal,
@@ -93,6 +97,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
 
   Future<void> signOut() async {
     await _signOutFromSync();
+    await _clearAppEntryState();
     _ignoreNextSignedInUserId = null;
     await _notificationSyncService.cancelAllMedicationNotifications();
     emit(
@@ -106,6 +111,10 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   }
 
   Future<void> retry() async {
+    if (state.userId == null) {
+      return signIn();
+    }
+
     emit(
       state.copyWith(
         viewState: SyncStatusViewState.syncing,

@@ -7,9 +7,11 @@ import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
 import 'package:medicinder/domain/entities/sync/sync_types.dart';
+import 'package:medicinder/domain/repositories/app_entry_repository.dart';
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/repositories/sync_repository.dart';
 import 'package:medicinder/domain/entities/sync_operation.dart';
+import 'package:medicinder/domain/usecases/auth/clear_app_entry_state.dart';
 import 'package:medicinder/domain/usecases/sync/sign_in_for_sync.dart';
 import 'package:medicinder/domain/usecases/sync/sign_out_from_sync.dart';
 import 'package:medicinder/domain/usecases/sync/watch_auth_session.dart';
@@ -30,6 +32,7 @@ void main() {
           signInForSync: SignInForSync(authRepository),
           signOutFromSync: SignOutFromSync(authRepository),
           watchAuthSession: WatchAuthSession(authRepository),
+          clearAppEntryState: ClearAppEntryState(_FakeAppEntryRepository()),
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
@@ -50,6 +53,7 @@ void main() {
           signInForSync: SignInForSync(authRepository),
           signOutFromSync: SignOutFromSync(authRepository),
           watchAuthSession: WatchAuthSession(authRepository),
+          clearAppEntryState: ClearAppEntryState(_FakeAppEntryRepository()),
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
@@ -74,6 +78,7 @@ void main() {
           signInForSync: SignInForSync(authRepository),
           signOutFromSync: SignOutFromSync(authRepository),
           watchAuthSession: WatchAuthSession(authRepository),
+          clearAppEntryState: ClearAppEntryState(_FakeAppEntryRepository()),
           syncRepository: _FakeSyncRepository(),
           syncDiagnostics: const SyncDiagnostics(),
           connectivitySignal: _FakeConnectivitySignalService(),
@@ -153,6 +158,7 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
     required super.signInForSync,
     required super.signOutFromSync,
     required super.watchAuthSession,
+    required super.clearAppEntryState,
     required super.syncRepository,
     required super.syncDiagnostics,
     required super.connectivitySignal,
@@ -206,4 +212,15 @@ class _FakeConnectivitySignalService implements ConnectivitySignalService {
 
   @override
   Future<void> dispose() async {}
+}
+
+class _FakeAppEntryRepository implements AppEntryRepository {
+  @override
+  Future<void> clearResolvedEntryMode() async {}
+
+  @override
+  Future<void> persistGuestMode() async {}
+
+  @override
+  Future<String?> readResolvedEntryMode() async => null;
 }
