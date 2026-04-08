@@ -12,7 +12,8 @@ class AuthRepositoryImpl implements AuthRepository {
       _remoteDataSource.getCurrentSession();
 
   @override
-  Future<AuthSession> signInForSync() => _remoteDataSource.signInForSync();
+  Future<AuthSession> signInForSync({String? providerId}) =>
+      _remoteDataSource.signInForSync(providerId: providerId);
 
   @override
   Future<void> signOutFromSync() => _remoteDataSource.signOut();

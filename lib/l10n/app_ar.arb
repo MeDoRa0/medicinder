@@ -585,13 +585,25 @@
   "@authEntryTitle": {
     "description": "Title for the authentication entry gate"
   },
-  "authEntrySubtitle": "ابدأ محلياً كضيف الآن، أو عد لاحقاً عندما يتوفر تسجيل الدخول السحابي.",
+  "authEntrySubtitle": "اختر المتابعة محلياً كضيف الآن أو سجّل الدخول باستخدام Google لاستعادة مساحة العمل السحابية الخاصة بأدويتك.",
   "@authEntrySubtitle": {
     "description": "Subtitle for the authentication entry gate"
   },
   "authEntryGoogleTitle": "المتابعة باستخدام Google",
   "@authEntryGoogleTitle": {
     "description": "Label for the Google auth entry option"
+  },
+  "authEntryGoogleDescription": "سجّل الدخول لاستعادة الأدوية المخزنة سحابياً وحالة المزامنة.",
+  "@authEntryGoogleDescription": {
+    "description": "Description for the live Google auth entry option"
+  },
+  "authEntryGoogleLoading": "جارٍ تسجيل الدخول باستخدام Google...",
+  "@authEntryGoogleLoading": {
+    "description": "Loading label shown while a Google sign-in attempt is active"
+  },
+  "authEntryGoogleEnabledSemanticsHint": "يبدأ تسجيل الدخول باستخدام Google.",
+  "@authEntryGoogleEnabledSemanticsHint": {
+    "description": "Semantics hint for the enabled Google auth button"
   },
   "authEntryAppleTitle": "المتابعة باستخدام Apple",
   "@authEntryAppleTitle": {
@@ -616,6 +628,18 @@
   "authEntryGoogleUnavailableFeedback": "تسجيل الدخول باستخدام Google غير متاح في هذه المرحلة بعد.",
   "@authEntryGoogleUnavailableFeedback": {
     "description": "Feedback shown after tapping the disabled Google option"
+  },
+  "authEntryGoogleCancelledFeedback": "تم إلغاء تسجيل الدخول باستخدام Google. يمكنك المحاولة مرة أخرى أو المتابعة كضيف.",
+  "@authEntryGoogleCancelledFeedback": {
+    "description": "Feedback shown when the Google flow is cancelled"
+  },
+  "authEntryGoogleFailedFeedback": "تعذر إكمال تسجيل الدخول باستخدام Google. حاول مرة أخرى.",
+  "@authEntryGoogleFailedFeedback": {
+    "description": "Feedback shown when the Google flow fails"
+  },
+  "authEntryGoogleUnsupportedRunnerFeedback": "تسجيل الدخول باستخدام Google غير متاح على هذا المشغّل. يمكنك المتابعة محلياً كضيف.",
+  "@authEntryGoogleUnsupportedRunnerFeedback": {
+    "description": "Feedback shown when Google sign-in is attempted on an unsupported runner"
   },
   "authEntryAppleUnavailableFeedback": "تسجيل الدخول باستخدام Apple غير متاح في هذه المرحلة بعد.",
   "@authEntryAppleUnavailableFeedback": {

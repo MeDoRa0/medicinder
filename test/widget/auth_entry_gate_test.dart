@@ -1,18 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicinder/domain/entities/auth/app_entry_session.dart';
+import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/repositories/app_entry_repository.dart';
+import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/domain/usecases/auth/clear_app_entry_state.dart';
 import 'package:medicinder/domain/usecases/auth/continue_as_guest.dart';
 import 'package:medicinder/domain/usecases/auth/restore_app_entry_session.dart';
+import 'package:medicinder/domain/usecases/auth/sign_in_with_google.dart';
 import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/cubit/auth/auth_entry_cubit.dart';
 import 'package:medicinder/presentation/pages/auth_entry_gate_page.dart';
 
 void main() {
   testWidgets('shows Apple on iOS and hides it on non-iOS', (tester) async {
-    final iosCubit = _buildCubit(_FakeAppEntryRepository());
+    final iosCubit = _buildCubit(_FakeAppEntryRepository(), _FakeAuthRepository());
     await tester.pumpWidget(
       _GateHarness(
         cubit: iosCubit,
@@ -24,7 +30,10 @@ void main() {
     expect(find.text('Continue with Apple'), findsOneWidget);
     expect(find.text('Continue as Guest'), findsOneWidget);
 
-    final androidCubit = _buildCubit(_FakeAppEntryRepository());
+    final androidCubit = _buildCubit(
+      _FakeAppEntryRepository(),
+      _FakeAuthRepository(),
+    );
     await tester.pumpWidget(
       _GateHarness(
         cubit: androidCubit,
@@ -40,7 +49,7 @@ void main() {
 
   testWidgets('tapping guest persists guest state', (tester) async {
     final repository = _FakeAppEntryRepository();
-    final cubit = _buildCubit(repository);
+    final cubit = _buildCubit(repository, _FakeAuthRepository());
 
     await tester.pumpWidget(
       _GateHarness(
@@ -56,10 +65,88 @@ void main() {
     expect(cubit.state.session.isResolved, isTrue);
   });
 
-  testWidgets('Arabic copy is RTL and disabled provider taps show feedback', (
+  testWidgets('successful Google sign-in routes the cubit to authenticated state', (
     tester,
   ) async {
-    final cubit = _buildCubit(_FakeAppEntryRepository());
+    final cubit = _buildCubit(
+      _FakeAppEntryRepository(),
+      _FakeAuthRepository(
+        signInSession: const AuthSession.ready(
+          'user-123',
+          providerId: 'google.com',
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      _GateHarness(
+        cubit: cubit,
+        platform: TargetPlatform.android,
+      ),
+    );
+
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pump();
+
+    expect(cubit.state.session.status, AppEntrySessionStatus.authenticated);
+    expect(cubit.state.session.entryMode, AppEntryMode.google);
+  });
+
+  testWidgets('shows a loading indicator while Google sign-in is in progress', (
+    tester,
+  ) async {
+    final completer = Completer<AuthSession>();
+    final cubit = _buildCubit(
+      _FakeAppEntryRepository(),
+      _FakeAuthRepository(signInCompleter: completer),
+    );
+
+    await tester.pumpWidget(
+      _GateHarness(
+        cubit: cubit,
+        platform: TargetPlatform.android,
+      ),
+    );
+
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    completer.complete(
+      const AuthSession.ready('user-123', providerId: 'google.com'),
+    );
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('unsupported runner keeps the gate local-only', (tester) async {
+    final cubit = _buildCubit(_FakeAppEntryRepository(), _FakeAuthRepository());
+
+    await tester.pumpWidget(
+      _GateHarness(
+        cubit: cubit,
+        platform: TargetPlatform.windows,
+      ),
+    );
+
+    final googleButton = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Continue with Google'),
+    );
+    expect(googleButton.onPressed, isNull);
+    expect(find.text('Continue as Guest'), findsOneWidget);
+  });
+
+  testWidgets('Arabic copy is RTL and Google failure feedback is localized', (
+    tester,
+  ) async {
+    final cubit = _buildCubit(
+      _FakeAppEntryRepository(),
+      _FakeAuthRepository(
+        signInSession: const AuthSession.failed(
+          failureCode: 'GOOGLE_SIGN_IN_FAILED',
+        ),
+      ),
+    );
 
     await tester.pumpWidget(
       _GateHarness(
@@ -74,7 +161,7 @@ void main() {
 
     expect(find.text('اختر طريقة الدخول'), findsOneWidget);
     expect(
-      find.text('تسجيل الدخول باستخدام Google غير متاح في هذه المرحلة بعد.'),
+      find.text('تعذر إكمال تسجيل الدخول باستخدام Google. حاول مرة أخرى.'),
       findsOneWidget,
     );
     expect(
@@ -114,11 +201,15 @@ class _GateHarness extends StatelessWidget {
   }
 }
 
-AuthEntryCubit _buildCubit(_FakeAppEntryRepository repository) {
+AuthEntryCubit _buildCubit(
+  _FakeAppEntryRepository repository,
+  _FakeAuthRepository authRepository,
+) {
   return AuthEntryCubit(
-    restoreAppEntrySession: RestoreAppEntrySession(repository),
+    restoreAppEntrySession: RestoreAppEntrySession(authRepository, repository),
     continueAsGuest: ContinueAsGuest(repository),
     clearAppEntryState: ClearAppEntryState(repository),
+    signInWithGoogle: SignInWithGoogle(authRepository),
   );
 }
 
@@ -137,4 +228,35 @@ class _FakeAppEntryRepository implements AppEntryRepository {
 
   @override
   Future<String?> readResolvedEntryMode() async => storedMode;
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  final AuthSession currentSession;
+  final AuthSession signInSession;
+  final Completer<AuthSession>? signInCompleter;
+
+  _FakeAuthRepository({
+    this.currentSession = const AuthSession.signedOut(),
+    AuthSession? signInSession,
+    this.signInCompleter,
+  }) : signInSession = signInSession ?? currentSession;
+
+  @override
+  Future<AuthSession> getCurrentSession() async => currentSession;
+
+  @override
+  Future<AuthSession> signInForSync({String? providerId}) async {
+    if (signInCompleter != null) {
+      return signInCompleter!.future;
+    }
+    return signInSession;
+  }
+
+  @override
+  Future<void> signOutFromSync() async {}
+
+  @override
+  Stream<AuthSession> watchSession() async* {
+    yield currentSession;
+  }
 }

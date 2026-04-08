@@ -21,6 +21,7 @@ import 'package:medicinder/domain/usecases/add_medication.dart';
 import 'package:medicinder/domain/usecases/auth/clear_app_entry_state.dart';
 import 'package:medicinder/domain/usecases/auth/continue_as_guest.dart';
 import 'package:medicinder/domain/usecases/auth/restore_app_entry_session.dart';
+import 'package:medicinder/domain/usecases/auth/sign_in_with_google.dart';
 import 'package:medicinder/domain/usecases/delete_medication.dart';
 import 'package:medicinder/domain/usecases/get_medications.dart';
 import 'package:medicinder/domain/usecases/reset_daily_doses.dart';
@@ -44,13 +45,14 @@ void main() {
     await _setLargeSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final appEntryRepository = _FakeAppEntryRepository();
-    final authCubit = _buildAuthCubit(appEntryRepository);
+    final authRepository = _FakeAuthRepository();
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
     await authCubit.restoreSession();
 
     await tester.pumpWidget(
       _RouterHarness(
         authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository),
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
       ),
     );
     await tester.pump();
@@ -64,13 +66,14 @@ void main() {
     await _setLargeSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
-    final authCubit = _buildAuthCubit(appEntryRepository);
+    final authRepository = _FakeAuthRepository();
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
     await authCubit.restoreSession();
 
     await tester.pumpWidget(
       _RouterHarness(
         authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository),
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
       ),
     );
     await tester.pumpAndSettle();
@@ -78,7 +81,7 @@ void main() {
     expect(find.byKey(const ValueKey('initialSettings')), findsOneWidget);
   });
 
-  testWidgets('routes restored guest users to home when meal times exist', (
+  testWidgets('restored authenticated Google users skip the gate and route to home', (
     tester,
   ) async {
     await _setLargeSurface(tester);
@@ -87,14 +90,20 @@ void main() {
       'lunchTime': '13:0',
       'dinnerTime': '19:0',
     });
-    final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
-    final authCubit = _buildAuthCubit(appEntryRepository);
+    final appEntryRepository = _FakeAppEntryRepository();
+    final authRepository = _FakeAuthRepository(
+      currentSession: const AuthSession.ready(
+        'user-123',
+        providerId: 'google.com',
+      ),
+    );
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
     await authCubit.restoreSession();
 
     await tester.pumpWidget(
       _RouterHarness(
         authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository),
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
       ),
     );
     await tester.pumpAndSettle();
@@ -108,13 +117,14 @@ void main() {
     await _setLargeSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'google';
-    final authCubit = _buildAuthCubit(appEntryRepository);
+    final authRepository = _FakeAuthRepository();
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
     await authCubit.restoreSession();
 
     await tester.pumpWidget(
       _RouterHarness(
         authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository),
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
       ),
     );
     await tester.pumpAndSettle();
@@ -137,10 +147,16 @@ void main() {
       'lunchTime': '13:0',
       'dinnerTime': '19:0',
     });
-    final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
-    final authCubit = _buildAuthCubit(appEntryRepository);
+    final appEntryRepository = _FakeAppEntryRepository();
+    final authRepository = _FakeAuthRepository(
+      currentSession: const AuthSession.ready(
+        'user-123',
+        providerId: 'google.com',
+      ),
+    );
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
     await authCubit.restoreSession();
-    final syncCubit = _buildSyncCubit(appEntryRepository)
+    final syncCubit = _buildSyncCubit(appEntryRepository, authRepository)
       ..seed(
         const SyncStatusState(
           viewState: SyncStatusViewState.ready,
@@ -157,6 +173,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
 
+    authRepository.currentSession = const AuthSession.signedOut();
     await syncCubit.signOut();
     await tester.pumpAndSettle();
 
@@ -216,16 +233,22 @@ class _RouterHarness extends StatelessWidget {
   }
 }
 
-AuthEntryCubit _buildAuthCubit(_FakeAppEntryRepository repository) {
+AuthEntryCubit _buildAuthCubit(
+  _FakeAppEntryRepository repository,
+  _FakeAuthRepository authRepository,
+) {
   return AuthEntryCubit(
-    restoreAppEntrySession: RestoreAppEntrySession(repository),
+    restoreAppEntrySession: RestoreAppEntrySession(authRepository, repository),
     continueAsGuest: ContinueAsGuest(repository),
     clearAppEntryState: ClearAppEntryState(repository),
+    signInWithGoogle: SignInWithGoogle(authRepository),
   );
 }
 
-_SeededSyncStatusCubit _buildSyncCubit(_FakeAppEntryRepository repository) {
-  final authRepository = _FakeAuthRepository();
+_SeededSyncStatusCubit _buildSyncCubit(
+  _FakeAppEntryRepository repository,
+  _FakeAuthRepository authRepository,
+) {
   return _SeededSyncStatusCubit(
     signInForSync: SignInForSync(authRepository),
     signOutFromSync: SignOutFromSync(authRepository),
@@ -273,19 +296,24 @@ class _FakeAppEntryRepository implements AppEntryRepository {
 }
 
 class _FakeAuthRepository implements AuthRepository {
-  @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  AuthSession currentSession;
+
+  _FakeAuthRepository({this.currentSession = const AuthSession.signedOut()});
 
   @override
-  Future<AuthSession> signInForSync() async =>
-      const AuthSession.ready('user-123');
+  Future<AuthSession> getCurrentSession() async => currentSession;
 
   @override
-  Future<void> signOutFromSync() async {}
+  Future<AuthSession> signInForSync({String? providerId}) async => currentSession;
+
+  @override
+  Future<void> signOutFromSync() async {
+    currentSession = const AuthSession.signedOut();
+  }
 
   @override
   Stream<AuthSession> watchSession() async* {
-    yield const AuthSession.signedOut();
+    yield currentSession;
   }
 }
 

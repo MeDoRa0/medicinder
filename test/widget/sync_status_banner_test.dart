@@ -126,7 +126,7 @@ class _FakeAuthRepository implements AuthRepository {
       const AuthSession.signedOut();
 
   @override
-  Future<AuthSession> signInForSync() async =>
+  Future<AuthSession> signInForSync({String? providerId}) async =>
       const AuthSession.ready('user-123', providerId: 'anonymous');
 
   @override
