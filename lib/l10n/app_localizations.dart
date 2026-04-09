@@ -914,6 +914,24 @@ abstract class AppLocalizations {
   /// **'Continue with Apple'**
   String get authEntryAppleTitle;
 
+  /// Description for the Apple auth entry option when available
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Apple to restore your cloud-backed medications and sync session.'**
+  String get authEntryAppleDescription;
+
+  /// Loading label shown while an Apple sign-in attempt is active
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in with Apple...'**
+  String get authEntryAppleLoading;
+
+  /// Semantics hint for the enabled Apple auth button
+  ///
+  /// In en, this message translates to:
+  /// **'Starts Apple sign-in.'**
+  String get authEntryAppleEnabledSemanticsHint;
+
   /// Label for the guest auth entry option
   ///
   /// In en, this message translates to:
@@ -965,8 +983,26 @@ abstract class AppLocalizations {
   /// Feedback shown after tapping the disabled Apple option
   ///
   /// In en, this message translates to:
-  /// **'Apple sign-in is not available in this phase yet.'**
+  /// **'Apple sign-in is not available on this device right now.'**
   String get authEntryAppleUnavailableFeedback;
+
+  /// Feedback shown when the Apple flow is cancelled
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign-in was cancelled. You can try again or continue as a guest.'**
+  String get authEntryAppleCancelledFeedback;
+
+  /// Feedback shown when the Apple flow fails
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign-in could not be completed. Please try again.'**
+  String get authEntryAppleFailedFeedback;
+
+  /// Feedback shown when Apple sign-in conflicts with an existing non-Apple account
+  ///
+  /// In en, this message translates to:
+  /// **'This account already exists with another sign-in method. Use the original sign-in option to continue.'**
+  String get authEntryAppleConflictFeedback;
 
   /// Feedback shown when an unsupported stored entry mode is restored
   ///

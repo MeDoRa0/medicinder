@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/core/services/sync/conflict_resolver.dart';
 import 'package:medicinder/core/services/sync/sync_service.dart';
 import 'package:medicinder/data/datasources/medication_remote_data_source.dart';
@@ -346,6 +347,10 @@ class _DisabledFakeMedicationRemoteDataSource
 }
 
 class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      AppleAuthAvailability.unsupportedRunner;
+
   @override
   Future<AuthSession> getCurrentSession() async =>
       const AuthSession.ready('user-123', providerId: 'anonymous');

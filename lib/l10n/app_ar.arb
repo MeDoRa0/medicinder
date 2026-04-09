@@ -609,6 +609,18 @@
   "@authEntryAppleTitle": {
     "description": "Label for the Apple auth entry option"
   },
+  "authEntryAppleDescription": "سجّل الدخول باستخدام Apple لاستعادة الأدوية المخزنة سحابياً وحالة المزامنة.",
+  "@authEntryAppleDescription": {
+    "description": "Description for the Apple auth entry option when available"
+  },
+  "authEntryAppleLoading": "جارٍ تسجيل الدخول باستخدام Apple...",
+  "@authEntryAppleLoading": {
+    "description": "Loading label shown while an Apple sign-in attempt is active"
+  },
+  "authEntryAppleEnabledSemanticsHint": "يبدأ تسجيل الدخول باستخدام Apple.",
+  "@authEntryAppleEnabledSemanticsHint": {
+    "description": "Semantics hint for the enabled Apple auth button"
+  },
   "authEntryGuestTitle": "المتابعة كضيف",
   "@authEntryGuestTitle": {
     "description": "Label for the guest auth entry option"
@@ -641,9 +653,21 @@
   "@authEntryGoogleUnsupportedRunnerFeedback": {
     "description": "Feedback shown when Google sign-in is attempted on an unsupported runner"
   },
-  "authEntryAppleUnavailableFeedback": "تسجيل الدخول باستخدام Apple غير متاح في هذه المرحلة بعد.",
+  "authEntryAppleUnavailableFeedback": "تسجيل الدخول باستخدام Apple غير متاح على هذا الجهاز حالياً.",
   "@authEntryAppleUnavailableFeedback": {
     "description": "Feedback shown after tapping the disabled Apple option"
+  },
+  "authEntryAppleCancelledFeedback": "تم إلغاء تسجيل الدخول باستخدام Apple. يمكنك المحاولة مرة أخرى أو المتابعة كضيف.",
+  "@authEntryAppleCancelledFeedback": {
+    "description": "Feedback shown when the Apple flow is cancelled"
+  },
+  "authEntryAppleFailedFeedback": "تعذر إكمال تسجيل الدخول باستخدام Apple. حاول مرة أخرى.",
+  "@authEntryAppleFailedFeedback": {
+    "description": "Feedback shown when the Apple flow fails"
+  },
+  "authEntryAppleConflictFeedback": "هذا الحساب موجود بالفعل بطريقة دخول أخرى. استخدم طريقة الدخول الأصلية للمتابعة.",
+  "@authEntryAppleConflictFeedback": {
+    "description": "Feedback shown when Apple sign-in conflicts with an existing non-Apple account"
   },
   "authEntryUnsupportedRestoreFeedback": "طريقة الدخول السابقة غير مدعومة بعد. اختر طريقة أخرى من جديد.",
   "@authEntryUnsupportedRestoreFeedback": {

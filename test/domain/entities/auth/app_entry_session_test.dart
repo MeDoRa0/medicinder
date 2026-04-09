@@ -5,18 +5,18 @@ void main() {
   group('AppEntrySession.authenticated', () {
     test('accepts google and apple entry modes', () {
       expect(
-        () => const AppEntrySession.authenticated(entryMode: AppEntryMode.google),
+        () => AppEntrySession.authenticated(entryMode: AppEntryMode.google),
         returnsNormally,
       );
       expect(
-        () => const AppEntrySession.authenticated(entryMode: AppEntryMode.apple),
+        () => AppEntrySession.authenticated(entryMode: AppEntryMode.apple),
         returnsNormally,
       );
     });
 
     test('rejects non-provider entry modes', () {
       expect(
-        () => const AppEntrySession.authenticated(entryMode: AppEntryMode.none),
+        () => AppEntrySession.authenticated(entryMode: AppEntryMode.none),
         throwsA(
           isA<AssertionError>().having(
             (error) => error.message,
@@ -26,7 +26,7 @@ void main() {
         ),
       );
       expect(
-        () => const AppEntrySession.authenticated(entryMode: AppEntryMode.guest),
+        () => AppEntrySession.authenticated(entryMode: AppEntryMode.guest),
         throwsA(
           isA<AssertionError>().having(
             (error) => error.message,

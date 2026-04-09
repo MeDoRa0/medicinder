@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/data/datasources/auth/auth_remote_data_source.dart';
 import 'package:medicinder/data/repositories/auth_repository_impl.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
@@ -73,6 +74,10 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
 
   @override
   Future<AuthSession> getCurrentSession() async => _session;
+
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      AppleAuthAvailability.unsupportedRunner;
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) async {

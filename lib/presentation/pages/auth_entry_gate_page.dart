@@ -2,19 +2,39 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/datasources/auth/apple_auth_provider_data_source.dart';
 import '../../domain/entities/auth/app_entry_session.dart';
 import '../../l10n/app_localizations.dart';
 import '../cubit/auth/auth_entry_cubit.dart';
 import '../cubit/auth/auth_entry_state.dart';
 import '../widgets/auth/auth_entry_option_button.dart';
 
-class AuthEntryGatePage extends StatelessWidget {
+class AuthEntryGatePage extends StatefulWidget {
   final TargetPlatform? platformOverride;
 
   const AuthEntryGatePage({super.key, this.platformOverride});
 
+  @override
+  State<AuthEntryGatePage> createState() => _AuthEntryGatePageState();
+}
+
+class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final platform = widget.platformOverride ?? defaultTargetPlatform;
+      if (!kIsWeb && platform == TargetPlatform.iOS) {
+        context.read<AuthEntryCubit>().loadAppleAvailability();
+      }
+    });
+  }
+
   bool get _showAppleOption {
-    final platform = platformOverride ?? defaultTargetPlatform;
+    final platform = widget.platformOverride ?? defaultTargetPlatform;
     return !kIsWeb && platform == TargetPlatform.iOS;
   }
 
@@ -24,13 +44,36 @@ class AuthEntryGatePage extends StatelessWidget {
       builder: (context, state) {
         final l10n = AppLocalizations.of(context)!;
         final cubit = context.read<AuthEntryCubit>();
-        final platform = platformOverride ?? defaultTargetPlatform;
+        final platform = widget.platformOverride ?? defaultTargetPlatform;
         final googleSupported = !kIsWeb &&
             (platform == TargetPlatform.android ||
                 platform == TargetPlatform.iOS);
+        final appleEnabled =
+            _showAppleOption &&
+            state.appleAvailability == AppleAuthAvailability.supported &&
+            !state.busy;
+        final appleDescription = switch (state.appleAvailability) {
+          AppleAuthAvailability.supported => state.inProgressMode ==
+                  AppEntryMode.apple
+              ? l10n.authEntryAppleLoading
+              : l10n.authEntryAppleDescription,
+          AppleAuthAvailability.unavailableOnDevice =>
+            l10n.authEntryAppleUnavailableFeedback,
+          AppleAuthAvailability.unsupportedRunner =>
+            l10n.authEntryComingSoon,
+        };
         final feedbackMessage = switch (state.feedbackCode) {
           'google_unavailable' => l10n.authEntryGoogleUnavailableFeedback,
-          'apple_coming_soon' => l10n.authEntryAppleUnavailableFeedback,
+          'APPLE_SIGN_IN_CANCELLED' => l10n.authEntryAppleCancelledFeedback,
+          'APPLE_SIGN_IN_UNAVAILABLE' =>
+            l10n.authEntryAppleUnavailableFeedback,
+          'APPLE_SIGN_IN_CONFLICT' => l10n.authEntryAppleConflictFeedback,
+          'APPLE_SIGN_IN_FAILED' => l10n.authEntryAppleFailedFeedback,
+          'APPLE_IDENTITY_TOKEN_MISSING' => l10n.authEntryAppleFailedFeedback,
+          'APPLE_AUTHORIZATION_CODE_MISSING' =>
+            l10n.authEntryAppleFailedFeedback,
+          'account-exists-with-different-credential' =>
+            l10n.authEntryAppleConflictFeedback,
           'GOOGLE_SIGN_IN_CANCELLED' => l10n.authEntryGoogleCancelledFeedback,
           'GOOGLE_SIGN_IN_UNSUPPORTED' =>
             l10n.authEntryGoogleUnsupportedRunnerFeedback,
@@ -95,18 +138,15 @@ class AuthEntryGatePage extends StatelessWidget {
                         const SizedBox(height: 16),
                         AuthEntryOptionButton(
                           title: l10n.authEntryAppleTitle,
-                          description: l10n.authEntryComingSoon,
-                          enabled: false,
-                          onPressed: state.busy
-                              ? null
-                              : () =>
-                                    cubit.onDisabledProviderTap(
-                                      AppEntryMode.apple,
-                                    ),
+                          description: appleDescription,
+                          enabled: appleEnabled,
+                          onPressed: appleEnabled ? cubit.signInWithApple : null,
                           icon: Icons.apple,
                           semanticsLabel:
-                              '${l10n.authEntryAppleTitle}. ${l10n.authEntryComingSoon}',
-                          semanticsHint: l10n.authEntryDisabledSemanticsHint,
+                              '${l10n.authEntryAppleTitle}. $appleDescription',
+                          semanticsHint: appleEnabled
+                              ? l10n.authEntryAppleEnabledSemanticsHint
+                              : l10n.authEntryDisabledSemanticsHint,
                         ),
                       ],
                       const SizedBox(height: 16),
@@ -123,9 +163,11 @@ class AuthEntryGatePage extends StatelessWidget {
                         Center(
                           child: Semantics(
                             liveRegion: true,
-                            label: state.inProgressMode == AppEntryMode.google
-                                ? l10n.authEntryGoogleLoading
-                                : l10n.authEntryRestoring,
+                            label: switch (state.inProgressMode) {
+                              AppEntryMode.google => l10n.authEntryGoogleLoading,
+                              AppEntryMode.apple => l10n.authEntryAppleLoading,
+                              _ => l10n.authEntryRestoring,
+                            },
                             child: const CircularProgressIndicator(),
                           ),
                         ),

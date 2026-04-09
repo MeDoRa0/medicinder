@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
 import 'package:medicinder/domain/entities/medication.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
@@ -21,6 +22,7 @@ import 'package:medicinder/domain/usecases/add_medication.dart';
 import 'package:medicinder/domain/usecases/auth/clear_app_entry_state.dart';
 import 'package:medicinder/domain/usecases/auth/continue_as_guest.dart';
 import 'package:medicinder/domain/usecases/auth/restore_app_entry_session.dart';
+import 'package:medicinder/domain/usecases/auth/sign_in_with_apple.dart';
 import 'package:medicinder/domain/usecases/auth/sign_in_with_google.dart';
 import 'package:medicinder/domain/usecases/delete_medication.dart';
 import 'package:medicinder/domain/usecases/get_medications.dart';
@@ -111,6 +113,78 @@ void main() {
     expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
   });
 
+  testWidgets('restored authenticated Apple users skip the gate and route to home', (
+    tester,
+  ) async {
+    await _setLargeSurface(tester);
+    SharedPreferences.setMockInitialValues({
+      'breakfastTime': '8:0',
+      'lunchTime': '13:0',
+      'dinnerTime': '19:0',
+    });
+    final appEntryRepository = _FakeAppEntryRepository();
+    final authRepository = _FakeAuthRepository(
+      currentSession: const AuthSession.ready(
+        'user-apple',
+        providerId: 'apple.com',
+      ),
+      appleAvailability: AppleAuthAvailability.supported,
+    );
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+    await authCubit.restoreSession();
+
+    await tester.pumpWidget(
+      _RouterHarness(
+        authCubit: authCubit,
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+  });
+
+  testWidgets('Apple-authenticated background resume stays on the authenticated route', (
+    tester,
+  ) async {
+    await _setLargeSurface(tester);
+    SharedPreferences.setMockInitialValues({
+      'breakfastTime': '8:0',
+      'lunchTime': '13:0',
+      'dinnerTime': '19:0',
+    });
+    final appEntryRepository = _FakeAppEntryRepository();
+    final authRepository = _FakeAuthRepository(
+      currentSession: const AuthSession.ready(
+        'user-apple',
+        providerId: 'apple.com',
+      ),
+      appleAvailability: AppleAuthAvailability.supported,
+    );
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+    await authCubit.restoreSession();
+
+    await tester.pumpWidget(
+      _RouterHarness(
+        authCubit: authCubit,
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+
+    await tester.pumpWidget(
+      _RouterHarness(
+        authCubit: authCubit,
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+    expect(find.text('Choose how to enter'), findsNothing);
+  });
+
   testWidgets('falls back to the gate when an unsupported stored mode is restored', (
     tester,
   ) async {
@@ -136,6 +210,33 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('falls back to the gate when an Apple session cannot be restored', (
+    tester,
+  ) async {
+    await _setLargeSurface(tester);
+    SharedPreferences.setMockInitialValues({});
+    final appEntryRepository = _FakeAppEntryRepository();
+    final authRepository = _FakeAuthRepository(
+      currentSession: const AuthSession.failed(
+        providerId: 'apple.com',
+        failureCode: 'APPLE_SIGN_IN_FAILED',
+      ),
+      appleAvailability: AppleAuthAvailability.supported,
+    );
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+    await authCubit.restoreSession();
+
+    await tester.pumpWidget(
+      _RouterHarness(
+        authCubit: authCubit,
+        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose how to enter'), findsOneWidget);
   });
 
   testWidgets('sign out clears the stored mode and returns the running app to the gate', (
@@ -178,6 +279,47 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(appEntryRepository.storedMode, isNull);
+    expect(find.text('Choose how to enter'), findsOneWidget);
+  });
+
+  testWidgets('Apple sign out returns the running app to the gate', (tester) async {
+    await _setLargeSurface(tester);
+    SharedPreferences.setMockInitialValues({
+      'breakfastTime': '8:0',
+      'lunchTime': '13:0',
+      'dinnerTime': '19:0',
+    });
+    final appEntryRepository = _FakeAppEntryRepository();
+    final authRepository = _FakeAuthRepository(
+      currentSession: const AuthSession.ready(
+        'user-apple',
+        providerId: 'apple.com',
+      ),
+      appleAvailability: AppleAuthAvailability.supported,
+    );
+    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+    await authCubit.restoreSession();
+    final syncCubit = _buildSyncCubit(appEntryRepository, authRepository)
+      ..seed(
+        const SyncStatusState(
+          viewState: SyncStatusViewState.ready,
+          userId: 'user-apple',
+        ),
+      );
+
+    await tester.pumpWidget(
+      _RouterHarness(
+        authCubit: authCubit,
+        syncCubit: syncCubit,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+
+    authRepository.currentSession = const AuthSession.signedOut();
+    await syncCubit.signOut();
+    await tester.pumpAndSettle();
+
     expect(find.text('Choose how to enter'), findsOneWidget);
   });
 }
@@ -241,6 +383,7 @@ AuthEntryCubit _buildAuthCubit(
     restoreAppEntrySession: RestoreAppEntrySession(authRepository, repository),
     continueAsGuest: ContinueAsGuest(repository),
     clearAppEntryState: ClearAppEntryState(repository),
+    signInWithApple: SignInWithApple(authRepository),
     signInWithGoogle: SignInWithGoogle(authRepository),
   );
 }
@@ -297,11 +440,19 @@ class _FakeAppEntryRepository implements AppEntryRepository {
 
 class _FakeAuthRepository implements AuthRepository {
   AuthSession currentSession;
+  final AppleAuthAvailability appleAvailability;
 
-  _FakeAuthRepository({this.currentSession = const AuthSession.signedOut()});
+  _FakeAuthRepository({
+    this.currentSession = const AuthSession.signedOut(),
+    this.appleAvailability = AppleAuthAvailability.unsupportedRunner,
+  });
 
   @override
   Future<AuthSession> getCurrentSession() async => currentSession;
+
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      appleAvailability;
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) async => currentSession;

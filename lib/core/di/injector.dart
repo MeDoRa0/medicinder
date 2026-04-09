@@ -13,6 +13,7 @@ import '../../core/services/sync/notification_sync_service.dart';
 import '../../core/services/notification_optimizer.dart';
 import '../../data/datasources/auth/auth_remote_data_source.dart';
 import '../../data/datasources/auth/app_entry_local_data_source.dart';
+import '../../data/datasources/auth/apple_auth_provider_data_source.dart';
 import '../../data/datasources/auth/google_auth_provider_data_source.dart';
 import '../../data/datasources/medication_remote_data_source.dart';
 import '../../data/datasources/medication_local_data_source.dart';
@@ -35,6 +36,7 @@ import '../../domain/usecases/add_medication.dart';
 import '../../domain/usecases/auth/clear_app_entry_state.dart';
 import '../../domain/usecases/auth/continue_as_guest.dart';
 import '../../domain/usecases/auth/restore_app_entry_session.dart';
+import '../../domain/usecases/auth/sign_in_with_apple.dart';
 import '../../domain/usecases/auth/sign_in_with_google.dart';
 import '../../domain/usecases/sync/sign_in_for_sync.dart';
 import '../../domain/usecases/sync/sign_out_from_sync.dart';
@@ -195,11 +197,15 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   sl.registerLazySingleton<GoogleAuthProviderDataSource>(
     () => PlatformGoogleAuthProviderDataSource(),
   );
+  sl.registerLazySingleton<AppleAuthProviderDataSource>(
+    () => PlatformAppleAuthProviderDataSource(),
+  );
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => firebaseConfigured
         ? FirebaseAuthRemoteDataSource(
             FirebaseAuth.instance,
             () => FirebaseFirestore.instance,
+            sl(),
             sl(),
             sl(),
           )
@@ -246,6 +252,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   sl.registerLazySingleton(() => RestoreAppEntrySession(sl(), sl()));
   sl.registerLazySingleton(() => ContinueAsGuest(sl()));
   sl.registerLazySingleton(() => ClearAppEntryState(sl()));
+  sl.registerLazySingleton(() => SignInWithApple(sl()));
   sl.registerLazySingleton(() => SignInWithGoogle(sl()));
   sl.registerLazySingleton(() => SignInForSync(sl()));
   sl.registerLazySingleton(() => SignOutFromSync(sl()));
@@ -272,6 +279,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
       restoreAppEntrySession: sl(),
       continueAsGuest: sl(),
       clearAppEntryState: sl(),
+      signInWithApple: sl(),
       signInWithGoogle: sl(),
     ),
   );

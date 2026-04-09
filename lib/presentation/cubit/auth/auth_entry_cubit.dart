@@ -6,6 +6,7 @@ import '../../../domain/entities/auth/app_entry_session.dart';
 import '../../../domain/usecases/auth/clear_app_entry_state.dart';
 import '../../../domain/usecases/auth/continue_as_guest.dart';
 import '../../../domain/usecases/auth/restore_app_entry_session.dart';
+import '../../../domain/usecases/auth/sign_in_with_apple.dart';
 import '../../../domain/usecases/auth/sign_in_with_google.dart';
 import 'auth_entry_state.dart';
 
@@ -14,16 +15,19 @@ class AuthEntryCubit extends Cubit<AuthEntryState> {
   final ContinueAsGuest _continueAsGuest;
   final ClearAppEntryState _clearAppEntryState;
   final SignInWithGoogle _signInWithGoogle;
+  final SignInWithApple _signInWithApple;
 
   AuthEntryCubit({
     required RestoreAppEntrySession restoreAppEntrySession,
     required ContinueAsGuest continueAsGuest,
     required ClearAppEntryState clearAppEntryState,
     required SignInWithGoogle signInWithGoogle,
+    required SignInWithApple signInWithApple,
   }) : _restoreAppEntrySession = restoreAppEntrySession,
        _continueAsGuest = continueAsGuest,
        _clearAppEntryState = clearAppEntryState,
        _signInWithGoogle = signInWithGoogle,
+       _signInWithApple = signInWithApple,
        super(const AuthEntryState.initial());
 
   Future<void> restoreSession() async {
@@ -43,6 +47,12 @@ class AuthEntryCubit extends Cubit<AuthEntryState> {
     emit(state.copyWith(session: session));
   }
 
+  Future<void> loadAppleAvailability() async {
+    final availability = await _signInWithApple.getAvailability();
+    log('Auth entry Apple availability resolved: $availability');
+    emit(state.copyWith(appleAvailability: availability));
+  }
+
   Future<void> continueAsGuest() async {
     emit(
       state.copyWith(
@@ -60,7 +70,7 @@ class AuthEntryCubit extends Cubit<AuthEntryState> {
   void onDisabledProviderTap(AppEntryMode entryMode) {
     final feedbackMessage = switch (entryMode) {
       AppEntryMode.google => 'google_unavailable',
-      AppEntryMode.apple => 'apple_coming_soon',
+      AppEntryMode.apple => 'APPLE_SIGN_IN_UNAVAILABLE',
       _ => null,
     };
     if (feedbackMessage == null) {
@@ -100,6 +110,41 @@ class AuthEntryCubit extends Cubit<AuthEntryState> {
 
     final feedbackCode = session.failureCode ?? 'GOOGLE_SIGN_IN_FAILED';
     log('Auth entry Google sign-in ended with code=$feedbackCode');
+    emit(
+      state.copyWith(
+        session: const AppEntrySession.unresolved(),
+        busy: false,
+        clearInProgressMode: true,
+        feedbackCode: feedbackCode,
+      ),
+    );
+  }
+
+  Future<void> signInWithApple() async {
+    emit(
+      state.copyWith(
+        busy: true,
+        inProgressMode: AppEntryMode.apple,
+        clearUnavailableMode: true,
+        clearFeedbackCode: true,
+      ),
+    );
+    log('Auth entry Apple sign-in started.');
+    final session = await _signInWithApple();
+    if (session.status == AppEntrySessionStatus.authenticated) {
+      log('Auth entry Apple sign-in succeeded.');
+      emit(
+        state.copyWith(
+          session: session,
+          busy: false,
+          clearInProgressMode: true,
+        ),
+      );
+      return;
+    }
+
+    final feedbackCode = session.failureCode ?? 'APPLE_SIGN_IN_FAILED';
+    log('Auth entry Apple sign-in ended with code=$feedbackCode');
     emit(
       state.copyWith(
         session: const AppEntrySession.unresolved(),

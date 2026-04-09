@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/domain/entities/auth/app_entry_session.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/repositories/app_entry_repository.dart';
@@ -41,6 +42,29 @@ void main() {
       );
     });
 
+    test('restore returns authenticated Apple session before guest marker', () async {
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.ready(
+          'user-apple',
+          providerId: 'apple.com',
+        ),
+      );
+      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+
+      final session = await RestoreAppEntrySession(
+        authRepository,
+        appEntryRepository,
+      )();
+
+      expect(
+        session,
+        const AppEntrySession.authenticated(
+          entryMode: AppEntryMode.apple,
+          restoredFromStorage: true,
+        ),
+      );
+    });
+
     test('restore returns unresolved when no auth session or guest marker exists', () async {
       final session = await RestoreAppEntrySession(
         _FakeAuthRepository(),
@@ -77,6 +101,25 @@ void main() {
       expect(session.isResolved, isFalse);
     });
 
+    test('restore ignores a stale guest marker when Apple restore is broken', () async {
+      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.failed(
+          providerId: 'apple.com',
+          failureCode: 'APPLE_SIGN_IN_FAILED',
+        ),
+      );
+
+      final session = await RestoreAppEntrySession(
+        authRepository,
+        appEntryRepository,
+      )();
+
+      expect(session.status, AppEntrySessionStatus.failure);
+      expect(session.failureCode, 'APPLE_SIGN_IN_FAILED');
+      expect(session.isResolved, isFalse);
+    });
+
     test('clear entry state removes stored mode', () async {
       final repository = _FakeAppEntryRepository()..storedMode = 'guest';
 
@@ -109,11 +152,19 @@ class _FakeAppEntryRepository implements AppEntryRepository {
 
 class _FakeAuthRepository implements AuthRepository {
   final AuthSession currentSession;
+  final AppleAuthAvailability appleAvailability;
 
-  _FakeAuthRepository({this.currentSession = const AuthSession.signedOut()});
+  _FakeAuthRepository({
+    this.currentSession = const AuthSession.signedOut(),
+    this.appleAvailability = AppleAuthAvailability.unsupportedRunner,
+  });
 
   @override
   Future<AuthSession> getCurrentSession() async => currentSession;
+
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      appleAvailability;
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) async => currentSession;
