@@ -446,6 +446,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authEntryAppleTitle => 'Continue with Apple';
 
   @override
+  String get authEntryAppleDescription =>
+      'Sign in with Apple to restore your cloud-backed medications and sync session.';
+
+  @override
+  String get authEntryAppleLoading => 'Signing in with Apple...';
+
+  @override
+  String get authEntryAppleEnabledSemanticsHint => 'Starts Apple sign-in.';
+
+  @override
   String get authEntryGuestTitle => 'Continue as Guest';
 
   @override
@@ -476,7 +486,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authEntryAppleUnavailableFeedback =>
-      'Apple sign-in is not available in this phase yet.';
+      'Apple sign-in is not available on this device right now.';
+
+  @override
+  String get authEntryAppleCancelledFeedback =>
+      'Apple sign-in was cancelled. You can try again or continue as a guest.';
+
+  @override
+  String get authEntryAppleFailedFeedback =>
+      'Apple sign-in could not be completed. Please try again.';
+
+  @override
+  String get authEntryAppleConflictFeedback =>
+      'This account already exists with another sign-in method. Use the original sign-in option to continue.';
 
   @override
   String get authEntryUnsupportedRestoreFeedback =>

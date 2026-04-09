@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
@@ -20,6 +21,7 @@ import 'package:medicinder/domain/entities/sync/pending_change.dart';
 import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_cubit.dart';
 import 'package:medicinder/presentation/cubit/sync/sync_status_state.dart';
+import 'package:medicinder/presentation/widgets/sync/sync_account_tile.dart';
 import 'package:medicinder/presentation/widgets/sync/sync_status_banner.dart';
 import '../helpers/fake_notification_sync_service.dart';
 
@@ -50,6 +52,57 @@ void main() {
     expect(find.text('Retry'), findsOneWidget);
     expect(find.byType(TextButton), findsOneWidget);
   });
+
+  testWidgets('keeps the signed-out sync tile local-only without a sign-in action', (
+    tester,
+  ) async {
+    final authRepository = _FakeAuthRepository();
+    final cubit =
+        _SeededSyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          clearAppEntryState: ClearAppEntryState(_FakeAppEntryRepository()),
+          syncRepository: _FakeFailingSyncRepository(),
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+          syncQueue: _FakeSyncQueue(),
+          notificationSyncService: FakeNotificationSyncService(),
+        )..seed(const SyncStatusState(viewState: SyncStatusViewState.signedOut));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('en'), Locale('ar')],
+        home: BlocProvider<SyncStatusCubit>.value(
+          value: cubit,
+          child: const _SyncAccountTileTestApp(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final context = tester.element(find.byType(SyncAccountTile));
+    final l10n = AppLocalizations.of(context)!;
+    expect(find.text(l10n.syncStatusTitle), findsOneWidget);
+    expect(find.text(l10n.syncUnavailableLocalOnly), findsOneWidget);
+    expect(find.text(l10n.syncDisableCloudSync), findsNothing);
+    expect(find.byType(TextButton), findsNothing);
+  });
+}
+
+class _SyncAccountTileTestApp extends StatelessWidget {
+  const _SyncAccountTileTestApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: SyncAccountTile());
+  }
 }
 
 class _AccessibilityTestApp extends StatelessWidget {
@@ -76,6 +129,10 @@ class _AccessibilityTestApp extends StatelessWidget {
 }
 
 class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      AppleAuthAvailability.unsupportedRunner;
+
   @override
   Future<AuthSession> getCurrentSession() async =>
       const AuthSession.signedOut();

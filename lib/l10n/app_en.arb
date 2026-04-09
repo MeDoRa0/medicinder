@@ -608,6 +608,18 @@
   "@authEntryAppleTitle": {
     "description": "Label for the Apple auth entry option"
   },
+  "authEntryAppleDescription": "Sign in with Apple to restore your cloud-backed medications and sync session.",
+  "@authEntryAppleDescription": {
+    "description": "Description for the Apple auth entry option when available"
+  },
+  "authEntryAppleLoading": "Signing in with Apple...",
+  "@authEntryAppleLoading": {
+    "description": "Loading label shown while an Apple sign-in attempt is active"
+  },
+  "authEntryAppleEnabledSemanticsHint": "Starts Apple sign-in.",
+  "@authEntryAppleEnabledSemanticsHint": {
+    "description": "Semantics hint for the enabled Apple auth button"
+  },
   "authEntryGuestTitle": "Continue as Guest",
   "@authEntryGuestTitle": {
     "description": "Label for the guest auth entry option"
@@ -640,9 +652,21 @@
   "@authEntryGoogleUnsupportedRunnerFeedback": {
     "description": "Feedback shown when Google sign-in is attempted on an unsupported runner"
   },
-  "authEntryAppleUnavailableFeedback": "Apple sign-in is not available in this phase yet.",
+  "authEntryAppleUnavailableFeedback": "Apple sign-in is not available on this device right now.",
   "@authEntryAppleUnavailableFeedback": {
     "description": "Feedback shown after tapping the disabled Apple option"
+  },
+  "authEntryAppleCancelledFeedback": "Apple sign-in was cancelled. You can try again or continue as a guest.",
+  "@authEntryAppleCancelledFeedback": {
+    "description": "Feedback shown when the Apple flow is cancelled"
+  },
+  "authEntryAppleFailedFeedback": "Apple sign-in could not be completed. Please try again.",
+  "@authEntryAppleFailedFeedback": {
+    "description": "Feedback shown when the Apple flow fails"
+  },
+  "authEntryAppleConflictFeedback": "This account already exists with another sign-in method. Use the original sign-in option to continue.",
+  "@authEntryAppleConflictFeedback": {
+    "description": "Feedback shown when Apple sign-in conflicts with an existing non-Apple account"
   },
   "authEntryUnsupportedRestoreFeedback": "The previous sign-in mode is not supported yet. Please choose an option again.",
   "@authEntryUnsupportedRestoreFeedback": {

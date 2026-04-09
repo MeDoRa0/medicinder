@@ -444,6 +444,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authEntryAppleTitle => 'المتابعة باستخدام Apple';
 
   @override
+  String get authEntryAppleDescription =>
+      'سجّل الدخول باستخدام Apple لاستعادة الأدوية المخزنة سحابياً وحالة المزامنة.';
+
+  @override
+  String get authEntryAppleLoading => 'جارٍ تسجيل الدخول باستخدام Apple...';
+
+  @override
+  String get authEntryAppleEnabledSemanticsHint =>
+      'يبدأ تسجيل الدخول باستخدام Apple.';
+
+  @override
   String get authEntryGuestTitle => 'المتابعة كضيف';
 
   @override
@@ -474,7 +485,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authEntryAppleUnavailableFeedback =>
-      'تسجيل الدخول باستخدام Apple غير متاح في هذه المرحلة بعد.';
+      'تسجيل الدخول باستخدام Apple غير متاح على هذا الجهاز حالياً.';
+
+  @override
+  String get authEntryAppleCancelledFeedback =>
+      'تم إلغاء تسجيل الدخول باستخدام Apple. يمكنك المحاولة مرة أخرى أو المتابعة كضيف.';
+
+  @override
+  String get authEntryAppleFailedFeedback =>
+      'تعذر إكمال تسجيل الدخول باستخدام Apple. حاول مرة أخرى.';
+
+  @override
+  String get authEntryAppleConflictFeedback =>
+      'هذا الحساب موجود بالفعل بطريقة دخول أخرى. استخدم طريقة الدخول الأصلية للمتابعة.';
 
   @override
   String get authEntryUnsupportedRestoreFeedback =>

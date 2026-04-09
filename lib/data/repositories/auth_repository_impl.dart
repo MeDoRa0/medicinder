@@ -1,6 +1,7 @@
 import '../../domain/entities/sync/auth_session.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth/auth_remote_data_source.dart';
+import '../datasources/auth/apple_auth_provider_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
@@ -10,6 +11,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthSession> getCurrentSession() =>
       _remoteDataSource.getCurrentSession();
+
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() =>
+      _remoteDataSource.getAppleAvailability();
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) =>

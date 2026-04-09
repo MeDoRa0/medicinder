@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../data/datasources/auth/apple_auth_provider_data_source.dart';
 import '../../../domain/entities/auth/app_entry_session.dart';
 
 class AuthEntryState extends Equatable {
@@ -8,6 +9,7 @@ class AuthEntryState extends Equatable {
   final AppEntryMode? inProgressMode;
   final AppEntryMode? unavailableMode;
   final String? feedbackCode;
+  final AppleAuthAvailability appleAvailability;
 
   const AuthEntryState({
     required this.session,
@@ -15,6 +17,7 @@ class AuthEntryState extends Equatable {
     this.inProgressMode,
     this.unavailableMode,
     this.feedbackCode,
+    this.appleAvailability = AppleAuthAvailability.unsupportedRunner,
   });
 
   const AuthEntryState.initial() : this(session: const AppEntrySession.restoring());
@@ -28,6 +31,7 @@ class AuthEntryState extends Equatable {
     bool clearUnavailableMode = false,
     String? feedbackCode,
     bool clearFeedbackCode = false,
+    AppleAuthAvailability? appleAvailability,
   }) {
     return AuthEntryState(
       session: session ?? this.session,
@@ -41,6 +45,7 @@ class AuthEntryState extends Equatable {
       feedbackCode: clearFeedbackCode
           ? null
           : feedbackCode ?? this.feedbackCode,
+      appleAvailability: appleAvailability ?? this.appleAvailability,
     );
   }
 
@@ -51,5 +56,6 @@ class AuthEntryState extends Equatable {
     inProgressMode,
     unavailableMode,
     feedbackCode,
+    appleAvailability,
   ];
 }

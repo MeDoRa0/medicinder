@@ -18,6 +18,12 @@ class RestoreAppEntrySession {
           restoredFromStorage: true,
         );
       }
+      if (currentSession.providerId == 'apple.com') {
+        return const AppEntrySession.authenticated(
+          entryMode: AppEntryMode.apple,
+          restoredFromStorage: true,
+        );
+      }
       return AppEntrySession.failure(
         failureCode: 'UNSUPPORTED_ENTRY_MODE',
         failureMessage: currentSession.providerId,

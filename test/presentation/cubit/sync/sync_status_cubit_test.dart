@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
@@ -102,6 +103,40 @@ void main() {
       );
 
       await cubit.signIn();
+      await cubit.signOut();
+
+      expect(cubit.state.viewState, SyncStatusViewState.signedOut);
+      expect(cubit.state.userId, isNull);
+      expect(appEntryRepository.cleared, isTrue);
+      await cubit.close();
+    });
+
+    test('Apple sign-out clears restored entry resolution after an authenticated session', () async {
+      final authRepository = _FakeAuthRepository(
+        initialSession: const AuthSession.ready(
+          'apple-user',
+          providerId: 'apple.com',
+        ),
+        watchedSession: const AuthSession.ready(
+          'apple-user',
+          providerId: 'apple.com',
+        ),
+      );
+      final appEntryRepository = _FakeAppEntryRepository();
+      final cubit = SyncStatusCubit(
+        signInForSync: SignInForSync(authRepository),
+        signOutFromSync: SignOutFromSync(authRepository),
+        watchAuthSession: WatchAuthSession(authRepository),
+        clearAppEntryState: ClearAppEntryState(appEntryRepository),
+        syncRepository: _FakeSyncRepository(),
+        syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
+      );
+
+      cubit.initialize();
+      await Future<void>.delayed(Duration.zero);
       await cubit.signOut();
 
       expect(cubit.state.viewState, SyncStatusViewState.signedOut);
@@ -235,15 +270,21 @@ class _FakeSyncRepository implements SyncRepository {
 class _FakeAuthRepository implements AuthRepository {
   AuthSession _session;
   final AuthSession watchedSession;
+  final AppleAuthAvailability appleAvailability;
 
   _FakeAuthRepository({
     AuthSession initialSession = const AuthSession.signedOut(),
     AuthSession? watchedSession,
+    this.appleAvailability = AppleAuthAvailability.unsupportedRunner,
   }) : _session = initialSession,
        watchedSession = watchedSession ?? initialSession;
 
   @override
   Future<AuthSession> getCurrentSession() async => _session;
+
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      appleAvailability;
 
   @override
   Future<AuthSession> signInForSync({String? providerId}) async {

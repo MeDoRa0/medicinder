@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/core/services/sync/connectivity_signal_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
@@ -132,6 +133,10 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
 }
 
 class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AppleAuthAvailability> getAppleAvailability() async =>
+      AppleAuthAvailability.unsupportedRunner;
+
   @override
   Future<AuthSession> getCurrentSession() async =>
       const AuthSession.signedOut();

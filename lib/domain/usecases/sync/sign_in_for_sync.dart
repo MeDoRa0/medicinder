@@ -6,6 +6,7 @@ class SignInForSync {
 
   SignInForSync(this._repository);
 
-  Future<AuthSession> call({String? providerId}) =>
-      _repository.signInForSync(providerId: providerId);
+  Future<AuthSession> call({String? providerId}) {
+    return _repository.signInForSync(providerId: providerId);
+  }
 }
