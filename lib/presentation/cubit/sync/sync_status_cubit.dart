@@ -29,6 +29,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   final NotificationSyncService _notificationSyncService;
   StreamSubscription<AuthSession>? _sessionSubscription;
   StreamSubscription<void>? _connectivitySubscription;
+  StreamSubscription<void>? _pendingChangesSubscription;
   bool _hasSeenSessionEvent = false;
   String? _ignoreNextSignedInUserId;
 
@@ -59,6 +60,9 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     });
     _connectivitySubscription ??= _connectivitySignal.onReconnect.listen((_) {
       unawaited(handleConnectivityRestored());
+    });
+    _pendingChangesSubscription ??= _syncQueue.onPendingChangeAdded.listen((_) {
+      unawaited(triggerBackgroundSync());
     });
     unawaited(_refreshFailedCount());
   }
@@ -215,6 +219,66 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
     }
   }
 
+  Future<void> triggerBackgroundSync() async {
+    if (state.viewState == SyncStatusViewState.signedOut ||
+        state.viewState == SyncStatusViewState.signingIn ||
+        state.viewState == SyncStatusViewState.syncing ||
+        state.userId == null) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        viewState: SyncStatusViewState.syncing,
+        busy: true,
+        clearMessage: true,
+      ),
+    );
+
+    try {
+      final result = await _syncRepository.syncNow(
+        SyncTrigger.localDataChanged,
+      );
+      if (!result.success &&
+          result.message == 'A sync cycle is already in progress.') {
+        return;
+      }
+
+      if (result.success && result.changedMedicationIds.isNotEmpty) {
+        await _notificationSyncService.regenerateNotifications(
+          changedMedicationIds: result.changedMedicationIds,
+        );
+      }
+      await _refreshFailedCount();
+      emit(
+        state.copyWith(
+          viewState: result.success
+              ? SyncStatusViewState.ready
+              : SyncStatusViewState.syncFailed,
+          busy: false,
+          message: result.message,
+        ),
+      );
+      _syncDiagnostics.logSyncEvent(
+        trigger: SyncTrigger.localDataChanged,
+        phase: 'completed',
+        pushedCount: result.pushedCount,
+        pulledCount: result.pulledCount,
+        retryCount: result.failedCount,
+        failureClass: result.success ? null : result.message,
+      );
+    } catch (error) {
+      await _refreshFailedCount();
+      emit(
+        state.copyWith(
+          viewState: SyncStatusViewState.syncFailed,
+          busy: false,
+          message: error.toString(),
+        ),
+      );
+    }
+  }
+
   Future<void> _handleStreamSessionChanged(AuthSession session) async {
     final currentEventIsFirst = !_hasSeenSessionEvent;
     _hasSeenSessionEvent = true;
@@ -344,6 +408,7 @@ class SyncStatusCubit extends Cubit<SyncStatusState> {
   Future<void> close() async {
     await _sessionSubscription?.cancel();
     await _connectivitySubscription?.cancel();
+    await _pendingChangesSubscription?.cancel();
     return super.close();
   }
 }

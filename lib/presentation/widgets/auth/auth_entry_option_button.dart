@@ -23,7 +23,9 @@ class AuthEntryOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final foregroundColor = enabled ? Colors.white : theme.colorScheme.onSurface;
+    final foregroundColor = enabled
+        ? Colors.white
+        : theme.colorScheme.onSurface;
     final backgroundColor = enabled
         ? theme.colorScheme.primary
         : theme.colorScheme.surfaceContainerHighest;

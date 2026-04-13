@@ -16,7 +16,8 @@ import 'package:medicinder/presentation/cubit/auth/auth_entry_cubit.dart';
 void main() {
   group('AuthEntryCubit', () {
     test('restores authenticated Google session before guest mode', () async {
-      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+      final appEntryRepository = _FakeAppEntryRepository()
+        ..storedMode = 'guest';
       final authRepository = _FakeAuthRepository(
         currentSession: const AuthSession.ready(
           'user-123',
@@ -86,52 +87,61 @@ void main() {
       expect(authRepository.lastProviderId, 'apple.com');
     });
 
-    test('Google sign-in exposes a busy state while the attempt is in progress', () async {
-      final completer = Completer<AuthSession>();
-      final authRepository = _FakeAuthRepository(signInCompleter: completer);
-      final cubit = _buildCubit(_FakeAppEntryRepository(), authRepository);
+    test(
+      'Google sign-in exposes a busy state while the attempt is in progress',
+      () async {
+        final completer = Completer<AuthSession>();
+        final authRepository = _FakeAuthRepository(signInCompleter: completer);
+        final cubit = _buildCubit(_FakeAppEntryRepository(), authRepository);
 
-      final future = cubit.signInWithGoogle();
+        final future = cubit.signInWithGoogle();
 
-      expect(cubit.state.busy, isTrue);
-      expect(cubit.state.inProgressMode, AppEntryMode.google);
+        expect(cubit.state.busy, isTrue);
+        expect(cubit.state.inProgressMode, AppEntryMode.google);
 
-      completer.complete(
-        const AuthSession.ready('user-123', providerId: 'google.com'),
-      );
-      await future;
-      expect(cubit.state.busy, isFalse);
-    });
+        completer.complete(
+          const AuthSession.ready('user-123', providerId: 'google.com'),
+        );
+        await future;
+        expect(cubit.state.busy, isFalse);
+      },
+    );
 
-    test('failed Google sign-in returns to unresolved gate with feedback', () async {
-      final authRepository = _FakeAuthRepository(
-        signInSession: const AuthSession.failed(
-          failureCode: 'GOOGLE_SIGN_IN_FAILED',
-        ),
-      );
-      final cubit = _buildCubit(_FakeAppEntryRepository(), authRepository);
+    test(
+      'failed Google sign-in returns to unresolved gate with feedback',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          signInSession: const AuthSession.failed(
+            failureCode: 'GOOGLE_SIGN_IN_FAILED',
+          ),
+        );
+        final cubit = _buildCubit(_FakeAppEntryRepository(), authRepository);
 
-      await cubit.signInWithGoogle();
+        await cubit.signInWithGoogle();
 
-      expect(cubit.state.session, const AppEntrySession.unresolved());
-      expect(cubit.state.feedbackCode, 'GOOGLE_SIGN_IN_FAILED');
-      expect(cubit.state.busy, isFalse);
-    });
+        expect(cubit.state.session, const AppEntrySession.unresolved());
+        expect(cubit.state.feedbackCode, 'GOOGLE_SIGN_IN_FAILED');
+        expect(cubit.state.busy, isFalse);
+      },
+    );
 
-    test('failed Apple sign-in returns to unresolved gate with feedback', () async {
-      final authRepository = _FakeAuthRepository(
-        signInSession: const AuthSession.failed(
-          failureCode: 'APPLE_SIGN_IN_CONFLICT',
-        ),
-      );
-      final cubit = _buildCubit(_FakeAppEntryRepository(), authRepository);
+    test(
+      'failed Apple sign-in returns to unresolved gate with feedback',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          signInSession: const AuthSession.failed(
+            failureCode: 'APPLE_SIGN_IN_CONFLICT',
+          ),
+        );
+        final cubit = _buildCubit(_FakeAppEntryRepository(), authRepository);
 
-      await cubit.signInWithApple();
+        await cubit.signInWithApple();
 
-      expect(cubit.state.session, const AppEntrySession.unresolved());
-      expect(cubit.state.feedbackCode, 'APPLE_SIGN_IN_CONFLICT');
-      expect(cubit.state.busy, isFalse);
-    });
+        expect(cubit.state.session, const AppEntrySession.unresolved());
+        expect(cubit.state.feedbackCode, 'APPLE_SIGN_IN_CONFLICT');
+        expect(cubit.state.busy, isFalse);
+      },
+    );
 
     test('continues as guest and persists the guest marker', () async {
       final repository = _FakeAppEntryRepository();

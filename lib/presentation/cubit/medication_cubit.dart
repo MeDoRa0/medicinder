@@ -156,9 +156,11 @@ class MedicationCubit extends Cubit<MedicationState> {
       await _updateMedication(medication);
 
       // T012: Reschedule notifications immediately for offline edit support
-      await NotificationOptimizer().cancelMedicationNotifications(medication.id);
+      await NotificationOptimizer().cancelMedicationNotifications(
+        medication.id,
+      );
       await NotificationOptimizer().scheduleNextDoseNotification(
-        medication, 
+        medication,
         context: navigatorKey.currentContext,
       );
 

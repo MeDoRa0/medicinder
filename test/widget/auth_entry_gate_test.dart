@@ -25,10 +25,7 @@ void main() {
       _FakeAuthRepository(appleAvailability: AppleAuthAvailability.supported),
     );
     await tester.pumpWidget(
-      _GateHarness(
-        cubit: iosCubit,
-        platform: TargetPlatform.iOS,
-      ),
+      _GateHarness(cubit: iosCubit, platform: TargetPlatform.iOS),
     );
     await tester.pump();
 
@@ -41,10 +38,7 @@ void main() {
       _FakeAuthRepository(),
     );
     await tester.pumpWidget(
-      _GateHarness(
-        cubit: androidCubit,
-        platform: TargetPlatform.android,
-      ),
+      _GateHarness(cubit: androidCubit, platform: TargetPlatform.android),
     );
     await tester.pump();
 
@@ -58,10 +52,7 @@ void main() {
     final cubit = _buildCubit(repository, _FakeAuthRepository());
 
     await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.android,
-      ),
+      _GateHarness(cubit: cubit, platform: TargetPlatform.android),
     );
 
     await tester.tap(find.text('Continue as Guest'));
@@ -71,61 +62,57 @@ void main() {
     expect(cubit.state.session.isResolved, isTrue);
   });
 
-  testWidgets('successful Google sign-in routes the cubit to authenticated state', (
-    tester,
-  ) async {
-    final cubit = _buildCubit(
-      _FakeAppEntryRepository(),
-      _FakeAuthRepository(
-        signInSession: const AuthSession.ready(
-          'user-123',
-          providerId: 'google.com',
+  testWidgets(
+    'successful Google sign-in routes the cubit to authenticated state',
+    (tester) async {
+      final cubit = _buildCubit(
+        _FakeAppEntryRepository(),
+        _FakeAuthRepository(
+          signInSession: const AuthSession.ready(
+            'user-123',
+            providerId: 'google.com',
+          ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.android,
-      ),
-    );
+      await tester.pumpWidget(
+        _GateHarness(cubit: cubit, platform: TargetPlatform.android),
+      );
 
-    await tester.tap(find.text('Continue with Google'));
-    await tester.pump();
+      await tester.tap(find.text('Continue with Google'));
+      await tester.pump();
 
-    expect(cubit.state.session.status, AppEntrySessionStatus.authenticated);
-    expect(cubit.state.session.entryMode, AppEntryMode.google);
-  });
+      expect(cubit.state.session.status, AppEntrySessionStatus.authenticated);
+      expect(cubit.state.session.entryMode, AppEntryMode.google);
+    },
+  );
 
-  testWidgets('successful Apple sign-in routes the cubit to authenticated state', (
-    tester,
-  ) async {
-    final cubit = _buildCubit(
-      _FakeAppEntryRepository(),
-      _FakeAuthRepository(
-        appleAvailability: AppleAuthAvailability.supported,
-        signInSession: const AuthSession.ready(
-          'user-apple',
-          providerId: 'apple.com',
+  testWidgets(
+    'successful Apple sign-in routes the cubit to authenticated state',
+    (tester) async {
+      final cubit = _buildCubit(
+        _FakeAppEntryRepository(),
+        _FakeAuthRepository(
+          appleAvailability: AppleAuthAvailability.supported,
+          signInSession: const AuthSession.ready(
+            'user-apple',
+            providerId: 'apple.com',
+          ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.iOS,
-      ),
-    );
-    await tester.pump();
+      await tester.pumpWidget(
+        _GateHarness(cubit: cubit, platform: TargetPlatform.iOS),
+      );
+      await tester.pump();
 
-    await tester.tap(find.text('Continue with Apple'));
-    await tester.pump();
+      await tester.tap(find.text('Continue with Apple'));
+      await tester.pump();
 
-    expect(cubit.state.session.status, AppEntrySessionStatus.authenticated);
-    expect(cubit.state.session.entryMode, AppEntryMode.apple);
-  });
+      expect(cubit.state.session.status, AppEntrySessionStatus.authenticated);
+      expect(cubit.state.session.entryMode, AppEntryMode.apple);
+    },
+  );
 
   testWidgets('shows a loading indicator while Google sign-in is in progress', (
     tester,
@@ -137,10 +124,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.android,
-      ),
+      _GateHarness(cubit: cubit, platform: TargetPlatform.android),
     );
 
     await tester.tap(find.text('Continue with Google'));
@@ -158,10 +142,7 @@ void main() {
     final cubit = _buildCubit(_FakeAppEntryRepository(), _FakeAuthRepository());
 
     await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.windows,
-      ),
+      _GateHarness(cubit: cubit, platform: TargetPlatform.windows),
     );
 
     final googleButton = tester.widget<FilledButton>(
@@ -171,33 +152,31 @@ void main() {
     expect(find.text('Continue as Guest'), findsOneWidget);
   });
 
-  testWidgets('unavailable iOS device shows Apple as disabled with localized copy', (
-    tester,
-  ) async {
-    final cubit = _buildCubit(
-      _FakeAppEntryRepository(),
-      _FakeAuthRepository(
-        appleAvailability: AppleAuthAvailability.unavailableOnDevice,
-      ),
-    );
+  testWidgets(
+    'unavailable iOS device shows Apple as disabled with localized copy',
+    (tester) async {
+      final cubit = _buildCubit(
+        _FakeAppEntryRepository(),
+        _FakeAuthRepository(
+          appleAvailability: AppleAuthAvailability.unavailableOnDevice,
+        ),
+      );
 
-    await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.iOS,
-      ),
-    );
-    await tester.pump();
+      await tester.pumpWidget(
+        _GateHarness(cubit: cubit, platform: TargetPlatform.iOS),
+      );
+      await tester.pump();
 
-    final appleButton = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Continue with Apple'),
-    );
-    expect(appleButton.onPressed, isNull);
-    expect(
-      find.text('Apple sign-in is not available on this device right now.'),
-      findsOneWidget,
-    );
-  });
+      final appleButton = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Continue with Apple'),
+      );
+      expect(appleButton.onPressed, isNull);
+      expect(
+        find.text('Apple sign-in is not available on this device right now.'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets('Apple conflict feedback is localized after a failed attempt', (
     tester,
@@ -213,10 +192,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      _GateHarness(
-        cubit: cubit,
-        platform: TargetPlatform.iOS,
-      ),
+      _GateHarness(cubit: cubit, platform: TargetPlatform.iOS),
     );
     await tester.pump();
 

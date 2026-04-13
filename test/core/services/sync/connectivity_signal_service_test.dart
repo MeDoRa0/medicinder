@@ -11,12 +11,14 @@ class _FakeConnectivity implements Connectivity {
   void emit(List<ConnectivityResult> results) => _controller.add(results);
 
   @override
-  Stream<List<ConnectivityResult>> get onConnectivityChanged => _controller.stream;
+  Stream<List<ConnectivityResult>> get onConnectivityChanged =>
+      _controller.stream;
 
   // --- Stub required interface methods ---
   @override
-  Future<List<ConnectivityResult>> checkConnectivity() async =>
-      [ConnectivityResult.none];
+  Future<List<ConnectivityResult>> checkConnectivity() async => [
+    ConnectivityResult.none,
+  ];
 
   Future<void> close() => _controller.close();
 }
@@ -42,26 +44,29 @@ void main() {
       await fakeConnectivity.close();
     });
 
-    test('emits multiple times for multiple connectivity restore events', () async {
-      final fakeConnectivity = _FakeConnectivity();
-      final service = ConnectivitySignalService(fakeConnectivity);
+    test(
+      'emits multiple times for multiple connectivity restore events',
+      () async {
+        final fakeConnectivity = _FakeConnectivity();
+        final service = ConnectivitySignalService(fakeConnectivity);
 
-      final reconnectEvents = <void>[];
-      final subscription = service.onReconnect.listen((_) {
-        reconnectEvents.add(null);
-      });
+        final reconnectEvents = <void>[];
+        final subscription = service.onReconnect.listen((_) {
+          reconnectEvents.add(null);
+        });
 
-      fakeConnectivity.emit([ConnectivityResult.wifi]);
-      await Future<void>.delayed(Duration.zero);
-      fakeConnectivity.emit([ConnectivityResult.mobile]);
-      await Future<void>.delayed(Duration.zero);
+        fakeConnectivity.emit([ConnectivityResult.wifi]);
+        await Future<void>.delayed(Duration.zero);
+        fakeConnectivity.emit([ConnectivityResult.mobile]);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(reconnectEvents, hasLength(2));
+        expect(reconnectEvents, hasLength(2));
 
-      await subscription.cancel();
-      await service.dispose();
-      await fakeConnectivity.close();
-    });
+        await subscription.cancel();
+        await service.dispose();
+        await fakeConnectivity.close();
+      },
+    );
 
     test('does not emit on onReconnect when connectivity is none', () async {
       final fakeConnectivity = _FakeConnectivity();
@@ -82,24 +87,30 @@ void main() {
       await fakeConnectivity.close();
     });
 
-    test('emits when at least one result is non-none in a multi-result list', () async {
-      final fakeConnectivity = _FakeConnectivity();
-      final service = ConnectivitySignalService(fakeConnectivity);
+    test(
+      'emits when at least one result is non-none in a multi-result list',
+      () async {
+        final fakeConnectivity = _FakeConnectivity();
+        final service = ConnectivitySignalService(fakeConnectivity);
 
-      final reconnectEvents = <void>[];
-      final subscription = service.onReconnect.listen((_) {
-        reconnectEvents.add(null);
-      });
+        final reconnectEvents = <void>[];
+        final subscription = service.onReconnect.listen((_) {
+          reconnectEvents.add(null);
+        });
 
-      fakeConnectivity.emit([ConnectivityResult.none, ConnectivityResult.wifi]);
-      await Future<void>.delayed(Duration.zero);
+        fakeConnectivity.emit([
+          ConnectivityResult.none,
+          ConnectivityResult.wifi,
+        ]);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(reconnectEvents, hasLength(1));
+        expect(reconnectEvents, hasLength(1));
 
-      await subscription.cancel();
-      await service.dispose();
-      await fakeConnectivity.close();
-    });
+        await subscription.cancel();
+        await service.dispose();
+        await fakeConnectivity.close();
+      },
+    );
 
     test('does not emit after dispose', () async {
       final fakeConnectivity = _FakeConnectivity();
@@ -126,25 +137,28 @@ void main() {
       await fakeConnectivity.close();
     });
 
-    test('onReconnect stream is broadcast and supports multiple listeners', () async {
-      final fakeConnectivity = _FakeConnectivity();
-      final service = ConnectivitySignalService(fakeConnectivity);
+    test(
+      'onReconnect stream is broadcast and supports multiple listeners',
+      () async {
+        final fakeConnectivity = _FakeConnectivity();
+        final service = ConnectivitySignalService(fakeConnectivity);
 
-      final listener1 = <void>[];
-      final listener2 = <void>[];
-      final sub1 = service.onReconnect.listen((_) => listener1.add(null));
-      final sub2 = service.onReconnect.listen((_) => listener2.add(null));
+        final listener1 = <void>[];
+        final listener2 = <void>[];
+        final sub1 = service.onReconnect.listen((_) => listener1.add(null));
+        final sub2 = service.onReconnect.listen((_) => listener2.add(null));
 
-      fakeConnectivity.emit([ConnectivityResult.wifi]);
-      await Future<void>.delayed(Duration.zero);
+        fakeConnectivity.emit([ConnectivityResult.wifi]);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(listener1, hasLength(1));
-      expect(listener2, hasLength(1));
+        expect(listener1, hasLength(1));
+        expect(listener2, hasLength(1));
 
-      await sub1.cancel();
-      await sub2.cancel();
-      await service.dispose();
-      await fakeConnectivity.close();
-    });
+        await sub1.cancel();
+        await sub2.cancel();
+        await service.dispose();
+        await fakeConnectivity.close();
+      },
+    );
   });
 }

@@ -16,9 +16,9 @@ class NotificationSyncService {
     required MedicationRepository medicationRepository,
     required NotificationOptimizer notificationOptimizer,
     required SyncDiagnostics syncDiagnostics,
-  })  : _medicationRepository = medicationRepository,
-        _notificationOptimizer = notificationOptimizer,
-        _syncDiagnostics = syncDiagnostics;
+  }) : _medicationRepository = medicationRepository,
+       _notificationOptimizer = notificationOptimizer,
+       _syncDiagnostics = syncDiagnostics;
 
   Future<NotificationRegenerationSummary> regenerateNotifications({
     required List<String> changedMedicationIds,
@@ -43,28 +43,36 @@ class NotificationSyncService {
         );
 
         if (medication == null) {
-          final count = await _notificationOptimizer.cancelMedicationNotifications(medicationId);
+          final count = await _notificationOptimizer
+              .cancelMedicationNotifications(medicationId);
           cancelled += count;
           continue;
         }
 
         if (medication.isDeleted) {
-          final count = await _notificationOptimizer.cancelMedicationNotifications(medicationId);
+          final count = await _notificationOptimizer
+              .cancelMedicationNotifications(medicationId);
           cancelled += count;
           continue;
         }
 
         if (medication.doses.isEmpty) {
-          log('Skipping notification regeneration for medication $medicationId: no doses', name: 'sync');
+          log(
+            'Skipping notification regeneration for medication $medicationId: no doses',
+            name: 'sync',
+          );
           failures++;
           continue;
         }
 
-        final count = await _notificationOptimizer.cancelMedicationNotifications(medicationId);
+        final count = await _notificationOptimizer
+            .cancelMedicationNotifications(medicationId);
         cancelled += count;
 
         if (!permissionDenied) {
-          final currentContext = (context != null && context.mounted) ? context : null;
+          final currentContext = (context != null && context.mounted)
+              ? context
+              : null;
           await _notificationOptimizer.scheduleNextDoseNotification(
             medication,
             context: currentContext,
@@ -72,7 +80,12 @@ class NotificationSyncService {
           scheduled++;
         }
       } catch (e, stackTrace) {
-        log('Error regenerating notifications for $medicationId: $e', error: e, stackTrace: stackTrace, name: 'sync');
+        log(
+          'Error regenerating notifications for $medicationId: $e',
+          error: e,
+          stackTrace: stackTrace,
+          name: 'sync',
+        );
         failures++;
       }
     }

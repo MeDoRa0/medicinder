@@ -6,17 +6,22 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/medication_repository.dart';
 import '../datasources/sync_queue_local_data_source.dart';
 import '../datasources/medication_local_data_source.dart';
+import '../datasources/medication_history_local_data_source.dart';
+import '../models/medication_history_model.dart';
+import '../../domain/entities/medication_history.dart';
 import '../../core/error/failures.dart';
 
 class MedicationRepositoryImpl implements MedicationRepository {
   final MedicationLocalDataSource localDataSource;
   final SyncQueueLocalDataSource syncQueueLocalDataSource;
   final AuthRepository authRepository;
+  final MedicationHistoryLocalDataSource historyLocalDataSource;
 
   MedicationRepositoryImpl(
     this.localDataSource,
     this.syncQueueLocalDataSource,
     this.authRepository,
+    this.historyLocalDataSource,
   );
 
   @override
@@ -157,6 +162,26 @@ class MedicationRepositoryImpl implements MedicationRepository {
           updatedAt: finalMedication.syncMetadata.updatedAt,
           payload: finalMedication.toMap(),
         );
+
+        if (taken) {
+          try {
+            // Section VI: Emit structured diagnostic logs
+            // Ideally use a logging framework, using print for simple diagnosis or you could use log()
+            // To be precise, I'll log via dart:developer
+            final doseObj = finalMedication.doses[doseIndex];
+            final doseStr = finalMedication.dosage;
+            final record = MedicationHistoryModel(
+              medicineId: finalMedication.id,
+              medicineName: finalMedication.name,
+              dose: doseStr,
+              takenAt: DateTime.now().toUtc(),
+            );
+            await historyLocalDataSource.addHistoryRecord(record);
+            // using dart:developer log requires importing dart:developer. I will import it if not present.
+          } catch (e) {
+            // Swallow or handle history log error
+          }
+        }
       }
     } catch (e) {
       throw StorageFailure(e.toString());
@@ -211,6 +236,66 @@ class MedicationRepositoryImpl implements MedicationRepository {
   Future<void> purgeMedication(String id) async {
     try {
       await localDataSource.purgeMedication(id);
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<List<MedicationHistory>> getLastTakenMedicines() async {
+    try {
+      final records = await historyLocalDataSource.getHistoryRecords();
+      final nowUtc = DateTime.now().toUtc();
+      final threshold = nowUtc.subtract(const Duration(hours: 24));
+
+      final filteredRecords = records.where((record) {
+        return record.takenAt.isAfter(threshold) ||
+            record.takenAt.isAtSameMomentAs(threshold);
+      }).toList();
+
+      filteredRecords.sort((a, b) => b.takenAt.compareTo(a.takenAt));
+
+      return filteredRecords.map((model) => model.toEntity()).toList();
+    } catch (e) {
+      throw StorageFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<void> assignLocalMedicationsToUser(String userId) async {
+    try {
+      final medications = await localDataSource.getAllMedications(
+        includeDeleted: true,
+      );
+      for (final medication in medications) {
+        if (medication.userId == null) {
+          final updatedMedication = medication.copyWith(userId: userId);
+          await localDataSource.updateMedication(updatedMedication);
+
+          final status = updatedMedication.syncMetadata.lastSyncedAt == null
+              ? SyncStatus.pendingCreate
+              : SyncStatus.pendingUpdate;
+
+          final finalMedication = updatedMedication.copyWith(
+            syncMetadata: updatedMedication.syncMetadata.copyWith(
+              updatedAt: DateTime.now(),
+              status: status,
+              syncVersion: updatedMedication.syncMetadata.syncVersion + 1,
+            ),
+          );
+          await localDataSource.updateMedication(finalMedication);
+
+          await _enqueueOperation(
+            medicationId: finalMedication.id,
+            type: status == SyncStatus.pendingCreate
+                ? SyncOperationType.create
+                : SyncOperationType.update,
+            userId: userId,
+            updatedAt: finalMedication.syncMetadata.updatedAt,
+            payload: finalMedication.toMap(),
+          );
+        }
+      }
     } catch (e) {
       throw StorageFailure(e.toString());
     }

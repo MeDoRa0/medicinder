@@ -17,9 +17,11 @@ import '../../data/datasources/auth/apple_auth_provider_data_source.dart';
 import '../../data/datasources/auth/google_auth_provider_data_source.dart';
 import '../../data/datasources/medication_remote_data_source.dart';
 import '../../data/datasources/medication_local_data_source.dart';
+import '../../data/datasources/medication_history_local_data_source.dart';
 import '../../data/datasources/sync_state_local_data_source.dart';
 import '../../data/datasources/sync_queue_local_data_source.dart';
 import '../../data/models/medication_model.dart';
+import '../../data/models/medication_history_model.dart';
 import '../../data/models/sync/conflict_metadata_model.dart';
 import '../../data/models/sync/pending_change_model.dart';
 import '../../data/models/sync/sync_cycle_state_model.dart';
@@ -83,6 +85,9 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   if (!Hive.isAdapterRegistered(6)) {
     Hive.registerAdapter(SyncCycleStateModelAdapter());
   }
+  if (!Hive.isAdapterRegistered(7)) {
+    Hive.registerAdapter(MedicationHistoryModelAdapter());
+  }
 
   // Handle data migration for model structure changes
   Box<MedicationModel> medicationBox;
@@ -112,6 +117,10 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
 
   final legacySyncOperationBox = await Hive.openBox<SyncOperationModel>(
     'sync_operations_legacy',
+  );
+
+  final medicationHistoryBox = await Hive.openBox<MedicationHistoryModel>(
+    'medication_history',
   );
 
   // Migrate legacy sync_queue box (no longer needed after PendingChange migration)
@@ -184,6 +193,9 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   sl.registerLazySingleton<MedicationLocalDataSource>(
     () => MedicationLocalDataSource(medicationBox),
   );
+  sl.registerLazySingleton<MedicationHistoryLocalDataSource>(
+    () => MedicationHistoryLocalDataSource(medicationHistoryBox),
+  );
   sl.registerLazySingleton<SyncQueueLocalDataSource>(
     () => SyncQueueLocalDataSource(legacySyncOperationBox, pendingChangeBox),
   );
@@ -227,9 +239,11 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
-  sl.registerLazySingleton<AppEntryRepository>(() => AppEntryRepositoryImpl(sl()));
+  sl.registerLazySingleton<AppEntryRepository>(
+    () => AppEntryRepositoryImpl(sl()),
+  );
   sl.registerLazySingleton<MedicationRepository>(
-    () => MedicationRepositoryImpl(sl(), sl(), sl()),
+    () => MedicationRepositoryImpl(sl(), sl(), sl(), sl()),
   );
   sl.registerLazySingleton<SyncRepository>(
     () => SyncService(

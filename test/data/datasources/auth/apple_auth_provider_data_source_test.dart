@@ -4,27 +4,33 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 void main() {
   group('PlatformAppleAuthProviderDataSource', () {
-    test('reports availability when the iOS runner supports Apple sign-in', () async {
-      final dataSource = PlatformAppleAuthProviderDataSource(
-        client: _FakeAppleAuthClient(isAvailableResult: true),
-        platformSupportResolver: () => true,
-      );
+    test(
+      'reports availability when the iOS runner supports Apple sign-in',
+      () async {
+        final dataSource = PlatformAppleAuthProviderDataSource(
+          client: _FakeAppleAuthClient(isAvailableResult: true),
+          platformSupportResolver: () => true,
+        );
 
-      final availability = await dataSource.getAvailability();
+        final availability = await dataSource.getAvailability();
 
-      expect(availability, AppleAuthAvailability.supported);
-    });
+        expect(availability, AppleAuthAvailability.supported);
+      },
+    );
 
-    test('returns unavailable when the device cannot use Apple sign-in', () async {
-      final dataSource = PlatformAppleAuthProviderDataSource(
-        client: _FakeAppleAuthClient(isAvailableResult: false),
-        platformSupportResolver: () => true,
-      );
+    test(
+      'returns unavailable when the device cannot use Apple sign-in',
+      () async {
+        final dataSource = PlatformAppleAuthProviderDataSource(
+          client: _FakeAppleAuthClient(isAvailableResult: false),
+          platformSupportResolver: () => true,
+        );
 
-      final availability = await dataSource.getAvailability();
+        final availability = await dataSource.getAvailability();
 
-      expect(availability, AppleAuthAvailability.unavailableOnDevice);
-    });
+        expect(availability, AppleAuthAvailability.unavailableOnDevice);
+      },
+    );
 
     test('returns a successful Apple credential payload', () async {
       final dataSource = PlatformAppleAuthProviderDataSource(

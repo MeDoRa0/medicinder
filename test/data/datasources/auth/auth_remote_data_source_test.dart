@@ -40,75 +40,87 @@ void main() {
 
       final session = await dataSource.signInForSync(providerId: 'apple.com');
 
-      expect(session, const AuthSession.ready('user-123', providerId: 'apple.com'));
+      expect(
+        session,
+        const AuthSession.ready('user-123', providerId: 'apple.com'),
+      );
       expect(gateway.lastAppleRawNonce, 'raw-nonce');
       expect(workspaceStore.lastStableIdentity, 'stable-apple-id');
       expect(workspaceStore.lastEmail, 'apple@example.com');
       expect(workspaceStore.lastDisplayName, 'Med Icinder');
     });
 
-    test('preserves the stable Apple identity when email and name are absent', () async {
-      final workspaceStore = _FakeWorkspaceStore();
-      final dataSource = FirebaseAuthRemoteDataSource.withGateways(
-        authGateway: _FakeAuthGateway(
-          signedInAppleUser: const AuthGatewayUser(
-            uid: 'user-123',
-            email: null,
-            displayName: null,
-            creationTime: null,
-            providerIds: ['apple.com'],
+    test(
+      'preserves the stable Apple identity when email and name are absent',
+      () async {
+        final workspaceStore = _FakeWorkspaceStore();
+        final dataSource = FirebaseAuthRemoteDataSource.withGateways(
+          authGateway: _FakeAuthGateway(
+            signedInAppleUser: const AuthGatewayUser(
+              uid: 'user-123',
+              email: null,
+              displayName: null,
+              creationTime: null,
+              providerIds: ['apple.com'],
+            ),
           ),
-        ),
-        workspaceStore: workspaceStore,
-        appleAuthProviderDataSource: _FakeAppleAuthProviderDataSource(
-          result: const AppleAuthProviderResult.success(
-            identityToken: 'token',
-            rawNonce: 'raw-nonce',
-            authorizationCode: 'auth-code',
-            userIdentifier: 'stable-apple-id',
+          workspaceStore: workspaceStore,
+          appleAuthProviderDataSource: _FakeAppleAuthProviderDataSource(
+            result: const AppleAuthProviderResult.success(
+              identityToken: 'token',
+              rawNonce: 'raw-nonce',
+              authorizationCode: 'auth-code',
+              userIdentifier: 'stable-apple-id',
+            ),
           ),
-        ),
-        googleAuthProviderDataSource: _FakeGoogleAuthProviderDataSource(),
-        profileStore: _FakeProfileStore(),
-      );
+          googleAuthProviderDataSource: _FakeGoogleAuthProviderDataSource(),
+          profileStore: _FakeProfileStore(),
+        );
 
-      final session = await dataSource.signInForSync(providerId: 'apple.com');
+        final session = await dataSource.signInForSync(providerId: 'apple.com');
 
-      expect(session, const AuthSession.ready('user-123', providerId: 'apple.com'));
-      expect(workspaceStore.lastStableIdentity, 'stable-apple-id');
-      expect(workspaceStore.lastEmail, isNull);
-      expect(workspaceStore.lastDisplayName, isNull);
-    });
+        expect(
+          session,
+          const AuthSession.ready('user-123', providerId: 'apple.com'),
+        );
+        expect(workspaceStore.lastStableIdentity, 'stable-apple-id');
+        expect(workspaceStore.lastEmail, isNull);
+        expect(workspaceStore.lastDisplayName, isNull);
+      },
+    );
 
-    test('treats Apple credential conflicts as user-facing sign-in failures', () async {
-      final gateway = _FakeAuthGateway(
-        appleSignInException: const AuthGatewayException(
-          'account-exists-with-different-credential',
-          'An account already exists with the same email address but different sign-in credentials.',
-        ),
-      );
-      final dataSource = FirebaseAuthRemoteDataSource.withGateways(
-        authGateway: gateway,
-        workspaceStore: _FakeWorkspaceStore(),
-        appleAuthProviderDataSource: _FakeAppleAuthProviderDataSource(
-          result: const AppleAuthProviderResult.success(
-            identityToken: 'token',
-            rawNonce: 'raw-nonce',
-            authorizationCode: 'auth-code',
-            userIdentifier: 'stable-apple-id',
-            email: 'apple@example.com',
+    test(
+      'treats Apple credential conflicts as user-facing sign-in failures',
+      () async {
+        final gateway = _FakeAuthGateway(
+          appleSignInException: const AuthGatewayException(
+            'account-exists-with-different-credential',
+            'An account already exists with the same email address but different sign-in credentials.',
           ),
-        ),
-        googleAuthProviderDataSource: _FakeGoogleAuthProviderDataSource(),
-        profileStore: _FakeProfileStore(),
-      );
+        );
+        final dataSource = FirebaseAuthRemoteDataSource.withGateways(
+          authGateway: gateway,
+          workspaceStore: _FakeWorkspaceStore(),
+          appleAuthProviderDataSource: _FakeAppleAuthProviderDataSource(
+            result: const AppleAuthProviderResult.success(
+              identityToken: 'token',
+              rawNonce: 'raw-nonce',
+              authorizationCode: 'auth-code',
+              userIdentifier: 'stable-apple-id',
+              email: 'apple@example.com',
+            ),
+          ),
+          googleAuthProviderDataSource: _FakeGoogleAuthProviderDataSource(),
+          profileStore: _FakeProfileStore(),
+        );
 
-      final session = await dataSource.signInForSync(providerId: 'apple.com');
+        final session = await dataSource.signInForSync(providerId: 'apple.com');
 
-      expect(session.status, AuthSessionStatus.failed);
-      expect(session.failureCode, 'APPLE_SIGN_IN_CONFLICT');
-      expect(gateway.appleSignInCalls, 1);
-    });
+        expect(session.status, AuthSessionStatus.failed);
+        expect(session.failureCode, 'APPLE_SIGN_IN_CONFLICT');
+        expect(gateway.appleSignInCalls, 1);
+      },
+    );
 
     test('treats workspace bootstrap failures as sign-in failures', () async {
       final dataSource = FirebaseAuthRemoteDataSource.withGateways(
@@ -243,15 +255,14 @@ class _FakeAppleAuthProviderDataSource implements AppleAuthProviderDataSource {
   Future<AppleAuthProviderResult> signIn() async => result;
 }
 
-class _FakeGoogleAuthProviderDataSource implements GoogleAuthProviderDataSource {
+class _FakeGoogleAuthProviderDataSource
+    implements GoogleAuthProviderDataSource {
   @override
   bool get isSupported => true;
 
   @override
   Future<GoogleAuthProviderResult> signIn() async =>
-      const GoogleAuthProviderResult.failure(
-        failureCode: 'GOOGLE_UNUSED',
-      );
+      const GoogleAuthProviderResult.failure(failureCode: 'GOOGLE_UNUSED');
 
   @override
   Future<void> signOut() async {}

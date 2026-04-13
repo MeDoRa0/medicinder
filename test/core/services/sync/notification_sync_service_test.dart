@@ -8,6 +8,9 @@ import 'package:medicinder/domain/entities/medication.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
 
 class _FakeMedicationRepository implements MedicationRepository {
+  @override
+  Future<void> assignLocalMedicationsToUser(String userId) async {}
+
   final Map<String, Medication> medications = {};
 
   @override
@@ -21,8 +24,11 @@ class _FakeMedicationRepository implements MedicationRepository {
   }) async {
     return medications[id];
   }
+
   @override
-  Future<List<Medication>> getMedications({bool includeDeleted = false}) async => [];
+  Future<List<Medication>> getMedications({
+    bool includeDeleted = false,
+  }) async => [];
   @override
   Future<void> purgeMedication(String id) async {}
   @override
@@ -46,12 +52,18 @@ class _FakeNotificationOptimizer implements NotificationOptimizer {
   bool mockIsAllowed = true;
 
   @override
-  Future<void> scheduleNextDoseNotification(Medication medication, {BuildContext? context}) async {
+  Future<void> scheduleNextDoseNotification(
+    Medication medication, {
+    BuildContext? context,
+  }) async {
     capturedGenerateMedications.add(medication);
   }
 
   @override
-  Future<void> batchScheduleNotifications(List<Medication> medications, {BuildContext? context}) async {}
+  Future<void> batchScheduleNotifications(
+    List<Medication> medications, {
+    BuildContext? context,
+  }) async {}
 
   @override
   Future<int> cancelMedicationNotifications(String medicationId) async {
@@ -92,13 +104,17 @@ void main() {
     });
 
     test('returns early if changedMedicationIds is empty', () async {
-      final summary = await service.regenerateNotifications(changedMedicationIds: []);
+      final summary = await service.regenerateNotifications(
+        changedMedicationIds: [],
+      );
       expect(summary.medicationsProcessed, 0);
       expect(summary.permissionDenied, isFalse);
     });
 
     test('ignores changed IDs if not found in repository', () async {
-      final summary = await service.regenerateNotifications(changedMedicationIds: ['not-found']);
+      final summary = await service.regenerateNotifications(
+        changedMedicationIds: ['not-found'],
+      );
       expect(summary.medicationsProcessed, 1);
       expect(summary.failures, 0);
       expect(summary.notificationsCancelled, 1);
@@ -114,14 +130,18 @@ void main() {
         dosage: '100mg',
         type: MedicationType.pill,
         timingType: MedicationTimingType.specificTime,
-        doses: [MedicationDose(time: now.add(const Duration(hours: 1)), taken: false)],
+        doses: [
+          MedicationDose(time: now.add(const Duration(hours: 1)), taken: false),
+        ],
         totalDays: 2,
         startDate: now,
         now: now,
       );
       repository.medications['med-1'] = med;
 
-      final summary = await service.regenerateNotifications(changedMedicationIds: ['med-1']);
+      final summary = await service.regenerateNotifications(
+        changedMedicationIds: ['med-1'],
+      );
 
       expect(summary.medicationsProcessed, 1);
       expect(summary.failures, 0);
@@ -130,12 +150,17 @@ void main() {
       expect(optimizer.cancelAllCalled, isFalse);
     });
 
-    test('returns permissionDenied if user denies notification permission', () async {
-      optimizer.mockIsAllowed = false;
-      final summary = await service.regenerateNotifications(changedMedicationIds: ['med-1']);
+    test(
+      'returns permissionDenied if user denies notification permission',
+      () async {
+        optimizer.mockIsAllowed = false;
+        final summary = await service.regenerateNotifications(
+          changedMedicationIds: ['med-1'],
+        );
 
-      expect(summary.permissionDenied, isTrue);
-    });
+        expect(summary.permissionDenied, isTrue);
+      },
+    );
 
     test('cancelAllMedicationNotifications delegates to optimizer', () async {
       await service.cancelAllMedicationNotifications();

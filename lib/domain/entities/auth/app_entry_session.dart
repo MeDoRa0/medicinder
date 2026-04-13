@@ -1,6 +1,12 @@
 import 'package:equatable/equatable.dart';
 
-enum AppEntrySessionStatus { restoring, unresolved, guest, authenticated, failure }
+enum AppEntrySessionStatus {
+  restoring,
+  unresolved,
+  guest,
+  authenticated,
+  failure,
+}
 
 enum AppEntryMode { none, guest, google, apple }
 

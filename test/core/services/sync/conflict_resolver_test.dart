@@ -2,10 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medicinder/core/services/sync/conflict_resolver.dart';
 import 'package:medicinder/domain/entities/medication.dart';
 
-Medication _buildMedication({
-  required String id,
-  required DateTime updatedAt,
-}) {
+Medication _buildMedication({required String id, required DateTime updatedAt}) {
   return Medication.create(
     id: id,
     name: 'Vitamin C',
@@ -60,45 +57,56 @@ void main() {
       expect(resolved.name, 'Updated locally');
     });
 
-    test('merges dose statuses based on union of taken doses when structures are identical', () async {
-      const resolver = MedicationConflictResolver();
-      final baseDate = DateTime(2026, 4, 1);
+    test(
+      'merges dose statuses based on union of taken doses when structures are identical',
+      () async {
+        const resolver = MedicationConflictResolver();
+        final baseDate = DateTime(2026, 4, 1);
 
-      final medication = _buildMedication(
-        id: 'med-1',
-        updatedAt: baseDate,
-      ).copyWith(
-        doses: [
-          const MedicationDose(taken: false),
-          const MedicationDose(taken: false),
-        ],
-      );
+        final medication = _buildMedication(id: 'med-1', updatedAt: baseDate)
+            .copyWith(
+              doses: [
+                const MedicationDose(taken: false),
+                const MedicationDose(taken: false),
+              ],
+            );
 
-      final localMedication = medication.copyWith(
-        syncMetadata: medication.syncMetadata.copyWith(updatedAt: baseDate.add(const Duration(hours: 1))),
-        doses: [
-          MedicationDose(taken: true, takenDate: baseDate.add(const Duration(hours: 1))),
-          const MedicationDose(taken: false),
-        ],
-      );
+        final localMedication = medication.copyWith(
+          syncMetadata: medication.syncMetadata.copyWith(
+            updatedAt: baseDate.add(const Duration(hours: 1)),
+          ),
+          doses: [
+            MedicationDose(
+              taken: true,
+              takenDate: baseDate.add(const Duration(hours: 1)),
+            ),
+            const MedicationDose(taken: false),
+          ],
+        );
 
-      final remoteMedication = medication.copyWith(
-        syncMetadata: medication.syncMetadata.copyWith(updatedAt: baseDate.add(const Duration(hours: 2))),
-        doses: [
-          const MedicationDose(taken: false),
-          MedicationDose(taken: true, takenDate: baseDate.add(const Duration(hours: 2))),
-        ],
-      );
+        final remoteMedication = medication.copyWith(
+          syncMetadata: medication.syncMetadata.copyWith(
+            updatedAt: baseDate.add(const Duration(hours: 2)),
+          ),
+          doses: [
+            const MedicationDose(taken: false),
+            MedicationDose(
+              taken: true,
+              takenDate: baseDate.add(const Duration(hours: 2)),
+            ),
+          ],
+        );
 
-      final resolved = resolver.resolve(
-        local: localMedication,
-        remote: remoteMedication,
-      );
+        final resolved = resolver.resolve(
+          local: localMedication,
+          remote: remoteMedication,
+        );
 
-      // Even if remote is newer, we merge the 'taken' flags if structures match.
-      expect(resolved.doses[0].taken, isTrue);
-      expect(resolved.doses[1].taken, isTrue);
-    });
+        // Even if remote is newer, we merge the 'taken' flags if structures match.
+        expect(resolved.doses[0].taken, isTrue);
+        expect(resolved.doses[1].taken, isTrue);
+      },
+    );
 
     test('returns winner without merging doses when dose counts differ', () {
       const resolver = MedicationConflictResolver();
@@ -107,21 +115,18 @@ void main() {
       final localMedication = _buildMedication(
         id: 'med-1',
         updatedAt: baseDate.add(const Duration(hours: 1)),
-      ).copyWith(
-        doses: [
-          MedicationDose(taken: true, takenDate: baseDate),
-        ],
-      );
+      ).copyWith(doses: [MedicationDose(taken: true, takenDate: baseDate)]);
 
-      final remoteMedication = _buildMedication(
-        id: 'med-1',
-        updatedAt: baseDate.add(const Duration(hours: 2)),
-      ).copyWith(
-        doses: [
-          const MedicationDose(taken: false),
-          const MedicationDose(taken: false),
-        ],
-      );
+      final remoteMedication =
+          _buildMedication(
+            id: 'med-1',
+            updatedAt: baseDate.add(const Duration(hours: 2)),
+          ).copyWith(
+            doses: [
+              const MedicationDose(taken: false),
+              const MedicationDose(taken: false),
+            ],
+          );
 
       final resolved = resolver.resolve(
         local: localMedication,
@@ -156,38 +161,33 @@ void main() {
       expect(resolved.timingType, MedicationTimingType.contextBased);
     });
 
-    test('does not overwrite already-taken dose in winner with non-taken from loser', () {
-      const resolver = MedicationConflictResolver();
-      final baseDate = DateTime(2026, 4, 1);
-      final takenDate = baseDate.add(const Duration(hours: 2));
+    test(
+      'does not overwrite already-taken dose in winner with non-taken from loser',
+      () {
+        const resolver = MedicationConflictResolver();
+        final baseDate = DateTime(2026, 4, 1);
+        final takenDate = baseDate.add(const Duration(hours: 2));
 
-      final localMedication = _buildMedication(
-        id: 'med-1',
-        updatedAt: baseDate.add(const Duration(hours: 1)),
-      ).copyWith(
-        doses: [
-          const MedicationDose(taken: false),
-        ],
-      );
+        final localMedication = _buildMedication(
+          id: 'med-1',
+          updatedAt: baseDate.add(const Duration(hours: 1)),
+        ).copyWith(doses: [const MedicationDose(taken: false)]);
 
-      final remoteMedication = _buildMedication(
-        id: 'med-1',
-        updatedAt: baseDate.add(const Duration(hours: 2)),
-      ).copyWith(
-        doses: [
-          MedicationDose(taken: true, takenDate: takenDate),
-        ],
-      );
+        final remoteMedication = _buildMedication(
+          id: 'med-1',
+          updatedAt: baseDate.add(const Duration(hours: 2)),
+        ).copyWith(doses: [MedicationDose(taken: true, takenDate: takenDate)]);
 
-      final resolved = resolver.resolve(
-        local: localMedication,
-        remote: remoteMedication,
-      );
+        final resolved = resolver.resolve(
+          local: localMedication,
+          remote: remoteMedication,
+        );
 
-      // Remote winner already has dose taken; local loser has it not taken.
-      // Winner's taken state should be preserved.
-      expect(resolved.doses[0].taken, isTrue);
-      expect(resolved.doses[0].takenDate, takenDate);
-    });
+        // Remote winner already has dose taken; local loser has it not taken.
+        // Winner's taken state should be preserved.
+        expect(resolved.doses[0].taken, isTrue);
+        expect(resolved.doses[0].takenDate, takenDate);
+      },
+    );
   });
 }

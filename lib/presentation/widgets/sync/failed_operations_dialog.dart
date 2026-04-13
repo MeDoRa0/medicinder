@@ -71,38 +71,43 @@ class _FailedOperationsDialogState extends State<FailedOperationsDialog> {
                 ),
               )
             : _failedChanges == null || _failedChanges!.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(l10n.syncReady),
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(l10n.syncReady),
+                ),
+              )
+            : ListView.separated(
+                shrinkWrap: true,
+                itemCount: _failedChanges!.length,
+                separatorBuilder: (context, index) => const Divider(),
+                itemBuilder: (context, index) {
+                  final change = _failedChanges![index];
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      '${change.operation.name.toUpperCase()} ${change.entityType.name}',
                     ),
-                  )
-                : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: _failedChanges!.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final change = _failedChanges![index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text('${change.operation.name.toUpperCase()} ${change.entityType.name}'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Failed at: ${change.lastAttemptAt != null ? dateFormat.format(change.lastAttemptAt!) : 'N/A'}',
-                              style: theme.textTheme.bodySmall,
-                            ),
-                            if (change.errorMessage != null && change.errorMessage!.isNotEmpty)
-                              Text(
-                                change.errorMessage!,
-                                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
-                              ),
-                          ],
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Failed at: ${change.lastAttemptAt != null ? dateFormat.format(change.lastAttemptAt!) : 'N/A'}',
+                          style: theme.textTheme.bodySmall,
                         ),
-                      );
-                    },
-                  ),
+                        if (change.errorMessage != null &&
+                            change.errorMessage!.isNotEmpty)
+                          Text(
+                            change.errorMessage!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.error,
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
       ),
       actions: [
         TextButton(

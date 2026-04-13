@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:hive/hive.dart';
 
 import '../../domain/entities/sync/pending_change.dart';
@@ -9,8 +10,11 @@ import '../models/sync_operation_model.dart';
 class SyncQueueLocalDataSource {
   final Box<SyncOperationModel> _legacyOperationBox;
   final Box<PendingChangeModel> _pendingChangeBox;
+  final _pendingChangesController = StreamController<void>.broadcast();
 
   SyncQueueLocalDataSource(this._legacyOperationBox, this._pendingChangeBox);
+
+  Stream<void> get onPendingChangeAdded => _pendingChangesController.stream;
 
   Future<List<PendingChange>> getEffectivePendingChanges({
     String? userId,
@@ -134,6 +138,10 @@ class SyncQueueLocalDataSource {
       change.changeId,
       PendingChangeModel.fromEntity(change),
     );
+    if (change.status == SyncOperationStatus.pending &&
+        change.attemptCount == 0) {
+      _pendingChangesController.add(null);
+    }
   }
 
   Future<List<PendingChange>> listPendingChanges({String? userId}) async {

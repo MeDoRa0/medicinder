@@ -77,6 +77,9 @@ class SyncService implements SyncRepository {
 
       await _syncState.saveCycle(cycle);
 
+      // Link any local-only medications to the new user before pushing
+      await _medicationRepository.assignLocalMedicationsToUser(userId);
+
       final changes = await _syncQueue.getEffectivePendingChanges(
         userId: userId,
       );

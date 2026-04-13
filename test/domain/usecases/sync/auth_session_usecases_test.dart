@@ -39,16 +39,19 @@ void main() {
       expect(session.isSignedIn, isFalse);
     });
 
-    test('signInForSync returns failed with CLOUD_SYNC_DISABLED code', () async {
-      const remote = DisabledAuthRemoteDataSource();
+    test(
+      'signInForSync returns failed with CLOUD_SYNC_DISABLED code',
+      () async {
+        const remote = DisabledAuthRemoteDataSource();
 
-      final session = await remote.signInForSync();
+        final session = await remote.signInForSync();
 
-      expect(session.status, AuthSessionStatus.failed);
-      expect(session.isSignedIn, isFalse);
-      expect(session.failureCode, 'CLOUD_SYNC_DISABLED');
-      expect(session.failureMessage, isNotNull);
-    });
+        expect(session.status, AuthSessionStatus.failed);
+        expect(session.isSignedIn, isFalse);
+        expect(session.failureCode, 'CLOUD_SYNC_DISABLED');
+        expect(session.failureMessage, isNotNull);
+      },
+    );
 
     test('watchSession emits signedOut', () async {
       const remote = DisabledAuthRemoteDataSource();

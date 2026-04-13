@@ -7,12 +7,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 enum AppleAuthAvailability { supported, unavailableOnDevice, unsupportedRunner }
 
-enum AppleAuthProviderStatus {
-  success,
-  cancelled,
-  unavailable,
-  failure,
-}
+enum AppleAuthProviderStatus { success, cancelled, unavailable, failure }
 
 class AppleAuthProviderResult {
   final AppleAuthProviderStatus status;
