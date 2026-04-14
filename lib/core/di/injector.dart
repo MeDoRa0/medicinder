@@ -51,6 +51,7 @@ import '../../domain/usecases/reset_daily_doses.dart';
 import '../../presentation/cubit/auth/auth_entry_cubit.dart';
 import '../../presentation/cubit/medication_cubit.dart';
 import '../../presentation/cubit/sync/sync_status_cubit.dart';
+import '../../features/medication/presentation/cubit/last_taken_medicines_cubit.dart';
 
 import '../services/notification_handler.dart';
 
@@ -318,6 +319,11 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
       connectivitySignal: sl(),
       syncQueue: sl(),
       notificationSyncService: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => LastTakenMedicinesCubit(
+      repository: sl(),
     ),
   );
 }
