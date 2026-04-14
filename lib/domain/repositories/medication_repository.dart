@@ -18,4 +18,7 @@ abstract class MedicationRepository {
 
   /// Retrieves records from the last 24 hours, sorted from most recent to oldest.
   Future<List<MedicationHistory>> getLastTakenMedicines();
+
+  /// Retrieves records from the last 24 hours as a reactive stream.
+  Stream<List<MedicationHistory>> getLastTakenMedicinesStream();
 }
