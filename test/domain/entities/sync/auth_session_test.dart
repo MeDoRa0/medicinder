@@ -47,7 +47,10 @@ void main() {
       });
 
       test('stores providerId when given', () {
-        const session = AuthSession.signedIn('user-abc', providerId: 'anonymous');
+        const session = AuthSession.signedIn(
+          'user-abc',
+          providerId: 'anonymous',
+        );
 
         expect(session.providerId, 'anonymous');
       });
@@ -201,9 +204,15 @@ void main() {
         expect(AuthSessionStatus.values, contains(AuthSessionStatus.signedOut));
         expect(AuthSessionStatus.values, contains(AuthSessionStatus.signingIn));
         expect(AuthSessionStatus.values, contains(AuthSessionStatus.signedIn));
-        expect(AuthSessionStatus.values, contains(AuthSessionStatus.workspaceInitializing));
+        expect(
+          AuthSessionStatus.values,
+          contains(AuthSessionStatus.workspaceInitializing),
+        );
         expect(AuthSessionStatus.values, contains(AuthSessionStatus.ready));
-        expect(AuthSessionStatus.values, contains(AuthSessionStatus.accessDenied));
+        expect(
+          AuthSessionStatus.values,
+          contains(AuthSessionStatus.accessDenied),
+        );
         expect(AuthSessionStatus.values, contains(AuthSessionStatus.failed));
       });
     });

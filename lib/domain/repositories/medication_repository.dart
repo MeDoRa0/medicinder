@@ -1,4 +1,5 @@
 import '../entities/medication.dart';
+import '../entities/medication_history.dart';
 
 abstract class MedicationRepository {
   Future<void> addMedication(Medication medication);
@@ -13,4 +14,8 @@ abstract class MedicationRepository {
   Future<void> resetDailyDoses();
   Future<void> saveSyncedMedication(Medication medication);
   Future<void> purgeMedication(String id);
+  Future<void> assignLocalMedicationsToUser(String userId);
+
+  /// Retrieves records from the last 24 hours, sorted from most recent to oldest.
+  Future<List<MedicationHistory>> getLastTakenMedicines();
 }

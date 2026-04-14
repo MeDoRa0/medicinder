@@ -78,10 +78,7 @@ class AuthEntryCubit extends Cubit<AuthEntryState> {
     }
     log('Auth entry provider unavailable: $entryMode');
     emit(
-      state.copyWith(
-        unavailableMode: entryMode,
-        feedbackCode: feedbackMessage,
-      ),
+      state.copyWith(unavailableMode: entryMode, feedbackCode: feedbackMessage),
     );
   }
 

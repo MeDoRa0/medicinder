@@ -7,19 +7,22 @@ import 'package:medicinder/domain/usecases/auth/sign_in_with_google.dart';
 
 void main() {
   group('SignInWithGoogle', () {
-    test('maps a ready Google auth session to authenticated app entry', () async {
-      final repository = _FakeAuthRepository(
-        result: const AuthSession.ready('user-123', providerId: 'google.com'),
-      );
+    test(
+      'maps a ready Google auth session to authenticated app entry',
+      () async {
+        final repository = _FakeAuthRepository(
+          result: const AuthSession.ready('user-123', providerId: 'google.com'),
+        );
 
-      final session = await SignInWithGoogle(repository)();
+        final session = await SignInWithGoogle(repository)();
 
-      expect(
-        session,
-        const AppEntrySession.authenticated(entryMode: AppEntryMode.google),
-      );
-      expect(repository.lastProviderId, 'google.com');
-    });
+        expect(
+          session,
+          const AppEntrySession.authenticated(entryMode: AppEntryMode.google),
+        );
+        expect(repository.lastProviderId, 'google.com');
+      },
+    );
 
     test('maps a failed auth session to app-entry failure', () async {
       final repository = _FakeAuthRepository(
@@ -45,7 +48,8 @@ class _FakeAuthRepository implements AuthRepository {
   });
 
   @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  Future<AuthSession> getCurrentSession() async =>
+      const AuthSession.signedOut();
 
   @override
   Future<AppleAuthAvailability> getAppleAvailability() async =>

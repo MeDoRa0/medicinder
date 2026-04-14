@@ -20,7 +20,8 @@ class AuthEntryState extends Equatable {
     this.appleAvailability = AppleAuthAvailability.unsupportedRunner,
   });
 
-  const AuthEntryState.initial() : this(session: const AppEntrySession.restoring());
+  const AuthEntryState.initial()
+    : this(session: const AppEntrySession.restoring());
 
   AuthEntryState copyWith({
     AppEntrySession? session,

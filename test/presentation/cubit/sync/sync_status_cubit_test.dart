@@ -111,39 +111,42 @@ void main() {
       await cubit.close();
     });
 
-    test('Apple sign-out clears restored entry resolution after an authenticated session', () async {
-      final authRepository = _FakeAuthRepository(
-        initialSession: const AuthSession.ready(
-          'apple-user',
-          providerId: 'apple.com',
-        ),
-        watchedSession: const AuthSession.ready(
-          'apple-user',
-          providerId: 'apple.com',
-        ),
-      );
-      final appEntryRepository = _FakeAppEntryRepository();
-      final cubit = SyncStatusCubit(
-        signInForSync: SignInForSync(authRepository),
-        signOutFromSync: SignOutFromSync(authRepository),
-        watchAuthSession: WatchAuthSession(authRepository),
-        clearAppEntryState: ClearAppEntryState(appEntryRepository),
-        syncRepository: _FakeSyncRepository(),
-        syncDiagnostics: const SyncDiagnostics(),
-        connectivitySignal: _FakeConnectivitySignalService(),
-        syncQueue: _FakeSyncQueue(),
-        notificationSyncService: FakeNotificationSyncService(),
-      );
+    test(
+      'Apple sign-out clears restored entry resolution after an authenticated session',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          initialSession: const AuthSession.ready(
+            'apple-user',
+            providerId: 'apple.com',
+          ),
+          watchedSession: const AuthSession.ready(
+            'apple-user',
+            providerId: 'apple.com',
+          ),
+        );
+        final appEntryRepository = _FakeAppEntryRepository();
+        final cubit = SyncStatusCubit(
+          signInForSync: SignInForSync(authRepository),
+          signOutFromSync: SignOutFromSync(authRepository),
+          watchAuthSession: WatchAuthSession(authRepository),
+          clearAppEntryState: ClearAppEntryState(appEntryRepository),
+          syncRepository: _FakeSyncRepository(),
+          syncDiagnostics: const SyncDiagnostics(),
+          connectivitySignal: _FakeConnectivitySignalService(),
+          syncQueue: _FakeSyncQueue(),
+          notificationSyncService: FakeNotificationSyncService(),
+        );
 
-      cubit.initialize();
-      await Future<void>.delayed(Duration.zero);
-      await cubit.signOut();
+        cubit.initialize();
+        await Future<void>.delayed(Duration.zero);
+        await cubit.signOut();
 
-      expect(cubit.state.viewState, SyncStatusViewState.signedOut);
-      expect(cubit.state.userId, isNull);
-      expect(appEntryRepository.cleared, isTrue);
-      await cubit.close();
-    });
+        expect(cubit.state.viewState, SyncStatusViewState.signedOut);
+        expect(cubit.state.userId, isNull);
+        expect(appEntryRepository.cleared, isTrue);
+        await cubit.close();
+      },
+    );
 
     test('surfaces access denied state from auth session', () async {
       final authRepository = _FakeAuthRepository(
@@ -304,6 +307,9 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
+  @override
+  Stream<void> get onPendingChangeAdded => const Stream.empty();
+
   final List<PendingChange> pendingChanges = [];
 
   @override

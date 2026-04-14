@@ -176,6 +176,9 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
 
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
   @override
+  Stream<void> get onPendingChangeAdded => const Stream.empty();
+
+  @override
   Future<void> enqueuePendingChange(PendingChange change) async {}
 
   @override

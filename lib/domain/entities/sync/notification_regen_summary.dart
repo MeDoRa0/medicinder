@@ -16,7 +16,8 @@ class NotificationRegenerationSummary {
   });
 
   @override
-  String toString() => 'NotificationRegenerationSummary('
+  String toString() =>
+      'NotificationRegenerationSummary('
       'processed=$medicationsProcessed, '
       'scheduled=$notificationsScheduled, '
       'cancelled=$notificationsCancelled, '

@@ -53,47 +53,47 @@ void main() {
     expect(find.byType(TextButton), findsOneWidget);
   });
 
-  testWidgets('keeps the signed-out sync tile local-only without a sign-in action', (
-    tester,
-  ) async {
-    final authRepository = _FakeAuthRepository();
-    final cubit =
-        _SeededSyncStatusCubit(
-          signInForSync: SignInForSync(authRepository),
-          signOutFromSync: SignOutFromSync(authRepository),
-          watchAuthSession: WatchAuthSession(authRepository),
-          clearAppEntryState: ClearAppEntryState(_FakeAppEntryRepository()),
-          syncRepository: _FakeFailingSyncRepository(),
-          syncDiagnostics: const SyncDiagnostics(),
-          connectivitySignal: _FakeConnectivitySignalService(),
-          syncQueue: _FakeSyncQueue(),
-          notificationSyncService: FakeNotificationSyncService(),
-        )..seed(const SyncStatusState(viewState: SyncStatusViewState.signedOut));
+  testWidgets(
+    'keeps the signed-out sync tile local-only without a sign-in action',
+    (tester) async {
+      final authRepository = _FakeAuthRepository();
+      final cubit = _SeededSyncStatusCubit(
+        signInForSync: SignInForSync(authRepository),
+        signOutFromSync: SignOutFromSync(authRepository),
+        watchAuthSession: WatchAuthSession(authRepository),
+        clearAppEntryState: ClearAppEntryState(_FakeAppEntryRepository()),
+        syncRepository: _FakeFailingSyncRepository(),
+        syncDiagnostics: const SyncDiagnostics(),
+        connectivitySignal: _FakeConnectivitySignalService(),
+        syncQueue: _FakeSyncQueue(),
+        notificationSyncService: FakeNotificationSyncService(),
+      )..seed(const SyncStatusState(viewState: SyncStatusViewState.signedOut));
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [Locale('en'), Locale('ar')],
-        home: BlocProvider<SyncStatusCubit>.value(
-          value: cubit,
-          child: const _SyncAccountTileTestApp(),
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          home: BlocProvider<SyncStatusCubit>.value(
+            value: cubit,
+            child: const _SyncAccountTileTestApp(),
+          ),
         ),
-      ),
-    );
-    await tester.pump();
+      );
+      await tester.pump();
 
-    final context = tester.element(find.byType(SyncAccountTile));
-    final l10n = AppLocalizations.of(context)!;
-    expect(find.text(l10n.syncStatusTitle), findsOneWidget);
-    expect(find.text(l10n.syncUnavailableLocalOnly), findsOneWidget);
-    expect(find.text(l10n.syncDisableCloudSync), findsNothing);
-    expect(find.byType(TextButton), findsNothing);
-  });
+      final context = tester.element(find.byType(SyncAccountTile));
+      final l10n = AppLocalizations.of(context)!;
+      expect(find.text(l10n.syncStatusTitle), findsOneWidget);
+      expect(find.text(l10n.syncUnavailableLocalOnly), findsOneWidget);
+      expect(find.text(l10n.syncDisableCloudSync), findsNothing);
+      expect(find.byType(TextButton), findsNothing);
+    },
+  );
 }
 
 class _SyncAccountTileTestApp extends StatelessWidget {
@@ -182,6 +182,9 @@ class _SeededSyncStatusCubit extends SyncStatusCubit {
 }
 
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
+  @override
+  Stream<void> get onPendingChangeAdded => const Stream.empty();
+
   @override
   Future<void> enqueuePendingChange(PendingChange change) async {}
 

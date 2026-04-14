@@ -43,7 +43,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/fake_notification_sync_service.dart';
 
 void main() {
-  testWidgets('shows the entry gate when no stored mode exists', (tester) async {
+  testWidgets('shows the entry gate when no stored mode exists', (
+    tester,
+  ) async {
     await _setLargeSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final appEntryRepository = _FakeAppEntryRepository();
@@ -62,227 +64,235 @@ void main() {
     expect(find.text('Choose how to enter'), findsOneWidget);
   });
 
-  testWidgets('routes restored guest users to initial settings when meal times are missing', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({});
-    final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
-    final authRepository = _FakeAuthRepository();
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
+  testWidgets(
+    'routes restored guest users to initial settings when meal times are missing',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({});
+      final appEntryRepository = _FakeAppEntryRepository()
+        ..storedMode = 'guest';
+      final authRepository = _FakeAuthRepository();
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
 
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('initialSettings')), findsOneWidget);
-  });
-
-  testWidgets('restored authenticated Google users skip the gate and route to home', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({
-      'breakfastTime': '8:0',
-      'lunchTime': '13:0',
-      'dinnerTime': '19:0',
-    });
-    final appEntryRepository = _FakeAppEntryRepository();
-    final authRepository = _FakeAuthRepository(
-      currentSession: const AuthSession.ready(
-        'user-123',
-        providerId: 'google.com',
-      ),
-    );
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
-
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
-  });
-
-  testWidgets('restored authenticated Apple users skip the gate and route to home', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({
-      'breakfastTime': '8:0',
-      'lunchTime': '13:0',
-      'dinnerTime': '19:0',
-    });
-    final appEntryRepository = _FakeAppEntryRepository();
-    final authRepository = _FakeAuthRepository(
-      currentSession: const AuthSession.ready(
-        'user-apple',
-        providerId: 'apple.com',
-      ),
-      appleAvailability: AppleAuthAvailability.supported,
-    );
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
-
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
-  });
-
-  testWidgets('Apple-authenticated background resume stays on the authenticated route', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({
-      'breakfastTime': '8:0',
-      'lunchTime': '13:0',
-      'dinnerTime': '19:0',
-    });
-    final appEntryRepository = _FakeAppEntryRepository();
-    final authRepository = _FakeAuthRepository(
-      currentSession: const AuthSession.ready(
-        'user-apple',
-        providerId: 'apple.com',
-      ),
-      appleAvailability: AppleAuthAvailability.supported,
-    );
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
-
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
-
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
-    expect(find.text('Choose how to enter'), findsNothing);
-  });
-
-  testWidgets('falls back to the gate when an unsupported stored mode is restored', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({});
-    final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'google';
-    final authRepository = _FakeAuthRepository();
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
-
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Choose how to enter'), findsOneWidget);
-    expect(
-      find.text(
-        'The previous sign-in mode is not supported yet. Please choose an option again.',
-      ),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('falls back to the gate when an Apple session cannot be restored', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({});
-    final appEntryRepository = _FakeAppEntryRepository();
-    final authRepository = _FakeAuthRepository(
-      currentSession: const AuthSession.failed(
-        providerId: 'apple.com',
-        failureCode: 'APPLE_SIGN_IN_FAILED',
-      ),
-      appleAvailability: AppleAuthAvailability.supported,
-    );
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
-
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Choose how to enter'), findsOneWidget);
-  });
-
-  testWidgets('sign out clears the stored mode and returns the running app to the gate', (
-    tester,
-  ) async {
-    await _setLargeSurface(tester);
-    SharedPreferences.setMockInitialValues({
-      'breakfastTime': '8:0',
-      'lunchTime': '13:0',
-      'dinnerTime': '19:0',
-    });
-    final appEntryRepository = _FakeAppEntryRepository();
-    final authRepository = _FakeAuthRepository(
-      currentSession: const AuthSession.ready(
-        'user-123',
-        providerId: 'google.com',
-      ),
-    );
-    final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
-    await authCubit.restoreSession();
-    final syncCubit = _buildSyncCubit(appEntryRepository, authRepository)
-      ..seed(
-        const SyncStatusState(
-          viewState: SyncStatusViewState.ready,
-          userId: 'user-123',
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
         ),
       );
+      await tester.pumpAndSettle();
 
-    await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: syncCubit,
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+      expect(find.byKey(const ValueKey('initialSettings')), findsOneWidget);
+    },
+  );
 
-    authRepository.currentSession = const AuthSession.signedOut();
-    await syncCubit.signOut();
-    await tester.pumpAndSettle();
+  testWidgets(
+    'restored authenticated Google users skip the gate and route to home',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({
+        'breakfastTime': '8:0',
+        'lunchTime': '13:0',
+        'dinnerTime': '19:0',
+      });
+      final appEntryRepository = _FakeAppEntryRepository();
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.ready(
+          'user-123',
+          providerId: 'google.com',
+        ),
+      );
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
 
-    expect(appEntryRepository.storedMode, isNull);
-    expect(find.text('Choose how to enter'), findsOneWidget);
-  });
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-  testWidgets('Apple sign out returns the running app to the gate', (tester) async {
+      expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'restored authenticated Apple users skip the gate and route to home',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({
+        'breakfastTime': '8:0',
+        'lunchTime': '13:0',
+        'dinnerTime': '19:0',
+      });
+      final appEntryRepository = _FakeAppEntryRepository();
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.ready(
+          'user-apple',
+          providerId: 'apple.com',
+        ),
+        appleAvailability: AppleAuthAvailability.supported,
+      );
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
+
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Apple-authenticated background resume stays on the authenticated route',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({
+        'breakfastTime': '8:0',
+        'lunchTime': '13:0',
+        'dinnerTime': '19:0',
+      });
+      final appEntryRepository = _FakeAppEntryRepository();
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.ready(
+          'user-apple',
+          providerId: 'apple.com',
+        ),
+        appleAvailability: AppleAuthAvailability.supported,
+      );
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
+
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+      expect(find.text('Choose how to enter'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'falls back to the gate when an unsupported stored mode is restored',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({});
+      final appEntryRepository = _FakeAppEntryRepository()
+        ..storedMode = 'google';
+      final authRepository = _FakeAuthRepository();
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
+
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choose how to enter'), findsOneWidget);
+      expect(
+        find.text(
+          'The previous sign-in mode is not supported yet. Please choose an option again.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'falls back to the gate when an Apple session cannot be restored',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({});
+      final appEntryRepository = _FakeAppEntryRepository();
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.failed(
+          providerId: 'apple.com',
+          failureCode: 'APPLE_SIGN_IN_FAILED',
+        ),
+        appleAvailability: AppleAuthAvailability.supported,
+      );
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
+
+      await tester.pumpWidget(
+        _RouterHarness(
+          authCubit: authCubit,
+          syncCubit: _buildSyncCubit(appEntryRepository, authRepository),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choose how to enter'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'sign out clears the stored mode and returns the running app to the gate',
+    (tester) async {
+      await _setLargeSurface(tester);
+      SharedPreferences.setMockInitialValues({
+        'breakfastTime': '8:0',
+        'lunchTime': '13:0',
+        'dinnerTime': '19:0',
+      });
+      final appEntryRepository = _FakeAppEntryRepository();
+      final authRepository = _FakeAuthRepository(
+        currentSession: const AuthSession.ready(
+          'user-123',
+          providerId: 'google.com',
+        ),
+      );
+      final authCubit = _buildAuthCubit(appEntryRepository, authRepository);
+      await authCubit.restoreSession();
+      final syncCubit = _buildSyncCubit(appEntryRepository, authRepository)
+        ..seed(
+          const SyncStatusState(
+            viewState: SyncStatusViewState.ready,
+            userId: 'user-123',
+          ),
+        );
+
+      await tester.pumpWidget(
+        _RouterHarness(authCubit: authCubit, syncCubit: syncCubit),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
+
+      authRepository.currentSession = const AuthSession.signedOut();
+      await syncCubit.signOut();
+      await tester.pumpAndSettle();
+
+      expect(appEntryRepository.storedMode, isNull);
+      expect(find.text('Choose how to enter'), findsOneWidget);
+    },
+  );
+
+  testWidgets('Apple sign out returns the running app to the gate', (
+    tester,
+  ) async {
     await _setLargeSurface(tester);
     SharedPreferences.setMockInitialValues({
       'breakfastTime': '8:0',
@@ -308,10 +318,7 @@ void main() {
       );
 
     await tester.pumpWidget(
-      _RouterHarness(
-        authCubit: authCubit,
-        syncCubit: syncCubit,
-      ),
+      _RouterHarness(authCubit: authCubit, syncCubit: syncCubit),
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('homePage')), findsOneWidget);
@@ -335,10 +342,7 @@ class _RouterHarness extends StatelessWidget {
   final AuthEntryCubit authCubit;
   final _SeededSyncStatusCubit syncCubit;
 
-  const _RouterHarness({
-    required this.authCubit,
-    required this.syncCubit,
-  });
+  const _RouterHarness({required this.authCubit, required this.syncCubit});
 
   @override
   Widget build(BuildContext context) {
@@ -366,10 +370,7 @@ class _RouterHarness extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en'), Locale('ar')],
-        home: AppLaunchRouterPage(
-          onLocaleChanged: (_) {},
-          onRestartApp: () {},
-        ),
+        home: AppLaunchRouterPage(onLocaleChanged: (_) {}, onRestartApp: () {}),
       ),
     );
   }
@@ -455,7 +456,8 @@ class _FakeAuthRepository implements AuthRepository {
       appleAvailability;
 
   @override
-  Future<AuthSession> signInForSync({String? providerId}) async => currentSession;
+  Future<AuthSession> signInForSync({String? providerId}) async =>
+      currentSession;
 
   @override
   Future<void> signOutFromSync() async {
@@ -493,6 +495,9 @@ class _FakeConnectivitySignalService implements ConnectivitySignalService {
 
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
   @override
+  Stream<void> get onPendingChangeAdded => const Stream.empty();
+
+  @override
   Future<void> enqueuePendingChange(PendingChange change) async {}
 
   @override
@@ -529,6 +534,9 @@ class _FakeSyncQueue implements SyncQueueLocalDataSource {
 }
 
 class _FakeMedicationRepository implements MedicationRepository {
+  @override
+  Future<void> assignLocalMedicationsToUser(String userId) async {}
+
   final List<Medication> medications = [];
 
   @override
@@ -542,8 +550,9 @@ class _FakeMedicationRepository implements MedicationRepository {
   }
 
   @override
-  Future<List<Medication>> getMedications({bool includeDeleted = false}) async =>
-      List.unmodifiable(medications);
+  Future<List<Medication>> getMedications({
+    bool includeDeleted = false,
+  }) async => List.unmodifiable(medications);
 
   @override
   Future<Medication?> getMedicationById(

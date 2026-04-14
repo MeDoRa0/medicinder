@@ -30,7 +30,10 @@ void main() {
         expect(model.localUpdatedAt, localUpdatedAt);
         expect(model.remoteUpdatedAt, remoteUpdatedAt);
         expect(model.winningSource, 'remote');
-        expect(model.resolutionStrategyIndex, ConflictResolutionStrategy.lastWriteWins.index);
+        expect(
+          model.resolutionStrategyIndex,
+          ConflictResolutionStrategy.lastWriteWins.index,
+        );
         expect(model.resolvedAt, resolvedAt);
       });
 
@@ -61,7 +64,8 @@ void main() {
           localUpdatedAt: localUpdatedAt,
           remoteUpdatedAt: remoteUpdatedAt,
           winningSource: 'remote',
-          resolutionStrategyIndex: ConflictResolutionStrategy.lastWriteWins.index,
+          resolutionStrategyIndex:
+              ConflictResolutionStrategy.lastWriteWins.index,
           resolvedAt: resolvedAt,
         );
 
@@ -73,7 +77,10 @@ void main() {
         expect(entity.localUpdatedAt, localUpdatedAt);
         expect(entity.remoteUpdatedAt, remoteUpdatedAt);
         expect(entity.winningSource, 'remote');
-        expect(entity.resolutionStrategy, ConflictResolutionStrategy.lastWriteWins);
+        expect(
+          entity.resolutionStrategy,
+          ConflictResolutionStrategy.lastWriteWins,
+        );
         expect(entity.resolvedAt, resolvedAt);
       });
     });

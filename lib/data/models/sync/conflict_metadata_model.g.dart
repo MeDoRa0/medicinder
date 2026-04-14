@@ -16,18 +16,10 @@ class ConflictMetadataModelAdapter extends TypeAdapter<ConflictMetadataModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    final userIdField = fields[7];
-    if (userIdField == null || userIdField is! String || userIdField.isEmpty) {
-      throw StateError(
-        'ConflictMetadata migration failed: userId is missing or invalid. '
-        'This indicates corrupted legacy data that cannot be migrated. '
-        'Please clear sync conflict data and re-sync.',
-      );
-    }
     return ConflictMetadataModel(
       entityTypeIndex: fields[0] as int,
       entityId: fields[1] as String,
-      userId: userIdField,
+      userId: fields[7] as String,
       localUpdatedAt: fields[2] as DateTime,
       remoteUpdatedAt: fields[3] as DateTime,
       winningSource: fields[4] as String,

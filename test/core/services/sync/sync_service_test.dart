@@ -187,6 +187,9 @@ Medication _buildMedication({required String id, required DateTime updatedAt}) {
 }
 
 class _FakeMedicationRepository implements MedicationRepository {
+  @override
+  Future<void> assignLocalMedicationsToUser(String userId) async {}
+
   final Map<String, Medication> medications;
 
   _FakeMedicationRepository(List<Medication> initialMedications)
@@ -369,6 +372,9 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeSyncQueue implements SyncQueueLocalDataSource {
+  @override
+  Stream<void> get onPendingChangeAdded => const Stream.empty();
+
   final List<PendingChange> pendingChanges = [];
 
   _FakeSyncQueue();

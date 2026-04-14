@@ -45,7 +45,8 @@ class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
         final l10n = AppLocalizations.of(context)!;
         final cubit = context.read<AuthEntryCubit>();
         final platform = widget.platformOverride ?? defaultTargetPlatform;
-        final googleSupported = !kIsWeb &&
+        final googleSupported =
+            !kIsWeb &&
             (platform == TargetPlatform.android ||
                 platform == TargetPlatform.iOS);
         final appleEnabled =
@@ -53,20 +54,18 @@ class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
             state.appleAvailability == AppleAuthAvailability.supported &&
             !state.busy;
         final appleDescription = switch (state.appleAvailability) {
-          AppleAuthAvailability.supported => state.inProgressMode ==
-                  AppEntryMode.apple
-              ? l10n.authEntryAppleLoading
-              : l10n.authEntryAppleDescription,
+          AppleAuthAvailability.supported =>
+            state.inProgressMode == AppEntryMode.apple
+                ? l10n.authEntryAppleLoading
+                : l10n.authEntryAppleDescription,
           AppleAuthAvailability.unavailableOnDevice =>
             l10n.authEntryAppleUnavailableFeedback,
-          AppleAuthAvailability.unsupportedRunner =>
-            l10n.authEntryComingSoon,
+          AppleAuthAvailability.unsupportedRunner => l10n.authEntryComingSoon,
         };
         final feedbackMessage = switch (state.feedbackCode) {
           'google_unavailable' => l10n.authEntryGoogleUnavailableFeedback,
           'APPLE_SIGN_IN_CANCELLED' => l10n.authEntryAppleCancelledFeedback,
-          'APPLE_SIGN_IN_UNAVAILABLE' =>
-            l10n.authEntryAppleUnavailableFeedback,
+          'APPLE_SIGN_IN_UNAVAILABLE' => l10n.authEntryAppleUnavailableFeedback,
           'APPLE_SIGN_IN_CONFLICT' => l10n.authEntryAppleConflictFeedback,
           'APPLE_SIGN_IN_FAILED' => l10n.authEntryAppleFailedFeedback,
           'APPLE_IDENTITY_TOKEN_MISSING' => l10n.authEntryAppleFailedFeedback,
@@ -82,9 +81,10 @@ class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
           'network-request-failed' => l10n.authEntryGoogleFailedFeedback,
           'invalid-credential' => l10n.authEntryGoogleFailedFeedback,
           'user-disabled' => l10n.authEntryGoogleFailedFeedback,
-          _ => state.session.failureCode == 'UNSUPPORTED_ENTRY_MODE'
-              ? l10n.authEntryUnsupportedRestoreFeedback
-              : null,
+          _ =>
+            state.session.failureCode == 'UNSUPPORTED_ENTRY_MODE'
+                ? l10n.authEntryUnsupportedRestoreFeedback
+                : null,
         };
 
         return Scaffold(
@@ -123,10 +123,9 @@ class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
                             ? null
                             : googleSupported
                             ? cubit.signInWithGoogle
-                            : () =>
-                                  cubit.onDisabledProviderTap(
-                                    AppEntryMode.google,
-                                  ),
+                            : () => cubit.onDisabledProviderTap(
+                                AppEntryMode.google,
+                              ),
                         icon: Icons.g_mobiledata_rounded,
                         semanticsLabel:
                             '${l10n.authEntryGoogleTitle}. ${googleSupported ? l10n.authEntryGoogleDescription : l10n.authEntryComingSoon}',
@@ -140,7 +139,9 @@ class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
                           title: l10n.authEntryAppleTitle,
                           description: appleDescription,
                           enabled: appleEnabled,
-                          onPressed: appleEnabled ? cubit.signInWithApple : null,
+                          onPressed: appleEnabled
+                              ? cubit.signInWithApple
+                              : null,
                           icon: Icons.apple,
                           semanticsLabel:
                               '${l10n.authEntryAppleTitle}. $appleDescription',
@@ -164,7 +165,8 @@ class _AuthEntryGatePageState extends State<AuthEntryGatePage> {
                           child: Semantics(
                             liveRegion: true,
                             label: switch (state.inProgressMode) {
-                              AppEntryMode.google => l10n.authEntryGoogleLoading,
+                              AppEntryMode.google =>
+                                l10n.authEntryGoogleLoading,
                               AppEntryMode.apple => l10n.authEntryAppleLoading,
                               _ => l10n.authEntryRestoring,
                             },

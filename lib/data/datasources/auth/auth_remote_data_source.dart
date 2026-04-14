@@ -105,10 +105,9 @@ class FirebaseAuthGateway implements AuthGateway {
     required String rawNonce,
   }) async {
     try {
-      final credential = OAuthProvider('apple.com').credential(
-        idToken: idToken,
-        rawNonce: rawNonce,
-      );
+      final credential = OAuthProvider(
+        'apple.com',
+      ).credential(idToken: idToken, rawNonce: rawNonce);
       final result = await _firebaseAuth.signInWithCredential(credential);
       return result.user == null ? null : _toUser(result.user!);
     } on FirebaseAuthException catch (error) {
@@ -180,7 +179,8 @@ class FirestoreAuthWorkspaceStore implements AuthWorkspaceStore {
     final profileData = <String, dynamic>{
       'userId': user.uid,
       'providerIds': user.providerIds,
-      'createdAt': user.creationTime?.toIso8601String() ?? now.toIso8601String(),
+      'createdAt':
+          user.creationTime?.toIso8601String() ?? now.toIso8601String(),
       'updatedAt': now.toIso8601String(),
       'status': 'active',
       'workspaceReady': true,
@@ -223,12 +223,14 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
     GoogleAuthProviderDataSource googleAuthProviderDataSource,
     SyncStateLocalDataSource syncStateLocalDataSource,
   ) : this.withGateways(
-          authGateway: FirebaseAuthGateway(firebaseAuth),
-          workspaceStore: FirestoreAuthWorkspaceStore(firestoreProvider),
-          appleAuthProviderDataSource: appleAuthProviderDataSource,
-          googleAuthProviderDataSource: googleAuthProviderDataSource,
-          profileStore: SyncStateAuthSessionProfileStore(syncStateLocalDataSource),
-        );
+        authGateway: FirebaseAuthGateway(firebaseAuth),
+        workspaceStore: FirestoreAuthWorkspaceStore(firestoreProvider),
+        appleAuthProviderDataSource: appleAuthProviderDataSource,
+        googleAuthProviderDataSource: googleAuthProviderDataSource,
+        profileStore: SyncStateAuthSessionProfileStore(
+          syncStateLocalDataSource,
+        ),
+      );
 
   FirebaseAuthRemoteDataSource.withGateways({
     required AuthGateway authGateway,

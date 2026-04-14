@@ -19,77 +19,93 @@ void main() {
       expect(repository.storedMode, 'guest');
     });
 
-    test('restore returns authenticated Google session before guest marker', () async {
-      final authRepository = _FakeAuthRepository(
-        currentSession: const AuthSession.ready(
-          'user-123',
-          providerId: 'google.com',
-        ),
-      );
-      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+    test(
+      'restore returns authenticated Google session before guest marker',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          currentSession: const AuthSession.ready(
+            'user-123',
+            providerId: 'google.com',
+          ),
+        );
+        final appEntryRepository = _FakeAppEntryRepository()
+          ..storedMode = 'guest';
 
-      final session = await RestoreAppEntrySession(
-        authRepository,
-        appEntryRepository,
-      )();
+        final session = await RestoreAppEntrySession(
+          authRepository,
+          appEntryRepository,
+        )();
 
-      expect(
-        session,
-        const AppEntrySession.authenticated(
-          entryMode: AppEntryMode.google,
-          restoredFromStorage: true,
-        ),
-      );
-    });
+        expect(
+          session,
+          const AppEntrySession.authenticated(
+            entryMode: AppEntryMode.google,
+            restoredFromStorage: true,
+          ),
+        );
+      },
+    );
 
-    test('restore returns authenticated Apple session before guest marker', () async {
-      final authRepository = _FakeAuthRepository(
-        currentSession: const AuthSession.ready(
-          'user-apple',
-          providerId: 'apple.com',
-        ),
-      );
-      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+    test(
+      'restore returns authenticated Apple session before guest marker',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          currentSession: const AuthSession.ready(
+            'user-apple',
+            providerId: 'apple.com',
+          ),
+        );
+        final appEntryRepository = _FakeAppEntryRepository()
+          ..storedMode = 'guest';
 
-      final session = await RestoreAppEntrySession(
-        authRepository,
-        appEntryRepository,
-      )();
+        final session = await RestoreAppEntrySession(
+          authRepository,
+          appEntryRepository,
+        )();
 
-      expect(
-        session,
-        const AppEntrySession.authenticated(
-          entryMode: AppEntryMode.apple,
-          restoredFromStorage: true,
-        ),
-      );
-    });
+        expect(
+          session,
+          const AppEntrySession.authenticated(
+            entryMode: AppEntryMode.apple,
+            restoredFromStorage: true,
+          ),
+        );
+      },
+    );
 
-    test('restore returns unresolved when no auth session or guest marker exists', () async {
-      final session = await RestoreAppEntrySession(
-        _FakeAuthRepository(),
-        _FakeAppEntryRepository(),
-      )();
+    test(
+      'restore returns unresolved when no auth session or guest marker exists',
+      () async {
+        final session = await RestoreAppEntrySession(
+          _FakeAuthRepository(),
+          _FakeAppEntryRepository(),
+        )();
 
-      expect(
-        session,
-        const AppEntrySession.unresolved(restoredFromStorage: true),
-      );
-    });
+        expect(
+          session,
+          const AppEntrySession.unresolved(restoredFromStorage: true),
+        );
+      },
+    );
 
-    test('restore returns guest when stored mode is guest and auth is signed out', () async {
-      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
+    test(
+      'restore returns guest when stored mode is guest and auth is signed out',
+      () async {
+        final appEntryRepository = _FakeAppEntryRepository()
+          ..storedMode = 'guest';
 
-      final session = await RestoreAppEntrySession(
-        _FakeAuthRepository(),
-        appEntryRepository,
-      )();
+        final session = await RestoreAppEntrySession(
+          _FakeAuthRepository(),
+          appEntryRepository,
+        )();
 
-      expect(session, const AppEntrySession.guest(restoredFromStorage: true));
-    });
+        expect(session, const AppEntrySession.guest(restoredFromStorage: true));
+      },
+    );
 
     test('restore falls back to failure for unsupported stored mode', () async {
-      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'google';
+      final appEntryRepository = _FakeAppEntryRepository()
+        ..storedMode = 'google';
 
       final session = await RestoreAppEntrySession(
         _FakeAuthRepository(),
@@ -101,24 +117,28 @@ void main() {
       expect(session.isResolved, isFalse);
     });
 
-    test('restore ignores a stale guest marker when Apple restore is broken', () async {
-      final appEntryRepository = _FakeAppEntryRepository()..storedMode = 'guest';
-      final authRepository = _FakeAuthRepository(
-        currentSession: const AuthSession.failed(
-          providerId: 'apple.com',
-          failureCode: 'APPLE_SIGN_IN_FAILED',
-        ),
-      );
+    test(
+      'restore ignores a stale guest marker when Apple restore is broken',
+      () async {
+        final appEntryRepository = _FakeAppEntryRepository()
+          ..storedMode = 'guest';
+        final authRepository = _FakeAuthRepository(
+          currentSession: const AuthSession.failed(
+            providerId: 'apple.com',
+            failureCode: 'APPLE_SIGN_IN_FAILED',
+          ),
+        );
 
-      final session = await RestoreAppEntrySession(
-        authRepository,
-        appEntryRepository,
-      )();
+        final session = await RestoreAppEntrySession(
+          authRepository,
+          appEntryRepository,
+        )();
 
-      expect(session.status, AppEntrySessionStatus.failure);
-      expect(session.failureCode, 'APPLE_SIGN_IN_FAILED');
-      expect(session.isResolved, isFalse);
-    });
+        expect(session.status, AppEntrySessionStatus.failure);
+        expect(session.failureCode, 'APPLE_SIGN_IN_FAILED');
+        expect(session.isResolved, isFalse);
+      },
+    );
 
     test('clear entry state removes stored mode', () async {
       final repository = _FakeAppEntryRepository()..storedMode = 'guest';
@@ -167,7 +187,8 @@ class _FakeAuthRepository implements AuthRepository {
       appleAvailability;
 
   @override
-  Future<AuthSession> signInForSync({String? providerId}) async => currentSession;
+  Future<AuthSession> signInForSync({String? providerId}) async =>
+      currentSession;
 
   @override
   Future<void> signOutFromSync() async {}

@@ -33,8 +33,7 @@ class RestoreAppEntrySession {
 
     if (currentSession.status != AuthSessionStatus.signedOut) {
       return AppEntrySession.failure(
-        failureCode:
-            currentSession.failureCode ?? 'AUTH_RESTORE_UNAVAILABLE',
+        failureCode: currentSession.failureCode ?? 'AUTH_RESTORE_UNAVAILABLE',
         failureMessage: currentSession.failureMessage,
         restoredFromStorage: true,
       );

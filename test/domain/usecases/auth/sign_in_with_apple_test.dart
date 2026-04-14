@@ -7,19 +7,22 @@ import 'package:medicinder/domain/usecases/auth/sign_in_with_apple.dart';
 
 void main() {
   group('SignInWithApple', () {
-    test('maps a ready Apple auth session to authenticated app entry', () async {
-      final repository = _FakeAuthRepository(
-        result: const AuthSession.ready('user-123', providerId: 'apple.com'),
-      );
+    test(
+      'maps a ready Apple auth session to authenticated app entry',
+      () async {
+        final repository = _FakeAuthRepository(
+          result: const AuthSession.ready('user-123', providerId: 'apple.com'),
+        );
 
-      final session = await SignInWithApple(repository)();
+        final session = await SignInWithApple(repository)();
 
-      expect(
-        session,
-        const AppEntrySession.authenticated(entryMode: AppEntryMode.apple),
-      );
-      expect(repository.lastProviderId, 'apple.com');
-    });
+        expect(
+          session,
+          const AppEntrySession.authenticated(entryMode: AppEntryMode.apple),
+        );
+        expect(repository.lastProviderId, 'apple.com');
+      },
+    );
 
     test('maps a failed auth session to app-entry failure', () async {
       final repository = _FakeAuthRepository(
@@ -56,7 +59,8 @@ class _FakeAuthRepository implements AuthRepository {
   });
 
   @override
-  Future<AuthSession> getCurrentSession() async => const AuthSession.signedOut();
+  Future<AuthSession> getCurrentSession() async =>
+      const AuthSession.signedOut();
 
   @override
   Future<AppleAuthAvailability> getAppleAvailability() async =>

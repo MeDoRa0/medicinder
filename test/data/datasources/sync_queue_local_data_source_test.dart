@@ -325,24 +325,27 @@ void main() {
     });
 
     group('markPendingChangeFailed', () {
-      test('increments attempt count and keeps status pending (retry logic)', () async {
-        final queue = _buildQueue();
-        await queue.enqueuePendingChange(
-          _buildPendingChange(changeId: 'c-1', userId: 'user-1'),
-        );
+      test(
+        'increments attempt count and keeps status pending (retry logic)',
+        () async {
+          final queue = _buildQueue();
+          await queue.enqueuePendingChange(
+            _buildPendingChange(changeId: 'c-1', userId: 'user-1'),
+          );
 
-        await queue.markPendingChangeFailed(
-          'c-1',
-          errorMessage: 'Network error',
-        );
+          await queue.markPendingChangeFailed(
+            'c-1',
+            errorMessage: 'Network error',
+          );
 
-        final changes = await queue.listPendingChanges();
-        final updated = changes.first;
-        // After 1 failure, status stays 'pending' (retries allowed until attemptCount >= 9)
-        expect(updated.status, SyncOperationStatus.pending);
-        expect(updated.attemptCount, 1);
-        expect(updated.errorMessage, 'Network error');
-      });
+          final changes = await queue.listPendingChanges();
+          final updated = changes.first;
+          // After 1 failure, status stays 'pending' (retries allowed until attemptCount >= 9)
+          expect(updated.status, SyncOperationStatus.pending);
+          expect(updated.attemptCount, 1);
+          expect(updated.errorMessage, 'Network error');
+        },
+      );
 
       test('transitions status to failed after 9 attempts', () async {
         final queue = _buildQueue();

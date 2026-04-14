@@ -6,6 +6,12 @@ enum SyncOperationStatus { pending, inFlight, failed }
 
 enum SyncCycleStatus { idle, running, succeeded, failed }
 
-enum SyncTrigger { appStartup, connectivityRestored, userSignIn, manualRetry }
+enum SyncTrigger {
+  appStartup,
+  connectivityRestored,
+  userSignIn,
+  manualRetry,
+  localDataChanged,
+}
 
 enum ConflictResolutionStrategy { lastWriteWins }

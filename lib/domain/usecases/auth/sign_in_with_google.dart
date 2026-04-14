@@ -11,7 +11,9 @@ class SignInWithGoogle {
     final session = await _repository.signInForSync(providerId: 'google.com');
     if (session.status == AuthSessionStatus.ready &&
         session.providerId == 'google.com') {
-      return const AppEntrySession.authenticated(entryMode: AppEntryMode.google);
+      return const AppEntrySession.authenticated(
+        entryMode: AppEntryMode.google,
+      );
     }
 
     if (session.status == AuthSessionStatus.signedOut) {
