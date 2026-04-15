@@ -278,6 +278,7 @@ class _FakeAuthRepository implements AuthRepository {
   _FakeAuthRepository({
     AuthSession initialSession = const AuthSession.signedOut(),
     AuthSession? watchedSession,
+    // ignore: unused_element_parameter
     this.appleAvailability = AppleAuthAvailability.supported,
   }) : _session = initialSession,
        watchedSession = watchedSession ?? initialSession;

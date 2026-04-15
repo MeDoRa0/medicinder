@@ -44,6 +44,7 @@ class _FakeAuthRepository implements AuthRepository {
 
   _FakeAuthRepository({
     required this.result,
+    // ignore: unused_element_parameter
     this.appleAvailability = AppleAuthAvailability.supported,
   });
 
