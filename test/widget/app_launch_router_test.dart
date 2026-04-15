@@ -9,6 +9,7 @@ import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/data/datasources/auth/apple_auth_provider_data_source.dart';
 import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
 import 'package:medicinder/domain/entities/medication.dart';
+import 'package:medicinder/domain/entities/medication_history.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/pending_change.dart';
 import 'package:medicinder/domain/entities/sync/sync_status_view_state.dart';
@@ -587,4 +588,11 @@ class _FakeMedicationRepository implements MedicationRepository {
 
   @override
   Future<void> updateMedication(Medication medication) async {}
+
+  @override
+  Future<List<MedicationHistory>> getLastTakenMedicines() async => [];
+
+  @override
+  Stream<List<MedicationHistory>> getLastTakenMedicinesStream() =>
+      const Stream.empty();
 }

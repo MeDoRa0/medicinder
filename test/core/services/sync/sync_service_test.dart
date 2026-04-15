@@ -7,6 +7,7 @@ import 'package:medicinder/data/datasources/medication_remote_data_source.dart';
 import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
 import 'package:medicinder/data/datasources/sync_state_local_data_source.dart';
 import 'package:medicinder/domain/entities/medication.dart';
+import 'package:medicinder/domain/entities/medication_history.dart';
 import 'package:medicinder/domain/entities/sync/auth_session.dart';
 import 'package:medicinder/domain/entities/sync/conflict_metadata.dart';
 import 'package:medicinder/domain/entities/sync/pending_change.dart';
@@ -258,6 +259,13 @@ class _FakeMedicationRepository implements MedicationRepository {
   Future<void> updateMedication(Medication medication) async {
     medications[medication.id] = medication;
   }
+
+  @override
+  Future<List<MedicationHistory>> getLastTakenMedicines() async => [];
+
+  @override
+  Stream<List<MedicationHistory>> getLastTakenMedicinesStream() =>
+      const Stream.empty();
 }
 
 class _FakeMedicationRemoteDataSource implements MedicationRemoteDataSource {

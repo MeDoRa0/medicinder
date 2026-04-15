@@ -44,7 +44,7 @@ class _FakeAuthRepository implements AuthRepository {
 
   _FakeAuthRepository({
     required this.result,
-    this.appleAvailability = AppleAuthAvailability.unsupportedRunner,
+    this.appleAvailability = AppleAuthAvailability.supported,
   });
 
   @override

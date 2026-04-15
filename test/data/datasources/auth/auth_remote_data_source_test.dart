@@ -170,8 +170,9 @@ class _FakeAuthGateway implements AuthGateway {
 
   _FakeAuthGateway({
     this.signedInAppleUser,
-    this.currentUserValue,
     this.appleSignInException,
+    // ignore: unused_element_parameter
+    this.currentUserValue,
   });
 
   @override

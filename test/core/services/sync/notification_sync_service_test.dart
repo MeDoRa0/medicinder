@@ -5,6 +5,7 @@ import 'package:medicinder/core/services/sync/notification_sync_service.dart';
 import 'package:medicinder/core/services/sync/sync_diagnostics.dart';
 import 'package:medicinder/core/services/notification_optimizer.dart';
 import 'package:medicinder/domain/entities/medication.dart';
+import 'package:medicinder/domain/entities/medication_history.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
 
 class _FakeMedicationRepository implements MedicationRepository {
@@ -43,6 +44,11 @@ class _FakeMedicationRepository implements MedicationRepository {
   ) async {}
   @override
   Future<void> updateMedication(Medication medication) async {}
+  @override
+  Future<List<MedicationHistory>> getLastTakenMedicines() async => [];
+  @override
+  Stream<List<MedicationHistory>> getLastTakenMedicinesStream() =>
+      const Stream.empty();
 }
 
 class _FakeNotificationOptimizer implements NotificationOptimizer {
