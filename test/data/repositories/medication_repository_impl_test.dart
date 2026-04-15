@@ -3,7 +3,6 @@ import 'package:medicinder/data/repositories/medication_repository_impl.dart';
 import 'package:medicinder/data/datasources/medication_history_local_data_source.dart';
 import 'package:medicinder/data/datasources/medication_local_data_source.dart';
 import 'package:medicinder/data/datasources/sync_queue_local_data_source.dart';
-import 'package:medicinder/domain/entities/medication_history.dart';
 import 'package:medicinder/domain/repositories/auth_repository.dart';
 import 'package:medicinder/data/models/medication_history_model.dart';
 

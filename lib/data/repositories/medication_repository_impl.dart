@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../domain/entities/medication.dart';
 import '../../domain/entities/sync_metadata.dart';
 import '../../domain/entities/sync/pending_change.dart';
@@ -166,9 +168,6 @@ class MedicationRepositoryImpl implements MedicationRepository {
         if (taken) {
           try {
             // Section VI: Emit structured diagnostic logs
-            // Ideally use a logging framework, using print for simple diagnosis or you could use log()
-            // To be precise, I'll log via dart:developer
-            final doseObj = finalMedication.doses[doseIndex];
             final doseStr = finalMedication.dosage;
             final record = MedicationHistoryModel(
               medicineId: finalMedication.id,
@@ -259,6 +258,15 @@ class MedicationRepositoryImpl implements MedicationRepository {
     } catch (e) {
       throw StorageFailure(e.toString());
     }
+  }
+
+  @override
+  Stream<List<MedicationHistory>> getLastTakenMedicinesStream() async* {
+    // Emit immediately on subscription
+    yield await getLastTakenMedicines();
+    // Then poll every 30 seconds
+    yield* Stream.periodic(const Duration(seconds: 30))
+        .asyncMap((_) => getLastTakenMedicines());
   }
 
   @override
