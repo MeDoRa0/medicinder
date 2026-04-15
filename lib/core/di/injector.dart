@@ -321,11 +321,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
       notificationSyncService: sl(),
     ),
   );
-  sl.registerFactory(
-    () => LastTakenMedicinesCubit(
-      repository: sl(),
-    ),
-  );
+  sl.registerFactory(() => LastTakenMedicinesCubit(repository: sl()));
 }
 
 class _LegacySyncOperationAdapter extends TypeAdapter<Map<dynamic, dynamic>> {

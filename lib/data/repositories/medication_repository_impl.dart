@@ -265,8 +265,9 @@ class MedicationRepositoryImpl implements MedicationRepository {
     // Emit immediately on subscription
     yield await getLastTakenMedicines();
     // Then poll every 30 seconds
-    yield* Stream.periodic(const Duration(seconds: 30))
-        .asyncMap((_) => getLastTakenMedicines());
+    yield* Stream.periodic(
+      const Duration(seconds: 30),
+    ).asyncMap((_) => getLastTakenMedicines());
   }
 
   @override

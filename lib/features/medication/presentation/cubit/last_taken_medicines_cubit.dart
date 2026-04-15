@@ -9,13 +9,13 @@ class LastTakenMedicinesCubit extends Cubit<LastTakenMedicinesState> {
   StreamSubscription<List<MedicationHistory>>? _subscription;
 
   LastTakenMedicinesCubit({required MedicationRepository repository})
-      : _repository = repository,
-        super(const LastTakenMedicinesInitial());
+    : _repository = repository,
+      super(const LastTakenMedicinesInitial());
 
   void watchRecentMedicines() {
     // Prevent multiple subscriptions
     _subscription?.cancel();
-    
+
     emit(const LastTakenMedicinesLoading());
 
     _subscription = _repository.getLastTakenMedicinesStream().listen(
@@ -24,8 +24,14 @@ class LastTakenMedicinesCubit extends Cubit<LastTakenMedicinesState> {
       },
       onError: (error, stackTrace) {
         // Log explicitly as required by Constitution Principle VI
-        print('[Diagnostic] LastTakenMedicinesCubit stream error: $error\n$stackTrace');
-        emit(const LastTakenMedicinesError(message: 'Failed to fetch recently taken medications'));
+        print(
+          '[Diagnostic] LastTakenMedicinesCubit stream error: $error\n$stackTrace',
+        );
+        emit(
+          const LastTakenMedicinesError(
+            message: 'Failed to fetch recently taken medications',
+          ),
+        );
       },
     );
   }
