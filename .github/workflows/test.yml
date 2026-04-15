@@ -44,7 +44,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         with:
-          file: coverage/lcov.info
+          files: coverage/lcov.info
           flags: unittests
           fail_ci_if_error: false
 
@@ -78,6 +78,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Decode google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > android/app/google-services.json
 
       - name: Install dependencies
         run: flutter pub get
