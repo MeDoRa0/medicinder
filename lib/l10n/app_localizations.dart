@@ -1021,6 +1021,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restoring launch state'**
   String get authEntryRestoring;
+
+  /// Relative time formatting for minutes
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} m ago'**
+  String timeAgoMinutes(int minutes);
+
+  /// Relative time formatting for hours
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h ago'**
+  String timeAgoHours(int hours);
+
+  /// Relative time formatting for less than a minute ago
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// Message shown when no medications have been taken in the last 24 hours
+  ///
+  /// In en, this message translates to:
+  /// **'No medications taken today.'**
+  String get noMedsToday;
+
+  /// Title for the last taken medicines page
+  ///
+  /// In en, this message translates to:
+  /// **'Last Taken'**
+  String get lastTakenTitle;
 }
 
 class _AppLocalizationsDelegate

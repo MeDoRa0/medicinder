@@ -679,5 +679,37 @@
   "authEntryRestoring": "Restoring launch state",
   "@authEntryRestoring": {
     "description": "Accessibility label for launch restoration progress"
+  },
+  "timeAgoMinutes": "{minutes} m ago",
+  "@timeAgoMinutes": {
+    "description": "Relative time formatting for minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "timeAgoHours": "{hours} h ago",
+  "@timeAgoHours": {
+    "description": "Relative time formatting for hours",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "justNow": "Just now",
+  "@justNow": {
+    "description": "Relative time formatting for less than a minute ago"
+  },
+  "noMedsToday": "No medications taken today.",
+  "@noMedsToday": {
+    "description": "Message shown when no medications have been taken in the last 24 hours"
+  },
+  "lastTakenTitle": "Last Taken",
+  "@lastTakenTitle": {
+    "description": "Title for the last taken medicines page"
   }
 }

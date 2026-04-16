@@ -508,4 +508,23 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authEntryRestoring => 'جارٍ استعادة حالة التشغيل';
+
+  @override
+  String timeAgoMinutes(int minutes) {
+    return 'منذ $minutes د';
+  }
+
+  @override
+  String timeAgoHours(int hours) {
+    return 'منذ $hours س';
+  }
+
+  @override
+  String get justNow => 'الآن';
+
+  @override
+  String get noMedsToday => 'لم يتم تناول أي أدوية اليوم.';
+
+  @override
+  String get lastTakenTitle => 'آخر الجرعات';
 }
