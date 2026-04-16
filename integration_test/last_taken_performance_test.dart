@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:medicinder/main.dart' as app;
+import 'package:medicinder/presentation/last_taken/pages/last_taken_medicines_page.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ void main() {
     stopwatch.stop();
 
     // Wait until the new page is displayed
-    expect(find.text('Last Taken'), findsOneWidget); // Or the localized text
+    expect(find.byType(LastTakenMedicinesPage), findsOneWidget);
 
     // Test time should be less than 1 second (1000 milliseconds) for UI rendering
     expect(stopwatch.elapsedMilliseconds, lessThan(1000));

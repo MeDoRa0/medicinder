@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'dart:developer';
 
+import '../../features/medication/presentation/cubit/last_taken_medicines_cubit.dart';
 import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
 import 'add_medication_page.dart';
@@ -104,7 +106,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const LastTakenMedicinesPage(),
+                  builder: (_) => BlocProvider(
+                    create: (_) => GetIt.I<LastTakenMedicinesCubit>(),
+                    child: const LastTakenMedicinesPage(),
+                  ),
                 ),
               );
             },
