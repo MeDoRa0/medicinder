@@ -31,7 +31,7 @@ class _LastTakenMedicinesPageState extends State<LastTakenMedicinesPage> {
           if (state is LastTakenMedicinesLoading || state is LastTakenMedicinesInitial) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is LastTakenMedicinesError) {
-            return Center(child: Text(AppLocalizations.of(context)!.unknownError));
+            return Center(child: Text(state.message));
           } else if (state is LastTakenMedicinesLoaded) {
             if (state.medications.isEmpty) {
               return const EmptyStateWidget();
