@@ -24,7 +24,7 @@ import 'presentation/cubit/sync/sync_status_cubit.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 /// The app's entry point. Initializes dependencies and runs the app.
-void main() async {
+Future<void> main() async {
   log('Starting Medicinder app...');
   WidgetsFlutterBinding.ensureInitialized();
 

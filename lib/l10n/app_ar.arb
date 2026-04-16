@@ -680,5 +680,37 @@
   "authEntryRestoring": "جارٍ استعادة حالة التشغيل",
   "@authEntryRestoring": {
     "description": "Accessibility label for launch restoration progress"
+  },
+  "timeAgoMinutes": "منذ {minutes} د",
+  "@timeAgoMinutes": {
+    "description": "Relative time formatting for minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "timeAgoHours": "منذ {hours} س",
+  "@timeAgoHours": {
+    "description": "Relative time formatting for hours",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "justNow": "الآن",
+  "@justNow": {
+    "description": "Relative time formatting for less than a minute ago"
+  },
+  "noMedsToday": "لم يتم تناول أي أدوية اليوم.",
+  "@noMedsToday": {
+    "description": "Message shown when no medications have been taken in the last 24 hours"
+  },
+  "lastTakenTitle": "آخر الجرعات",
+  "@lastTakenTitle": {
+    "description": "Title for the last taken medicines page"
   }
 }

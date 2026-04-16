@@ -510,4 +510,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authEntryRestoring => 'Restoring launch state';
+
+  @override
+  String timeAgoMinutes(int minutes) {
+    return '$minutes m ago';
+  }
+
+  @override
+  String timeAgoHours(int hours) {
+    return '$hours h ago';
+  }
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get noMedsToday => 'No medications taken today.';
+
+  @override
+  String get lastTakenTitle => 'Last Taken';
 }

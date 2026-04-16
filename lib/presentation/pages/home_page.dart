@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'dart:developer';
 
+import '../../features/medication/presentation/cubit/last_taken_medicines_cubit.dart';
 import '../cubit/medication_cubit.dart';
 import '../cubit/medication_state.dart';
 import 'add_medication_page.dart';
@@ -12,6 +14,7 @@ import 'dart:async';
 import '../widgets/medication_list.dart';
 import '../widgets/medication_fab.dart';
 import '../widgets/sync/sync_status_banner.dart';
+import '../last_taken/pages/last_taken_medicines_page.dart';
 
 class HomePage extends StatefulWidget {
   final Function(Locale) onLocaleChanged;
@@ -97,6 +100,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.homeTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider(
+                    create: (_) => GetIt.I<LastTakenMedicinesCubit>(),
+                    child: const LastTakenMedicinesPage(),
+                  ),
+                ),
+              );
+            },
+            tooltip: AppLocalizations.of(context)!.lastTakenTitle,
+          ),
           IconButton(
             icon: const Icon(Icons.bar_chart),
             onPressed: () {
