@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
 import 'package:medicinder/domain/entities/medication_history.dart';
 import 'package:medicinder/features/medication/presentation/cubit/last_taken_medicines_state.dart';
+import 'dart:developer';
 
 class LastTakenMedicinesCubit extends Cubit<LastTakenMedicinesState> {
   final MedicationRepository _repository;
@@ -24,11 +25,11 @@ class LastTakenMedicinesCubit extends Cubit<LastTakenMedicinesState> {
       },
       onError: (error, stackTrace) {
         // Log explicitly as required by Constitution Principle VI
-        print(
+        log(
           '[Diagnostic] LastTakenMedicinesCubit stream error: $error\n$stackTrace',
         );
         emit(
-          const LastTakenMedicinesError(
+          LastTakenMedicinesError(
             message: 'Failed to fetch recently taken medications',
           ),
         );

@@ -527,4 +527,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get lastTakenTitle => 'آخر الجرعات';
+
+  @override
+  String get lastTakenNavTitle => 'السجل';
+
+  @override
+  String get lastTakenError => 'فشل في جلب الأدوية التي تم تناولها مؤخراً';
 }

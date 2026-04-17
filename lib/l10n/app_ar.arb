@@ -712,5 +712,13 @@
   "lastTakenTitle": "آخر الجرعات",
   "@lastTakenTitle": {
     "description": "Title for the last taken medicines page"
+  },
+  "lastTakenNavTitle": "السجل",
+  "@lastTakenNavTitle": {
+    "description": "Title for the history tab in bottom navigation"
+  },
+  "lastTakenError": "فشل في جلب الأدوية التي تم تناولها مؤخراً",
+  "@lastTakenError": {
+    "description": "Error fetching recent medications"
   }
 }

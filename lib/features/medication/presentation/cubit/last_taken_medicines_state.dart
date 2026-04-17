@@ -27,9 +27,10 @@ class LastTakenMedicinesLoaded extends LastTakenMedicinesState {
 
 class LastTakenMedicinesError extends LastTakenMedicinesState {
   final String message;
+  final DateTime timestamp;
 
-  const LastTakenMedicinesError({required this.message});
+  LastTakenMedicinesError({required this.message}) : timestamp = DateTime.now();
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, timestamp];
 }

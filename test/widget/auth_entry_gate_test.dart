@@ -17,8 +17,27 @@ import 'package:medicinder/domain/usecases/auth/sign_in_with_google.dart';
 import 'package:medicinder/l10n/app_localizations.dart';
 import 'package:medicinder/presentation/cubit/auth/auth_entry_cubit.dart';
 import 'package:medicinder/presentation/pages/auth_entry_gate_page.dart';
+import 'package:get_it/get_it.dart';
+import 'package:medicinder/features/medication/presentation/cubit/last_taken_medicines_cubit.dart';
+import 'package:medicinder/features/medication/presentation/cubit/last_taken_medicines_state.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockLastTakenMedicinesCubit extends Mock implements LastTakenMedicinesCubit {}
 
 void main() {
+  setUp(() async {
+    await GetIt.I.reset();
+    final mockCubit = MockLastTakenMedicinesCubit();
+    when(() => mockCubit.state).thenReturn(const LastTakenMedicinesLoaded(medications: []));
+    when(() => mockCubit.stream).thenAnswer((_) => Stream.value(const LastTakenMedicinesLoaded(medications: [])));
+    when(() => mockCubit.watchRecentMedicines()).thenReturn(null);
+    when(() => mockCubit.close()).thenAnswer((_) async {});
+    GetIt.I.registerSingleton<LastTakenMedicinesCubit>(mockCubit);
+  });
+
+  tearDown(() async {
+    await GetIt.I.reset();
+  });
   testWidgets('shows Apple on iOS and hides it on non-iOS', (tester) async {
     final iosCubit = _buildCubit(
       _FakeAppEntryRepository(),

@@ -29,6 +29,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Timer? _medicationCheckTimer;
   DateTime? _lastCleanupDate;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -48,22 +49,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // App came back to foreground, check for daily reset first, then refresh medications
       _handleAppResume();
     }
   }
 
   Future<void> _handleAppResume() async {
     final cubit = context.read<MedicationCubit>();
-    // Check for daily reset when app is reopened
     await cubit.checkDailyResetOnAppOpen();
-    // Then refresh medications and clean up completed ones (await so list reloads after cleanup)
     await cubit.cleanupCompletedMedications();
     await cubit.loadMedications();
   }
 
   void _startPeriodicMedicationCheck() {
-    // Check for due medications and daily cleanup every 1 hour when app is open
     _medicationCheckTimer = Timer.periodic(const Duration(hours: 1), (timer) {
       _checkForDueMedications();
       _checkForNewDayAndCleanup();
@@ -75,7 +72,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       log('🔍 HomePage: Checking for due medications...');
     } catch (e) {
       log('❌ HomePage: Error checking due medications: $e');
-      // Don't crash the app, just log the error
     }
   }
 
@@ -85,7 +81,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         now.year != _lastCleanupDate!.year ||
         now.month != _lastCleanupDate!.month ||
         now.day != _lastCleanupDate!.day) {
-      // New day detected
       final cubit = context.read<MedicationCubit>();
       await cubit.checkDailyResetOnAppOpen();
       await cubit.cleanupCompletedMedications();
@@ -94,98 +89,124 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.homeTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BlocProvider(
-                    create: (_) => GetIt.I<LastTakenMedicinesCubit>(),
-                    child: const LastTakenMedicinesPage(),
-                  ),
-                ),
-              );
-            },
-            tooltip: AppLocalizations.of(context)!.lastTakenTitle,
-          ),
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const MedicationStatisticsPage(),
-                ),
-              );
-            },
-            tooltip: AppLocalizations.of(context)!.statistics,
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SettingsPage(
-                    onLocaleChanged: widget.onLocaleChanged,
-                    onRestartApp: widget.onRestartApp,
-                  ),
-                ),
-              );
-            },
-            tooltip: AppLocalizations.of(context)!.settings,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          const SyncStatusBanner(),
-          Expanded(
-            child: BlocBuilder<MedicationCubit, MedicationState>(
-              builder: (context, state) {
-                if (state is MedicationLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is MedicationLoaded) {
-                  if (state.medications.isEmpty) {
+  Widget _buildTabContent() {
+    return IndexedStack(
+      index: _currentIndex,
+      children: [
+        Column(
+          children: [
+            const SyncStatusBanner(),
+            Expanded(
+              child: BlocBuilder<MedicationCubit, MedicationState>(
+                builder: (context, state) {
+                  if (state is MedicationLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is MedicationLoaded) {
+                    if (state.medications.isEmpty) {
+                      return Center(
+                        child: Text(AppLocalizations.of(context)!.noMedications),
+                      );
+                    }
+                    final now = DateTime.now();
+                    return MedicationList(
+                      medications: state.medications,
+                      now: now,
+                    );
+                  } else if (state is MedicationError) {
                     return Center(
-                      child: Text(AppLocalizations.of(context)!.noMedications),
+                      child: Text(
+                        AppLocalizations.of(context)!.error(state.message),
+                      ),
                     );
                   }
-                  final now = DateTime.now();
-                  return MedicationList(
-                    medications: state.medications,
-                    now: now,
-                  );
-                } else if (state is MedicationError) {
-                  return Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.error(state.message),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: MedicationFAB(
-        onAddMedication: () async {
-          final medication = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddMedicationPage()),
-          );
-          if (medication != null && context.mounted) {
-            context.read<MedicationCubit>().addNewMedication(medication);
-          }
-        },
+          ],
+        ),
+        BlocProvider(
+          create: (_) => GetIt.I<LastTakenMedicinesCubit>(),
+          child: const LastTakenMedicinesPage(),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, dynamic result) {
+        if (!didPop && _currentIndex != 0) {
+          setState(() {
+            _currentIndex = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: _currentIndex == 0 ? AppBar(
+          title: Text(AppLocalizations.of(context)!.homeTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.bar_chart),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MedicationStatisticsPage(),
+                  ),
+                );
+              },
+              tooltip: AppLocalizations.of(context)!.statistics,
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SettingsPage(
+                      onLocaleChanged: widget.onLocaleChanged,
+                      onRestartApp: widget.onRestartApp,
+                    ),
+                  ),
+                );
+              },
+              tooltip: AppLocalizations.of(context)!.settings,
+            ),
+          ],
+        ) : null,
+        body: _buildTabContent(),
+        floatingActionButton: _currentIndex == 0 ? MedicationFAB(
+          onAddMedication: () async {
+            final medication = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddMedicationPage()),
+            );
+            if (medication != null && context.mounted) {
+              context.read<MedicationCubit>().addNewMedication(medication);
+            }
+          },
+        ) : null,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.medical_services),
+              label: AppLocalizations.of(context)!.homeTitle,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.history),
+              label: AppLocalizations.of(context)!.lastTakenNavTitle,
+            ),
+          ],
+        ),
       ),
     );
   }

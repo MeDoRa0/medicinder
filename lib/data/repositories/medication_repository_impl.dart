@@ -19,6 +19,9 @@ class MedicationRepositoryImpl implements MedicationRepository {
   final AuthRepository authRepository;
   final MedicationHistoryLocalDataSource historyLocalDataSource;
 
+  final StreamController<List<MedicationHistory>> _historyStreamController =
+      StreamController<List<MedicationHistory>>.broadcast();
+
   MedicationRepositoryImpl(
     this.localDataSource,
     this.syncQueueLocalDataSource,
@@ -176,6 +179,11 @@ class MedicationRepositoryImpl implements MedicationRepository {
               takenAt: DateTime.now().toUtc(),
             );
             await historyLocalDataSource.addHistoryRecord(record);
+
+            // Notify stream listeners
+            final updatedHistory = await getLastTakenMedicines();
+            _historyStreamController.add(updatedHistory);
+
             // using dart:developer log requires importing dart:developer. I will import it if not present.
           } catch (e) {
             // Swallow or handle history log error
@@ -264,10 +272,8 @@ class MedicationRepositoryImpl implements MedicationRepository {
   Stream<List<MedicationHistory>> getLastTakenMedicinesStream() async* {
     // Emit immediately on subscription
     yield await getLastTakenMedicines();
-    // Then poll every 30 seconds
-    yield* Stream.periodic(
-      const Duration(seconds: 30),
-    ).asyncMap((_) => getLastTakenMedicines());
+    // Then listen to explicit updates
+    yield* _historyStreamController.stream;
   }
 
   @override
@@ -343,5 +349,9 @@ class MedicationRepositoryImpl implements MedicationRepository {
       return medication;
     }
     return medication.copyWith(userId: session.userId);
+  }
+
+  void dispose() {
+    _historyStreamController.close();
   }
 }

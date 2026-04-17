@@ -711,5 +711,13 @@
   "lastTakenTitle": "Last Taken",
   "@lastTakenTitle": {
     "description": "Title for the last taken medicines page"
+  },
+  "lastTakenNavTitle": "History",
+  "@lastTakenNavTitle": {
+    "description": "Title for the history tab in bottom navigation"
+  },
+  "lastTakenError": "Failed to fetch recently taken medications",
+  "@lastTakenError": {
+    "description": "Error fetching recent medications"
   }
 }

@@ -245,6 +245,7 @@ Future<void> initDependencies({bool firebaseConfigured = false}) async {
   );
   sl.registerLazySingleton<MedicationRepository>(
     () => MedicationRepositoryImpl(sl(), sl(), sl(), sl()),
+    dispose: (repo) => (repo as MedicationRepositoryImpl).dispose(),
   );
   sl.registerLazySingleton<SyncRepository>(
     () => SyncService(
