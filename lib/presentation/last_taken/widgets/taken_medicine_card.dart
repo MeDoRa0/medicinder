@@ -25,25 +25,23 @@ class TakenMedicineCard extends StatelessWidget {
                   child: Text(
                     history.medicineName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                    // Wrapping is default for Text
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   history.takenAt.toRelativeTime(context),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              history.dose,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(history.dose, style: Theme.of(context).textTheme.bodyMedium),
           ],
         ),
       ),

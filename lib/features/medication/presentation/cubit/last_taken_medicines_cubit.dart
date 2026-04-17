@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicinder/domain/repositories/medication_repository.dart';
 import 'package:medicinder/domain/entities/medication_history.dart';
@@ -24,8 +25,10 @@ class LastTakenMedicinesCubit extends Cubit<LastTakenMedicinesState> {
       },
       onError: (error, stackTrace) {
         // Log explicitly as required by Constitution Principle VI
-        print(
+        developer.log(
           '[Diagnostic] LastTakenMedicinesCubit stream error: $error\n$stackTrace',
+          error: error,
+          stackTrace: stackTrace,
         );
         emit(
           const LastTakenMedicinesError(

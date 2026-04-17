@@ -10,42 +10,60 @@ void main() {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('en'),
-      home: Scaffold(
-        body: TakenMedicineCard(history: history),
-      ),
+      home: Scaffold(body: TakenMedicineCard(history: history)),
     );
   }
 
-  testWidgets('TakenMedicineCard displays medicine name, dose, and relative time', (WidgetTester tester) async {
-    final now = DateTime.now();
-    final takenTime = now.subtract(const Duration(minutes: 10));
-    final history = MedicationHistory(
-      medicineId: '1',
-      medicineName: 'Aspirin',
-      dose: '1 Pill',
-      takenAt: takenTime,
-    );
+  testWidgets(
+    'TakenMedicineCard displays medicine name, dose, and relative time',
+    (WidgetTester tester) async {
+      final now = DateTime.now();
+      final takenTime = now.subtract(const Duration(minutes: 10));
+      final history = MedicationHistory(
+        medicineId: '1',
+        medicineName: 'Aspirin',
+        dose: '1 Pill',
+        takenAt: takenTime,
+      );
 
-    await tester.pumpWidget(buildTestWidget(history));
+      await tester.pumpWidget(buildTestWidget(history));
 
-    expect(find.text('Aspirin'), findsOneWidget);
-    expect(find.text('1 Pill'), findsOneWidget);
-    // Relative time string via time_extension.dart will be "10 m ago"
-    expect(find.text('10 m ago'), findsOneWidget);
-  });
+      expect(find.text('Aspirin'), findsOneWidget);
+      expect(find.text('1 Pill'), findsOneWidget);
+      // Relative time string via time_extension.dart will be "10 m ago"
+      expect(find.text('10 m ago'), findsOneWidget);
+    },
+  );
 
-  testWidgets('TakenMedicineCard wraps long text without overflowing', (WidgetTester tester) async {
+  testWidgets('TakenMedicineCard truncates long medicine name with ellipsis', (
+    WidgetTester tester,
+  ) async {
     final now = DateTime.now();
     final takenTime = now.subtract(const Duration(minutes: 5));
+    const longName =
+        'SuperLongMedicationNameThatShouldUseSingleLineEllipsisWhenThereIsNotEnoughSpace OnTheScreen ExtraCharacters';
     final history = MedicationHistory(
       medicineId: '2',
-      medicineName: 'SuperLongMedicationNameThatShouldWrapToMultipleLinesIfThereIsNotEnoughSpace OnTheScreen',
+      medicineName: longName,
       dose: '2 Pills',
       takenAt: takenTime,
     );
 
     await tester.pumpWidget(buildTestWidget(history));
-    expect(tester.takeException(), isNull); // Verify no layout overflow exception
-    expect(find.textContaining('SuperLongMedicationName'), findsOneWidget);
+    final nameText = tester.widget<Text>(find.text(longName));
+
+    expect(nameText.maxLines, 1);
+    expect(nameText.overflow, TextOverflow.ellipsis);
+    
+    // Check that the text is wrapped in an Expanded
+    expect(
+      find.ancestor(of: find.text(longName), matching: find.byType(Expanded)),
+      findsOneWidget,
+    );
+
+    expect(
+      tester.takeException(),
+      isNull,
+    ); // Verify no layout overflow exception
   });
 }

@@ -75,6 +75,37 @@ void main() {
       expect(result.first.medicineId, '1');
     });
 
+    test('excludes record at 24 hours and 1 second ago (strict boundary)', () async {
+      final now = DateTime.now().toUtc();
+      fakeHistoryDataSource.records = [
+        MedicationHistoryModel(
+          medicineId: '1',
+          medicineName: 'Aspirin',
+          dose: '500mg',
+          takenAt: now.subtract(const Duration(hours: 24, seconds: 1)),
+        ),
+      ];
+
+      final result = await repository.getLastTakenMedicines();
+      expect(result, isEmpty);
+    });
+
+    test('includes record at 23 hours 59 minutes ago', () async {
+      final now = DateTime.now().toUtc();
+      fakeHistoryDataSource.records = [
+        MedicationHistoryModel(
+          medicineId: '1',
+          medicineName: 'Aspirin',
+          dose: '500mg',
+          takenAt: now.subtract(const Duration(hours: 23, minutes: 59)),
+        ),
+      ];
+
+      final result = await repository.getLastTakenMedicines();
+      expect(result.length, 1);
+      expect(result.first.medicineId, '1');
+    });
+
     test('sorts records in descending order (most recent first)', () async {
       final now = DateTime.now().toUtc();
       fakeHistoryDataSource.records = [

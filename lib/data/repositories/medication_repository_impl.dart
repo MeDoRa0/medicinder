@@ -248,8 +248,7 @@ class MedicationRepositoryImpl implements MedicationRepository {
       final threshold = nowUtc.subtract(const Duration(hours: 24));
 
       final filteredRecords = records.where((record) {
-        return record.takenAt.isAfter(threshold) ||
-            record.takenAt.isAtSameMomentAs(threshold);
+        return record.takenAt.isAfter(threshold);
       }).toList();
 
       filteredRecords.sort((a, b) => b.takenAt.compareTo(a.takenAt));
