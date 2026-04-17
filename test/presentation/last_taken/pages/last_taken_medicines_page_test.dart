@@ -17,6 +17,7 @@ void main() {
 
   setUp(() {
     mockCubit = MockLastTakenMedicinesCubit();
+    when(() => mockCubit.close()).thenAnswer((_) async {});
   });
 
   Widget buildTestWidget() {

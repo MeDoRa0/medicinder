@@ -1,4 +1,4 @@
-﻿# medicinder Development Guidelines
+# medicinder Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2026-04-17
 
@@ -18,6 +18,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-17
 - Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `firebase_core`, `firebase_auth`, `cloud_firestore`, `google_sign_in`, Apple Sign-In provider package, `shared_preferences`, `intl`, `flutter_localizations` (010-apple-sign-in)
 - Dart ^3.8.1, Flutter stable + `flutter`, `flutter_bloc`, `intl` (013-last-taken-ui)
 - N/A (UI layer, data handled by Cubit via Hive) (013-last-taken-ui)
+- Dart ^3.8.1 with Flutter stable + `flutter_test`, `mocktail`, `flutter_bloc`, `equatable`, `hive` (015-last-taken-testing)
+- Hive (local), tested via in-memory fakes (015-last-taken-testing)
 - Dart >=3.8.1 + Flutter stable, `flutter_bloc`, `get_it` (014-last-taken-integration)
 - N/A (Routing only, persistence already handled via Hive) (014-last-taken-integration)
 
@@ -39,6 +41,7 @@ tests/
 Dart `^3.8.1` with Flutter stable: Follow standard conventions
 
 ## Recent Changes
+- 015-last-taken-testing: Added Dart ^3.8.1 with Flutter stable + `flutter_test`, `mocktail`, `flutter_bloc`, `equatable`, `hive`
 - 014-last-taken-integration: Added Dart >=3.8.1 + Flutter stable, `flutter_bloc`, `get_it`
 - 013-last-taken-ui: Added Dart ^3.8.1, Flutter stable + `flutter`, `flutter_bloc`, `intl`
 - 010-apple-sign-in: Added Dart `^3.8.1` with Flutter stable + Flutter, `flutter_bloc`, `get_it`, `firebase_core`, `firebase_auth`, `cloud_firestore`, `google_sign_in`, Apple Sign-In provider package, `shared_preferences`, `intl`, `flutter_localizations`
