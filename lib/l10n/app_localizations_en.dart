@@ -529,4 +529,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lastTakenTitle => 'Last Taken';
+
+  @override
+  String get lastTakenNavTitle => 'History';
+
+  @override
+  String get lastTakenError => 'Failed to fetch recently taken medications';
 }

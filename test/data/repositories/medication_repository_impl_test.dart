@@ -48,6 +48,10 @@ void main() {
       );
     });
 
+    tearDown(() {
+      repository.dispose();
+    });
+
     test('returns empty list when no records exist', () async {
       final result = await repository.getLastTakenMedicines();
       expect(result, isEmpty);

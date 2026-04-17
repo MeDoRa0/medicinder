@@ -42,8 +42,27 @@ import 'package:medicinder/presentation/pages/app_launch_router_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/fake_notification_sync_service.dart';
+import 'package:get_it/get_it.dart';
+import 'package:medicinder/features/medication/presentation/cubit/last_taken_medicines_cubit.dart';
+import 'package:medicinder/features/medication/presentation/cubit/last_taken_medicines_state.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockLastTakenMedicinesCubit extends Mock implements LastTakenMedicinesCubit {}
 
 void main() {
+  setUp(() async {
+    await GetIt.I.reset();
+    final mockCubit = MockLastTakenMedicinesCubit();
+    when(() => mockCubit.state).thenReturn(const LastTakenMedicinesLoaded(medications: []));
+    when(() => mockCubit.stream).thenAnswer((_) => Stream.value(const LastTakenMedicinesLoaded(medications: [])));
+    when(() => mockCubit.watchRecentMedicines()).thenReturn(null);
+    when(() => mockCubit.close()).thenAnswer((_) async {});
+    GetIt.I.registerSingleton<LastTakenMedicinesCubit>(mockCubit);
+  });
+
+  tearDown(() async {
+    await GetIt.I.reset();
+  });
   testWidgets('shows the entry gate when no stored mode exists', (
     tester,
   ) async {
