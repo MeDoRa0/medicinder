@@ -24,6 +24,7 @@ class _LastTakenMedicinesPageState extends State<LastTakenMedicinesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(AppLocalizations.of(context)!.lastTakenTitle),
       ),
       body: BlocBuilder<LastTakenMedicinesCubit, LastTakenMedicinesState>(
@@ -31,7 +32,7 @@ class _LastTakenMedicinesPageState extends State<LastTakenMedicinesPage> {
           if (state is LastTakenMedicinesLoading || state is LastTakenMedicinesInitial) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is LastTakenMedicinesError) {
-            return Center(child: Text(state.message));
+            return Center(child: Text(AppLocalizations.of(context)!.lastTakenError));
           } else if (state is LastTakenMedicinesLoaded) {
             if (state.medications.isEmpty) {
               return const EmptyStateWidget();

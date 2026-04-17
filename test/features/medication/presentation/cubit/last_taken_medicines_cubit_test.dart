@@ -76,8 +76,10 @@ void main() {
 
     final expectedStates = [
       const LastTakenMedicinesLoading(),
-      const LastTakenMedicinesError(
-        message: 'Failed to fetch recently taken medications',
+      isA<LastTakenMedicinesError>().having(
+        (e) => e.message,
+        'message',
+        'Failed to fetch recently taken medications',
       ),
     ];
 

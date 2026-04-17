@@ -31,7 +31,7 @@ class LastTakenMedicinesCubit extends Cubit<LastTakenMedicinesState> {
           stackTrace: stackTrace,
         );
         emit(
-          const LastTakenMedicinesError(
+          LastTakenMedicinesError(
             message: 'Failed to fetch recently taken medications',
           ),
         );

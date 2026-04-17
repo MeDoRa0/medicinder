@@ -1051,6 +1051,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last Taken'**
   String get lastTakenTitle;
+
+  /// Title for the history tab in bottom navigation
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get lastTakenNavTitle;
+
+  /// Error fetching recent medications
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to fetch recently taken medications'**
+  String get lastTakenError;
 }
 
 class _AppLocalizationsDelegate

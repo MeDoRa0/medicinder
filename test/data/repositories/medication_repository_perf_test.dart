@@ -62,6 +62,10 @@ void main() {
       });
     });
 
+    tearDown(() {
+      repository.dispose();
+    });
+
     test('querying local database executes under 50ms', () async {
       final stopwatch = Stopwatch()..start();
 

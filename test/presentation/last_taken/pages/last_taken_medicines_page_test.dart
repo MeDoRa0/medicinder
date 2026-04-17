@@ -43,12 +43,12 @@ void main() {
 
   testWidgets('LastTakenMedicinesPage displays error message on Error', (WidgetTester tester) async {
     const errorMsg = 'Failed to load';
-    when(() => mockCubit.state).thenReturn(const LastTakenMedicinesError(message: errorMsg));
-    when(() => mockCubit.stream).thenAnswer((_) => Stream.value(const LastTakenMedicinesError(message: errorMsg)));
+    when(() => mockCubit.state).thenReturn(LastTakenMedicinesError(message: errorMsg));
+    when(() => mockCubit.stream).thenAnswer((_) => Stream.value(LastTakenMedicinesError(message: errorMsg)));
     when(() => mockCubit.watchRecentMedicines()).thenReturn(null);
 
     await tester.pumpWidget(buildTestWidget());
-    expect(find.text(errorMsg), findsOneWidget);
+    expect(find.text('Failed to fetch recently taken medications'), findsOneWidget);
   });
 
   testWidgets('LastTakenMedicinesPage displays LastTakenMedicinesList on Loaded', (WidgetTester tester) async {
