@@ -118,7 +118,7 @@ class NotificationOptimizer {
           scheduledTime: nextDoseTime,
           medicationId: medication.id,
           doseIndex: nextDoseIndex,
-          context: context,
+          context: (context != null && context.mounted) ? context : null,
         );
 
         log(
@@ -148,7 +148,7 @@ class NotificationOptimizer {
       String? doneLabel;
       String? remindLaterLabel;
 
-      final l10n = context != null ? AppLocalizations.of(context) : null;
+      final l10n = (context != null && context.mounted) ? AppLocalizations.of(context) : null;
       if (l10n != null) {
         title = l10n.medicationReminder;
         body = l10n.timeToTakeMedication(medicationName);

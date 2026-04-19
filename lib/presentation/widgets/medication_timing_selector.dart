@@ -37,21 +37,19 @@ class MedicationTimingSelector extends StatelessWidget {
           AppLocalizations.of(context)!.timing,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        Row(
-          children: [
-            Radio<MedicationTimingType>(
-              value: MedicationTimingType.specificTime,
-              groupValue: timingType,
-              onChanged: (val) => onChanged(val!),
-            ),
-            Text(AppLocalizations.of(context)!.specificTimes),
-            Radio<MedicationTimingType>(
-              value: MedicationTimingType.contextBased,
-              groupValue: timingType,
-              onChanged: (val) => onChanged(val!),
-            ),
-            Text(AppLocalizations.of(context)!.beforeAfterMeals),
-          ],
+        RadioGroup<MedicationTimingType>(
+          groupValue: timingType,
+          onChanged: (val) {
+            if (val != null) onChanged(val);
+          },
+          child: Row(
+            children: [
+              Radio<MedicationTimingType>(value: MedicationTimingType.specificTime),
+              Text(AppLocalizations.of(context)!.specificTimes),
+              Radio<MedicationTimingType>(value: MedicationTimingType.contextBased),
+              Text(AppLocalizations.of(context)!.beforeAfterMeals),
+            ],
+          ),
         ),
         if (timingType == MedicationTimingType.specificTime) ...[
           const SizedBox(height: 8),

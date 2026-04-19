@@ -116,7 +116,7 @@ class MedicationCubit extends Cubit<MedicationState> {
       String? doneLabel;
       String? remindLaterLabel;
 
-      final l10n = context != null ? AppLocalizations.of(context) : null;
+      final l10n = (context != null && context.mounted) ? AppLocalizations.of(context) : null;
       if (l10n != null) {
         title = l10n.medicationReminder;
         body = l10n.timeToTakeMedication(medication.name);
@@ -373,7 +373,7 @@ class MedicationCubit extends Cubit<MedicationState> {
       await NotificationOptimizer().clearAllNotifications();
       await NotificationOptimizer().batchScheduleNotifications(
         updatedMedications,
-        context: context,
+        context: (context != null && context.mounted) ? context : null,
       );
       log(
         'MedicationCubit: Recomputed meal-based dose times and rescheduled notifications',

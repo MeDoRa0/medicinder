@@ -19,21 +19,19 @@ class MedicationTypeSelector extends StatelessWidget {
           AppLocalizations.of(context)!.medicineType,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        Row(
-          children: [
-            Radio<MedicationType>(
-              value: MedicationType.pill,
-              groupValue: medicationType,
-              onChanged: (val) => onChanged(val!),
-            ),
-            Text(AppLocalizations.of(context)!.pill),
-            Radio<MedicationType>(
-              value: MedicationType.syrup,
-              groupValue: medicationType,
-              onChanged: (val) => onChanged(val!),
-            ),
-            Text(AppLocalizations.of(context)!.syrup),
-          ],
+        RadioGroup<MedicationType>(
+          groupValue: medicationType,
+          onChanged: (val) {
+            if (val != null) onChanged(val);
+          },
+          child: Row(
+            children: [
+              Radio<MedicationType>(value: MedicationType.pill),
+              Text(AppLocalizations.of(context)!.pill),
+              Radio<MedicationType>(value: MedicationType.syrup),
+              Text(AppLocalizations.of(context)!.syrup),
+            ],
+          ),
         ),
       ],
     );

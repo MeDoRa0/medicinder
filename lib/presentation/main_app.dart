@@ -82,7 +82,7 @@ class _MainAppState extends State<MainApp> {
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: customColor.withOpacity(0.1),
+              fillColor: customColor.withValues(alpha: 0.1),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,

@@ -172,7 +172,7 @@ class _MedicationStatisticsPageState extends State<MedicationStatisticsPage> {
         ? (mostTaken.value / totalDoses * 100).toStringAsFixed(1)
         : '0.0';
     return Card(
-      color: const Color(0xFF71C0B2).withOpacity(0.1),
+      color: const Color(0xFF71C0B2).withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

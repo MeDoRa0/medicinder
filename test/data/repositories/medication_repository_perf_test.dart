@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medicinder/data/repositories/medication_repository_impl.dart';
 import 'package:medicinder/data/datasources/medication_history_local_data_source.dart';
 import 'package:medicinder/data/datasources/medication_local_data_source.dart';
@@ -74,7 +75,7 @@ void main() {
       stopwatch.stop();
       final elapsedMs = stopwatch.elapsedMilliseconds;
 
-      print(
+      debugPrint(
         'getLastTakenMedicines executed in $elapsedMs ms (returned ${result.length} items)',
       );
 

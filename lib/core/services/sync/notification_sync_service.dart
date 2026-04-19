@@ -70,12 +70,9 @@ class NotificationSyncService {
         cancelled += count;
 
         if (!permissionDenied) {
-          final currentContext = (context != null && context.mounted)
-              ? context
-              : null;
           await _notificationOptimizer.scheduleNextDoseNotification(
             medication,
-            context: currentContext,
+            context: (context != null && context.mounted) ? context : null,
           );
           scheduled++;
         }
