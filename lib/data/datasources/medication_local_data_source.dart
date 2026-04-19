@@ -98,8 +98,10 @@ class MedicationLocalDataSource {
       final models = _box.values.toList();
       for (final model in models) {
         final medication = model.toEntity();
-        final resetMedication = medication.resetDailyDoses();
-        await updateMedication(resetMedication);
+        if (!medication.isDeleted && medication.isActive) {
+          final resetMedication = medication.resetDailyDoses();
+          await updateMedication(resetMedication);
+        }
       }
     } catch (e) {
       log('Error resetting daily doses: $e');

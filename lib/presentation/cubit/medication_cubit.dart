@@ -266,11 +266,11 @@ class MedicationCubit extends Cubit<MedicationState> {
     try {
       final medications = await _getMedications();
 
-      // Only clean up medications that are truly completed (treatment period ended AND all doses taken)
+      // Clean up medications that are truly completed OR whose strict time course has expired
       final fullyCompletedMedications = medications
           .where(
-            (m) => m.isFullyComplete,
-          ) // Use isFullyComplete instead of canBeDeleted
+            (m) => !m.isDeleted && (!m.isActive || m.isFullyComplete),
+          ) // Use isFullyComplete or inactive status to safely delete expired medications
           .toList();
 
       if (fullyCompletedMedications.isNotEmpty) {

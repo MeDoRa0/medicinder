@@ -55,8 +55,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> _handleAppResume() async {
     final cubit = context.read<MedicationCubit>();
-    await cubit.checkDailyResetOnAppOpen();
     await cubit.cleanupCompletedMedications();
+    await cubit.checkDailyResetOnAppOpen();
     await cubit.loadMedications();
   }
 
@@ -82,8 +82,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         now.month != _lastCleanupDate!.month ||
         now.day != _lastCleanupDate!.day) {
       final cubit = context.read<MedicationCubit>();
-      await cubit.checkDailyResetOnAppOpen();
       await cubit.cleanupCompletedMedications();
+      await cubit.checkDailyResetOnAppOpen();
       await cubit.loadMedications();
       _lastCleanupDate = now;
     }

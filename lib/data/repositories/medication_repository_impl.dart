@@ -202,7 +202,8 @@ class MedicationRepositoryImpl implements MedicationRepository {
       final medications = await localDataSource.getAllMedications(
         includeDeleted: true,
       );
-      for (final medication in medications.where((item) => !item.isDeleted)) {
+      for (final medication
+          in medications.where((item) => !item.isDeleted && item.isActive)) {
         final status = medication.syncMetadata.lastSyncedAt == null
             ? SyncStatus.pendingCreate
             : SyncStatus.pendingUpdate;
